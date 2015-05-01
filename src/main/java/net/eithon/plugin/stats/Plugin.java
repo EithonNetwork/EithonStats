@@ -20,6 +20,7 @@ public final class Plugin extends EithonPlugin {
 
 	@Override
 	public void onDisable() {
+		this._controller.saveDelta();
 		super.onDisable();
 		this._controller = null;
 	}

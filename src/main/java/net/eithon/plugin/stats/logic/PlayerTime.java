@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
-import net.eithon.library.json.IJson;
 import net.eithon.library.json.IJsonDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
@@ -48,7 +47,6 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._startTime = startTime;
 		this._hasBeenUpdated = true;
 		if (this._firstStartTime == null) this._firstStartTime = this._startTime;
-		this._intervals++;
 		this._lastAliveTime = this._startTime;
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Start: %s", startTime.toString());
 	}
@@ -68,23 +66,32 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	public LocalDateTime stop() {
 		if (this._startTime == null) return null;
 		LocalDateTime now = LocalDateTime.now();
-		this._lastStopTime = now;
-		if (now.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime)) {
-			this._lastStopTime = this._lastAliveTime.plusMinutes(Config.V.inactivityMinutes);
-		}
 
-		long nonBrokenInterval = 0;
-		if (this._startTime.isEqual(this._lastStopTime)) {
-			nonBrokenInterval = this._lastIntervalInSeconds;
+		long lastNonBrokenInterval = 0;
+		if ((this._lastStopTime != null) && this._startTime.isEqual(this._lastStopTime)) {
+			lastNonBrokenInterval = this._lastIntervalInSeconds;
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Non broken interval %d", lastNonBrokenInterval);
+		} else {
+			this._intervals++;
 		}
-		this._lastIntervalInSeconds = this._lastStopTime.toEpochSecond(ZoneOffset.UTC) - this._startTime.toEpochSecond(ZoneOffset.UTC);
-		if (this._longestIntervalInSeconds < nonBrokenInterval + this._lastIntervalInSeconds) {
-			this._longestIntervalInSeconds = nonBrokenInterval + this._lastIntervalInSeconds;
+		
+		this._lastStopTime = noLaterThanLastAliveTime(now);
+
+		long thisIntervalInSeconds = this._lastStopTime.toEpochSecond(ZoneOffset.UTC) - this._startTime.toEpochSecond(ZoneOffset.UTC);
+		long nonBrokenInterval = lastNonBrokenInterval + thisIntervalInSeconds;
+		if (this._longestIntervalInSeconds < nonBrokenInterval) {
+			this._longestIntervalInSeconds = nonBrokenInterval;
 		}
-		this._totalPlayTimeInSeconds += this._lastIntervalInSeconds;
+		this._lastIntervalInSeconds = nonBrokenInterval;
+		this._totalPlayTimeInSeconds += thisIntervalInSeconds;
 		this._startTime = null;
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s", now.toString());
 		return now;
+	}
+
+	private LocalDateTime noLaterThanLastAliveTime(LocalDateTime time) {
+		if (time.minusMinutes(Config.V.inactivityMinutes).isBefore(this._lastAliveTime)) return time;
+		return this._lastAliveTime.plusMinutes(Config.V.inactivityMinutes);
 	}
 
 	public void lap() {
