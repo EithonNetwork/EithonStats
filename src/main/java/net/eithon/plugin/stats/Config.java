@@ -14,8 +14,10 @@ public class Config {
 
 	}
 	public static class V {
+		public static int inactivityMinutes;
 		
 		static void load(Configuration config) {
+			inactivityMinutes = config.getInt("InactivityMinutes", 5);
 		}
 
 	}

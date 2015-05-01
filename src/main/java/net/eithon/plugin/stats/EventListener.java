@@ -9,7 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class EventListener implements Listener {
 	
@@ -20,8 +24,18 @@ public final class EventListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+	public void onPlayerJoinEvent(PlayerJoinEvent event) {
+		this._controller.startPlayer(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) return;
-		if (event.getAction() != Action.PHYSICAL) return;
+		this._controller.playerIsAlive(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onPlayerQuitEvent(PlayerQuitEvent event) {
+		this._controller.stopPlayer(event.getPlayer());
 	}
 }

@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJson;
+import net.eithon.plugin.stats.Config;
 
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
@@ -20,6 +21,7 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 	private LocalDateTime _startTime;
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
+	private LocalDateTime _lastAliveTime;
 	private boolean _hasBeenUpdated;
 
 	public PlayerTime(Player player)
@@ -32,6 +34,7 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		this._firstStartTime = null;
 		this._lastStopTime = null;
 		this._hasBeenUpdated = false;
+		this._lastAliveTime = LocalDateTime.now();
 	}
 
 	PlayerTime() {
@@ -43,15 +46,28 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		this._hasBeenUpdated = true;
 		if (this._firstStartTime == null) this._firstStartTime = this._startTime;
 		this._intervals++;
+		this._lastAliveTime = this._startTime;
 	}
 
 	public void start() {
 		start(null);
 	}
+	
+	public void updateAlive() {
+		LocalDateTime now = LocalDateTime.now();
+		if (now.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime)) {
+			lap();
+		}
+		this._lastAliveTime = now;
+	}
 
 	public LocalDateTime stop() {
 		if (this._startTime == null) return null;
-		this._lastStopTime = LocalDateTime.now();
+		LocalDateTime now = LocalDateTime.now();
+		this._lastStopTime = now;
+		if (now.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime)) {
+			this._lastStopTime = this._lastAliveTime.plusMinutes(Config.V.inactivityMinutes);
+		}
 
 		long nonBrokenInterval = 0;
 		if (this._startTime.isEqual(this._lastStopTime)) {
@@ -63,7 +79,13 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		}
 		this._totalPlayTimeInSeconds += this._lastIntervalInSeconds;
 		this._startTime = null;
-		return this._lastStopTime;
+		return now;
+	}
+
+	private void lap() {
+		if (this._startTime == null) return;
+		LocalDateTime stopTime = stop();
+		start(stopTime);
 	}
 
 	@Override
@@ -111,12 +133,6 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 	@Override
 	public JSONObject toJson() {
 		return toJson(true);
-	}
-
-	private void lap() {
-		if (this._startTime == null) return;
-		LocalDateTime stopTime = stop();
-		start(stopTime);
 	}
 
 	public String getName() { return this._eithonPlayer.getName(); }
