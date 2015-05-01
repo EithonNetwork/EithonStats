@@ -33,13 +33,15 @@ public class Controller implements IBlockMoverFollower {
 		MoveEventHandler.addBlockMover(player, this);
 		PlayerTime time = getOrCreatePlayerTime(player);
 		time.start();
-		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Started player %s.", player.getName());
+		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Started player %s (%d items).", 
+				player.getName(), this._allPlayerTimes.size());
 	}
 
 	public void stopPlayer(Player player) {
 		PlayerTime time = getOrCreatePlayerTime(player);
 		time.stop();
-		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.", player.getName());
+		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s (%d items).",
+				player.getName(), this._allPlayerTimes.size());
 	}
 
 	private PlayerTime getOrCreatePlayerTime(Player player) {
@@ -53,6 +55,7 @@ public class Controller implements IBlockMoverFollower {
 
 	public void showStats(CommandSender sender, Player player) {
 		PlayerTime time = getOrCreatePlayerTime(player);
+		time.lap();
 		sender.sendMessage(time.toString());
 	}
 

@@ -10,3 +10,17 @@ EithonDebugLevel: 3
 #
 # The number of minutes that a player may be inactive before we stop the play time timer.
 InactivityMinutes: 5
+
+messages:
+
+	#
+	# Parameters: <player name> (%s)
+	PlayerStarted: Started recording play time for player %s.
+
+	#
+	# Parameters: <player name> (%s)
+	PlayerStopped: Stopped recording play time for player %s.
+
+	#
+	# Parameters: -
+	Saved: Saved play times for all logged in players.

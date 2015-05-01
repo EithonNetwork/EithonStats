@@ -7,12 +7,15 @@ import java.util.UUID;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJson;
+import net.eithon.library.json.IJsonDelta;
+import net.eithon.library.plugin.Logger;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.stats.Config;
 
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
-public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
+public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	private EithonPlayer _eithonPlayer;
 	private long _totalPlayTimeInSeconds;
 	private long _intervals;
@@ -47,6 +50,7 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		if (this._firstStartTime == null) this._firstStartTime = this._startTime;
 		this._intervals++;
 		this._lastAliveTime = this._startTime;
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Start: %s", startTime.toString());
 	}
 
 	public void start() {
@@ -79,10 +83,11 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		}
 		this._totalPlayTimeInSeconds += this._lastIntervalInSeconds;
 		this._startTime = null;
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s", now.toString());
 		return now;
 	}
 
-	private void lap() {
+	public void lap() {
 		if (this._startTime == null) return;
 		LocalDateTime stopTime = stop();
 		start(stopTime);
@@ -105,9 +110,14 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject toJson(boolean doLap) {
-		if (!this._hasBeenUpdated) return null;
+	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Enter toJson: %s", getName());
+		if (!saveAll && !this._hasBeenUpdated) {
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Not updated");
+			return null;
+		}
 		if (doLap) {
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Do lap");
 			this._hasBeenUpdated = false;
 			lap();
 		}
@@ -127,12 +137,18 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 		json.put("intervals", this._intervals);
 		json.put("longestIntervalInSeconds", this._longestIntervalInSeconds);
 		json.put("lastIntervalInSeconds", this._lastIntervalInSeconds);
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Completed");
 		return json;
 	}
 	
 	@Override
 	public JSONObject toJson() {
-		return toJson(true);
+		return toJsonDelta(true, true);
+	}
+
+	@Override
+	public Object toJsonDelta(boolean saveAll) {
+		return toJsonDelta(saveAll, true);
 	}
 
 	public String getName() { return this._eithonPlayer.getName(); }
@@ -140,6 +156,8 @@ public class PlayerTime implements IJson<PlayerTime>, IUuidAndName {
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		return String.format("%s: %s", toJson(false).toJSONString());
+		return String.format("%s: latest: %d seconds, total %d seconds in %d intervals (longest %d seconds)",
+				getName(), this._lastIntervalInSeconds, 
+				this._totalPlayTimeInSeconds, this._intervals, this._longestIntervalInSeconds);
 	}
 }

@@ -29,7 +29,20 @@ public class Config {
 	}
 	public static class M {
 
+		public static ConfigurableMessage playerStarted;
+		public static ConfigurableMessage playerStopped;
+		public static ConfigurableMessage saved;
+
 		static void load(Configuration config) {
+			playerStarted = config.getConfigurableMessage(
+					"messages.PlayerStarted", 1, 
+					"Started recording play time for player %s.");
+			playerStopped = config.getConfigurableMessage(
+					"messages.PlayerStopped", 1, 
+					"Stopped recording play time for player %s.");
+			saved = config.getConfigurableMessage(
+					"messages.Saved", 1, 
+					"Saved play times for all logged in players.");
 		}		
 	}
 

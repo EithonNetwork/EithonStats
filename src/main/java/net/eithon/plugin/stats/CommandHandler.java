@@ -4,6 +4,7 @@ import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.CommandParser;
 import net.eithon.library.plugin.ICommandHandler;
 import net.eithon.plugin.stats.logic.Controller;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -63,6 +64,7 @@ public class CommandHandler implements ICommandHandler {
 		Player player = commandParser.getPlayer();
 		
 		this._controller.startPlayer(player);
+		Config.M.playerStarted.sendMessage(commandParser.getSender(), player.getName());
 	}
 
 	void stopCommand(CommandParser commandParser)
@@ -73,6 +75,7 @@ public class CommandHandler implements ICommandHandler {
 		Player player = commandParser.getPlayer();
 		
 		this._controller.stopPlayer(player);
+		Config.M.playerStopped.sendMessage(commandParser.getSender(), player.getName());
 	}
 
 	void saveCommand(CommandParser commandParser)
@@ -81,6 +84,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
 		
 		this._controller.saveDelta();
+		Config.M.saved.sendMessage(commandParser.getSender());
 	}
 
 	@Override
