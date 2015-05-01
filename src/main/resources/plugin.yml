@@ -1,0 +1,31 @@
+name: EithonStats
+main: net.eithon.plugin.stats.Plugin
+version: 1.0
+author: vanbrayne
+description: Player statistics
+depend: [EithonLibrary]
+commands:
+  stats:
+    description: Control jump pads
+    usage: /stats player | start | stop | save
+    permission-message: You don't have <permission>
+permissions:
+  stats.*:
+    description: Gives access to all stats commands
+    default: op
+    stats.player: true
+    stats.start: true
+    stats.stop: true
+    stats.save: true
+  stats.player:
+    description: Access to /stats player command
+    default: op
+  stats.start:
+    description: Access to /stats start command
+    default: op
+  stats.stop:
+    description: Access to /stats stop command
+    default: op
+  stats.save:
+    description: Access to /stats save command
+    default: op
