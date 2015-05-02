@@ -35,6 +35,8 @@ public class Config {
 		public static ConfigurableMessage inactivityDetected;
 		public static ConfigurableMessage defaultAfkDescription;
 		public static ConfigurableMessage playerAwayFromKeyboard;
+		public static ConfigurableMessage toAfkBroadcast;
+		public static ConfigurableMessage fromAfkBroadcast;
 
 		static void load(Configuration config) {
 			playerStarted = config.getConfigurableMessage(
@@ -55,6 +57,12 @@ public class Config {
 			playerAwayFromKeyboard = config.getConfigurableMessage(
 					"messages.PlayerAwayFromKeyboard", 1, 
 					"AFK with description \"%s\".");
+			toAfkBroadcast = config.getConfigurableMessage(
+					"messages.ToAfkBroadcast", 2, 
+					"%s AFK: %s");
+			fromAfkBroadcast = config.getConfigurableMessage(
+					"messages.FromAfkBroadcast", 1, 
+					"%s is back");
 		}		
 	}
 

@@ -25,6 +25,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
 	private LocalDateTime _lastAliveTime;
+	private long _blocksDestroyed;
+	private long _blocksCreated;
 	private long _chatActivities;
 	private LocalDateTime _lastChatActivity;
 	private boolean _hasBeenUpdated;
@@ -43,6 +45,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._lastAliveTime = LocalDateTime.now();
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
+		this._blocksCreated = 0;
+		this._blocksDestroyed = 0;
 	}
 
 	PlayerTime() {
@@ -113,6 +117,14 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._lastChatActivity = LocalDateTime.now(); 
 	}
 
+	public void addBlocksCreated(long blocks) {
+		this._blocksCreated += blocks;
+	}
+
+	public void addBlocksDestroyed(long blocks) {
+		this._blocksDestroyed += blocks;
+	}
+
 	@Override
 	public PlayerTime factory() { return new PlayerTime(); }
 
@@ -128,6 +140,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._lastIntervalInSeconds = (long)jsonObject.get("lastIntervalInSeconds");
 		this._chatActivities = (long)jsonObject.get("chatActivities");
 		this._lastChatActivity = LocalDateTime.parse((String)jsonObject.get("lastChatActivity"));
+		this._blocksCreated = (long)jsonObject.get("blocksCreated");
+		this._blocksDestroyed = (long)jsonObject.get("blocksDestroyed");
 		return this;
 	}
 
@@ -161,6 +175,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		json.put("lastIntervalInSeconds", this._lastIntervalInSeconds);
 		json.put("chatActivities", this._chatActivities);
 		json.put("lastChatActivity", this._lastChatActivity);
+		json.put("blocksCreated", this._blocksCreated);
+		json.put("blocksDestroyed", this._blocksDestroyed);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Completed");
 		return json;
 	}
@@ -180,10 +196,14 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		return String.format("%s: Playtime %s, chats %d",
+		String result = String.format("%s: Playtime %s, chats %d, blocks %d",
 				getName(),
 				TimeMisc.secondsToString(this._totalPlayTimeInSeconds),
-				this._chatActivities);
+				this._chatActivities, this._blocksCreated);
+		if (this._afkDescription != null) {
+			result += " AFK: " + this._afkDescription;
+		}
+		return result;
 	}
 
 	public String timeStats() {
@@ -201,11 +221,22 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	public String chatStats() {
 		String result = String.format("%d chats (latest %s)",
 				this._chatActivities, this._lastAliveTime.toString());
-		if (this._afkDescription != null) {
-			result += " AFK: " + this._afkDescription;
-		}
+		return result;
+	}
+
+	public String blockStats() {
+		String result = String.format("%d blocks created (destroyed %d)",
+				this._blocksCreated, this._blocksDestroyed);
 		return result;
 	}
 
 	public long getTotalTimeInSeconds() { return this._totalPlayTimeInSeconds; }
+
+	public boolean isAfk() {
+		return this._afkDescription != null;
+	}
+
+	public long getBlocksCreated() { return this._blocksCreated; }
+
+	public long getChats() { return this._chatActivities; }
 }

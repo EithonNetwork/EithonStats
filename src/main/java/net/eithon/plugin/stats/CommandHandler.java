@@ -16,6 +16,8 @@ public class CommandHandler implements ICommandHandler {
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
 	private static final String TIME_COMMAND = "/stats time [desc|asc]";
+	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc]";
+	private static final String CHAT_COMMAND = "/stats chat [desc|asc]";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -50,6 +52,10 @@ public class CommandHandler implements ICommandHandler {
 			saveCommand(commandParser);
 		} else if (command.equalsIgnoreCase("time")) {
 			timeCommand(commandParser);
+		} else if (command.equalsIgnoreCase("blocks")) {
+			blocksCommand(commandParser);
+		} else if (command.equalsIgnoreCase("chat")) {
+			chatCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -122,6 +128,28 @@ public class CommandHandler implements ICommandHandler {
 		this._controller.showTimeStats(commandParser.getSender(), ascending);
 	}
 
+	void blocksCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.blocks")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		
+		String direction = commandParser.getArgumentStringAsLowercase("desc");
+		boolean ascending = direction.equalsIgnoreCase("asc");
+		
+		this._controller.showBlocksStats(commandParser.getSender(), ascending);
+	}
+
+	void chatCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.blocks")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		
+		String direction = commandParser.getArgumentStringAsLowercase("desc");
+		boolean ascending = direction.equalsIgnoreCase("asc");
+		
+		this._controller.showChatStats(commandParser.getSender(), ascending);
+	}
+
 	@Override
 	public void showCommandSyntax(CommandSender sender, String command) {
 		if (command.equals("player")) {
@@ -136,6 +164,10 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(SAVE_COMMAND);
 		} else if (command.equalsIgnoreCase("time")) {
 			sender.sendMessage(TIME_COMMAND);
+		} else if (command.equalsIgnoreCase("blocks")) {
+			sender.sendMessage(BLOCKS_COMMAND);
+		} else if (command.equalsIgnoreCase("chat")) {
+			sender.sendMessage(CHAT_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

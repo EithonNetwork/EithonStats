@@ -39,3 +39,13 @@ messages:
 	# Parameters: -
 	DefaultAfkDescription: BRB
 	
+	#
+	#
+	# Parameters: <Player> (%s), <Description> (%s)
+	ToAfkBroadcast: %s AFK: %s
+	
+	#
+	#
+	# Parameters: <Player> (%s)
+	FromAfkBroadcast: %s is back
+	

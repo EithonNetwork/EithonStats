@@ -7,7 +7,7 @@ depend: [EithonLibrary]
 commands:
   stats:
     description: Control jump pads
-    usage: /stats player | start | stop | afk | save | time
+    usage: /stats player | start | stop | afk | save | time | blocks | chat
     permission-message: You don't have <permission>
 permissions:
   stats.*:
@@ -19,6 +19,8 @@ permissions:
     stats.afk: true
     stats.save: true
     stats.time: true
+    stats.blocks: true
+    stats.chat: true
   stats.player:
     description: Access to /stats player command
     default: op
@@ -35,5 +37,11 @@ permissions:
     description: Access to /stats save command
     default: op
   stats.time:
-    description: Access to /stats all command
+    description: Access to /stats time command
+    default: op
+  stats.blocks:
+    description: Access to /stats blocks command
+    default: op
+  stats.chat:
+    description: Access to /stats chat command
     default: op

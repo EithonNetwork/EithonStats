@@ -5,6 +5,8 @@ import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -26,6 +28,17 @@ public final class EventListener implements Listener {
 	public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) return;
 		this._controller.addChatActivity(event.getPlayer());
+	}
+
+	public void onBlockBreakEvent(BlockBreakEvent event) {
+		if (event.isCancelled()) return;
+		this._controller.addBlocksDestroyed(event.getPlayer(), 1);
+	}
+	
+	@EventHandler
+	public void onBlockPlaceEvent(BlockPlaceEvent event) {
+		if (event.isCancelled()) return;
+		this._controller.addBlocksCreated(event.getPlayer(), 1);
 	}
 
 	@EventHandler
