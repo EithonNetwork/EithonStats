@@ -2,6 +2,8 @@ package net.eithon.plugin.stats.logic;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.PlayerCollection;
@@ -102,7 +104,6 @@ public class Controller implements IBlockMoverFollower {
 		return playerTimes;
 	}
 
-
 	public void showChatStats(CommandSender sender, boolean ascending) {
 		for (PlayerStatistics time : sortPlayerTimesByChats(ascending)) {
 			time.lap();
@@ -117,6 +118,28 @@ public class Controller implements IBlockMoverFollower {
 			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
+			} });
+		return playerTimes;
+	}
+
+	public void showAfkStatus(CommandSender sender, boolean ascending) {
+		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending)) {
+			time.lap();
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
+		}
+	}
+	
+	private PlayerStatistics[] sortPlayerTimesByAfkTime(boolean ascending) {
+		int factor = ascending ? 1 : -1;
+		List<PlayerStatistics> afk = new LinkedList<PlayerStatistics>();
+		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+			if (playerStatistics.isAfk()) afk.add(playerStatistics);
+		}
+		PlayerStatistics[] playerTimes = afk.toArray(new PlayerStatistics[0]);
+		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+			public int compare(PlayerStatistics f1, PlayerStatistics f2)
+			{
+				return factor*f1.getAfkTime().compareTo(f2.getAfkTime());
 			} });
 		return playerTimes;
 	}

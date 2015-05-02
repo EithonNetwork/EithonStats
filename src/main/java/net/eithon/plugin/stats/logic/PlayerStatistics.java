@@ -78,7 +78,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._afkDescription = description;
 		if (this._startTime == null) return null;
 		LocalDateTime stopTime = noLaterThanLastAliveTime(LocalDateTime.now());
-		
+		this._lastAliveTime = stopTime;
 		this._timeInfo.addInterval(this._startTime, stopTime);
 		this._startTime = null;
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", stopTime.toString(), description);
@@ -200,4 +200,6 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public long getBlocksCreated() { return this._blocksCreated; }
 
 	public long getChats() { return this._chatActivities; }
+
+	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
 }
