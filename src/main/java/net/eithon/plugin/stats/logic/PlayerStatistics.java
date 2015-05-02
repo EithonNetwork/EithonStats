@@ -15,16 +15,20 @@ import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndName {
+	
+	// Saved variables
 	private EithonPlayer _eithonPlayer;
-	private LocalDateTime _lastAliveTime;
 	private long _blocksDestroyed;
 	private long _blocksCreated;
 	private long _chatActivities;
 	private LocalDateTime _lastChatActivity;
+	private TimeStatistics _timeInfo;	
+	
+	// Non-saved, internal variables
+	private LocalDateTime _startTime;
+	private LocalDateTime _lastAliveTime;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
-	private TimeStatistics _timeInfo;	
-	private LocalDateTime _startTime;
 
 
 	public PlayerStatistics(Player player)
@@ -34,13 +38,16 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	PlayerStatistics() {
-		this._timeInfo = new TimeStatistics();
-		this._hasBeenUpdated = false;
-		this._lastAliveTime = LocalDateTime.now();
+		this._blocksDestroyed = 0;
+		this._blocksCreated = 0;
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
-		this._blocksCreated = 0;
-		this._blocksDestroyed = 0;
+		this._timeInfo = new TimeStatistics();
+		
+		this._startTime = null;
+		this._lastAliveTime = LocalDateTime.now();
+		this._hasBeenUpdated = false;
+		this._afkDescription = null;
 	}
 
 	private void start(LocalDateTime startTime) {
@@ -58,11 +65,13 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	
 	public void updateAlive() {
 		LocalDateTime now = LocalDateTime.now();
-		if (now.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime)) {
-			lap();
-		}
+		if (tooLongInactive(now)) lap();
 		this._lastAliveTime = now;
 		if (this._startTime == null) start(this._lastAliveTime);
+	}
+
+	private boolean tooLongInactive(LocalDateTime time) {
+		return time.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime);
 	}
 
 	public LocalDateTime stop(String description) {
@@ -77,8 +86,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	private LocalDateTime noLaterThanLastAliveTime(LocalDateTime time) {
-		if (time.minusMinutes(Config.V.inactivityMinutes).isBefore(this._lastAliveTime)) return time;
-		return this._lastAliveTime.plusMinutes(Config.V.inactivityMinutes);
+		if (!tooLongInactive(time)) return time;
+		return this._lastAliveTime;
 	}
 
 	public void lap() {

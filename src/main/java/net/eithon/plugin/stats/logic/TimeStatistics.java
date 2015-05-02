@@ -8,12 +8,14 @@ import net.eithon.library.json.IJson;
 import org.json.simple.JSONObject;
 
 public class TimeStatistics implements IJson<TimeStatistics>{
+	// Saved variables
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
 	private long _totalPlayTimeInSeconds;
 	private long _intervals;
 	private long _longestIntervalInSeconds;
 	
+	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;
 	private LocalDateTime _previousStartTime;
 	private LocalDateTime _previousStopTime;
