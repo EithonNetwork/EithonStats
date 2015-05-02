@@ -1,6 +1,5 @@
 package net.eithon.plugin.stats.logic;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 
