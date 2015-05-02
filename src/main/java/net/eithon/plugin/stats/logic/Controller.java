@@ -22,6 +22,7 @@ public class Controller implements IBlockMoverFollower {
 		this._allPlayerTimes = new PlayerCollection<PlayerTime>(new PlayerTime(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
 		this._allPlayerTimes.consolidateDelta(this._eithonPlugin);
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
+		MoveEventHandler.addBlockMover(this);
 	}
 
 	public void saveDelta() {
@@ -30,7 +31,6 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void startPlayer(Player player) {
-		MoveEventHandler.addBlockMover(player, this);
 		PlayerTime time = getOrCreatePlayerTime(player);
 		time.start();
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Started player %s (%d items).", 
