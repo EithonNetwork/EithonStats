@@ -7,7 +7,7 @@ import net.eithon.library.json.IJson;
 
 import org.json.simple.JSONObject;
 
-public class TimeInfo implements IJson<TimeInfo>{
+public class TimeStatistics implements IJson<TimeStatistics>{
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
 	private long _totalPlayTimeInSeconds;
@@ -18,7 +18,7 @@ public class TimeInfo implements IJson<TimeInfo>{
 	private LocalDateTime _previousStartTime;
 	private LocalDateTime _previousStopTime;
 
-	public TimeInfo()
+	public TimeStatistics()
 	{
 		this._previousStartTime = null;
 		this._firstStartTime = null;
@@ -82,7 +82,7 @@ public class TimeInfo implements IJson<TimeInfo>{
 	}
 
 	@Override
-	public TimeInfo fromJson(Object json) {
+	public TimeStatistics fromJson(Object json) {
 		JSONObject jsonObject = (JSONObject) json;
 		this._firstStartTime = LocalDateTime.parse((String)jsonObject.get("lastStop"));
 		this._lastStopTime = LocalDateTime.parse((String)jsonObject.get("firstStart"));
@@ -93,13 +93,13 @@ public class TimeInfo implements IJson<TimeInfo>{
 	}
 
 	@Override
-	public TimeInfo factory() {
+	public TimeStatistics factory() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	public static TimeInfo getFromJson(Object json) {
-		TimeInfo info = new TimeInfo();
+	public static TimeStatistics getFromJson(Object json) {
+		TimeStatistics info = new TimeStatistics();
 		return info.fromJson(json);
 	}
 }

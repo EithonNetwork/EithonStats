@@ -23,7 +23,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	private LocalDateTime _lastChatActivity;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
-	private TimeInfo _timeInfo;	
+	private TimeStatistics _timeInfo;	
 	private LocalDateTime _startTime;
 
 
@@ -34,7 +34,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	PlayerStatistics() {
-		this._timeInfo = new TimeInfo();
+		this._timeInfo = new TimeStatistics();
 		this._hasBeenUpdated = false;
 		this._lastAliveTime = LocalDateTime.now();
 		this._chatActivities = 0;
@@ -68,12 +68,11 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public LocalDateTime stop(String description) {
 		this._afkDescription = description;
 		if (this._startTime == null) return null;
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime stopTime = noLaterThanLastAliveTime(now);
+		LocalDateTime stopTime = noLaterThanLastAliveTime(LocalDateTime.now());
 		
 		this._timeInfo.addInterval(this._startTime, stopTime);
 		this._startTime = null;
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", now.toString(), description);
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", stopTime.toString(), description);
 		return stopTime;
 	}
 
@@ -93,13 +92,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._lastChatActivity = LocalDateTime.now(); 
 	}
 
-	public void addBlocksCreated(long blocks) {
-		this._blocksCreated += blocks;
-	}
-
-	public void addBlocksDestroyed(long blocks) {
-		this._blocksDestroyed += blocks;
-	}
+	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
+	public void addBlocksDestroyed(long blocks) { this._blocksDestroyed += blocks; }
 
 	@Override
 	public PlayerStatistics factory() { return new PlayerStatistics(); }
@@ -108,7 +102,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public PlayerStatistics fromJson(Object json) {
 		JSONObject jsonObject = (JSONObject) json;
 		this._eithonPlayer = EithonPlayer.getFromJSon(jsonObject.get("player"));
-		this._timeInfo = TimeInfo.getFromJson(jsonObject.get("timeInfo"));
+		this._timeInfo = TimeStatistics.getFromJson(jsonObject.get("timeInfo"));
 		this._chatActivities = (long)jsonObject.get("chatActivities");
 		this._lastChatActivity = LocalDateTime.parse((String)jsonObject.get("lastChatActivity"));
 		this._blocksCreated = (long)jsonObject.get("blocksCreated");
