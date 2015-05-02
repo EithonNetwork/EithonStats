@@ -59,6 +59,13 @@ public class Controller implements IBlockMoverFollower {
 		sender.sendMessage(time.toString());
 	}
 
+	public void showStats(CommandSender sender) {
+		for (PlayerTime time : this._allPlayerTimes) {
+			time.lap();
+			sender.sendMessage(time.toString());			
+		}
+	}
+
 	@Override
 	public void moveEventHandler(PlayerMoveEvent event) {
 		if (event.isCancelled()) return;

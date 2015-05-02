@@ -60,8 +60,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		if (now.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime)) {
 			lap();
 		}
-		if (this._startTime == null) start(now);
 		this._lastAliveTime = now;
+		if (this._startTime == null) start(this._lastAliveTime);
 	}
 
 	public LocalDateTime stop() {

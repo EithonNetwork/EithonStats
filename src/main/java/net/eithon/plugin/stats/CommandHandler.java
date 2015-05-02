@@ -13,6 +13,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
 	private static final String SAVE_COMMAND = "/stats save";
+	private static final String ALL_COMMAND = "/stats all";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -34,6 +35,8 @@ public class CommandHandler implements ICommandHandler {
 		String command = commandParser.getArgumentStringAsLowercase();
 		if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
+		} else if (command.equalsIgnoreCase("all")) {
+			allCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
 			startCommand(commandParser);
 		} else if (command.equalsIgnoreCase("stop")) {
@@ -49,19 +52,27 @@ public class CommandHandler implements ICommandHandler {
 	void playerCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
-		Player player = commandParser.getPlayer();
+		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
 		this._controller.showStats(commandParser.getSender(), player);
+	}
+
+	void allCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
+		
+		this._controller.showStats(commandParser.getSender());
 	}
 
 	void startCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.start")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
-		Player player = commandParser.getPlayer();
+		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
 		this._controller.startPlayer(player);
 		Config.M.playerStarted.sendMessage(commandParser.getSender(), player.getName());
@@ -70,9 +81,9 @@ public class CommandHandler implements ICommandHandler {
 	void stopCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.stop")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
-		Player player = commandParser.getPlayer();
+		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
 		this._controller.stopPlayer(player);
 		Config.M.playerStopped.sendMessage(commandParser.getSender(), player.getName());
@@ -98,6 +109,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(STOP_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {
 			sender.sendMessage(SAVE_COMMAND);
+		} else if (command.equalsIgnoreCase("all")) {
+			sender.sendMessage(ALL_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	
