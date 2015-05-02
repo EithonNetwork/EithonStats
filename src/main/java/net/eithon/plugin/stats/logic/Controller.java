@@ -41,9 +41,9 @@ public class Controller implements IBlockMoverFollower {
 				player.getName(), this._allPlayerTimes.size());
 	}
 
-	public void stopPlayer(Player player) {
+	public void stopPlayer(Player player, String description) {
 		PlayerTime time = getOrCreatePlayerTime(player);
-		time.stop();
+		time.stop(description);
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s (%d items).",
 				player.getName(), this._allPlayerTimes.size());
 	}

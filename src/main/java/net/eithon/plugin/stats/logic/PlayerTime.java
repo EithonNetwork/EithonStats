@@ -26,6 +26,7 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	private LocalDateTime _lastStopTime;
 	private LocalDateTime _lastAliveTime;
 	private boolean _hasBeenUpdated;
+	private String _afkDescription;
 
 	public PlayerTime(Player player)
 	{
@@ -47,6 +48,7 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		if (startTime == null) startTime = LocalDateTime.now();
 		this._startTime = startTime;
 		this._hasBeenUpdated = true;
+		this._afkDescription = null;
 		if (this._firstStartTime == null) this._firstStartTime = this._startTime;
 		this._lastAliveTime = this._startTime;
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Start: %s", startTime.toString());
@@ -65,7 +67,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		if (this._startTime == null) start(this._lastAliveTime);
 	}
 
-	public LocalDateTime stop() {
+	public LocalDateTime stop(String description) {
+		this._afkDescription = description;
 		if (this._startTime == null) return null;
 		LocalDateTime now = LocalDateTime.now();
 
@@ -76,7 +79,6 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		} else {
 			this._intervals++;
 		}
-		
 		this._lastStopTime = noLaterThanLastAliveTime(now);
 
 		long thisIntervalInSeconds = this._lastStopTime.toEpochSecond(ZoneOffset.UTC) - this._startTime.toEpochSecond(ZoneOffset.UTC);
@@ -87,7 +89,7 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._lastIntervalInSeconds = nonBrokenInterval;
 		this._totalPlayTimeInSeconds += thisIntervalInSeconds;
 		this._startTime = null;
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s", now.toString());
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", now.toString(), description);
 		return now;
 	}
 
@@ -98,7 +100,7 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 
 	public void lap() {
 		if (this._startTime == null) return;
-		LocalDateTime stopTime = stop();
+		LocalDateTime stopTime = stop(null);
 		start(stopTime);
 	}
 
@@ -174,11 +176,15 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	}
 
 	public String timeStats() {
-		return String.format("%s in %d intervals (longest %s, latest %s)",
+		String result = String.format("%s in %d intervals (longest %s, latest %s)",
 				TimeMisc.secondsToString(this._totalPlayTimeInSeconds), 
 				this._intervals, 
 				TimeMisc.secondsToString(this._longestIntervalInSeconds), 
 				TimeMisc.secondsToString(this._lastIntervalInSeconds));
+		if (this._afkDescription != null) {
+			result += " AFK: " + this._afkDescription;
+		}
+		return result;
 	}
 
 	public long getTotalTimeInSeconds() { return this._totalPlayTimeInSeconds; }

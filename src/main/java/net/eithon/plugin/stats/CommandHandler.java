@@ -12,6 +12,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String PLAYER_COMMAND = "/stats player <player>";
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
+	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
 	private static final String TIME_COMMAND = "/stats time [desc|asc]";
 
@@ -39,6 +40,8 @@ public class CommandHandler implements ICommandHandler {
 			startCommand(commandParser);
 		} else if (command.equalsIgnoreCase("stop")) {
 			stopCommand(commandParser);
+		} else if (command.equalsIgnoreCase("afk")) {
+			awayFromKeyboardCommand(commandParser);
 		} else if (command.equalsIgnoreCase("save")) {
 			saveCommand(commandParser);
 		} else if (command.equalsIgnoreCase("time")) {
@@ -77,8 +80,18 @@ public class CommandHandler implements ICommandHandler {
 
 		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
-		this._controller.stopPlayer(player);
+		this._controller.stopPlayer(player, Config.M.inactivityDetected.getMessage());
 		Config.M.playerStopped.sendMessage(commandParser.getSender(), player.getName());
+	}
+
+	private void awayFromKeyboardCommand(CommandParser commandParser) {
+		if (!commandParser.hasPermissionOrInformSender("stats.afk")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return;
+
+		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
+		
+		this._controller.stopPlayer(commandParser.getPlayer(), description);
+		Config.M.playerAwayFromKeyboard.sendMessage(commandParser.getSender(), description);
 	}
 
 	void saveCommand(CommandParser commandParser)
@@ -92,7 +105,7 @@ public class CommandHandler implements ICommandHandler {
 
 	void timeCommand(CommandParser commandParser)
 	{
-		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
+		if (!commandParser.hasPermissionOrInformSender("stats.time")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
@@ -109,6 +122,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(START_COMMAND);
 		} else if (command.equalsIgnoreCase("stop")) {
 			sender.sendMessage(STOP_COMMAND);
+		} else if (command.equalsIgnoreCase("afk")) {
+			sender.sendMessage(AFK_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {
 			sender.sendMessage(SAVE_COMMAND);
 		} else if (command.equalsIgnoreCase("time")) {

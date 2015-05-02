@@ -23,4 +23,19 @@ messages:
 
 	#
 	# Parameters: -
+	PlayerAwayFromKeyboard: AFK with description \"%s\".
+
+	#
+	# Parameters: -
 	Saved: Saved play times for all logged in players.
+
+	#
+	# AFK message when detected by the plugin
+	# Parameters: -
+	InactivityDetected: Inactivity detected
+
+	#
+	# AFK default description (when issuing the command /stats afk, but without a description).
+	# Parameters: -
+	DefaultAfkDescription: BRB
+	

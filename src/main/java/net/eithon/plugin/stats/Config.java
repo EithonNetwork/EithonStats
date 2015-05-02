@@ -32,6 +32,9 @@ public class Config {
 		public static ConfigurableMessage playerStarted;
 		public static ConfigurableMessage playerStopped;
 		public static ConfigurableMessage saved;
+		public static ConfigurableMessage inactivityDetected;
+		public static ConfigurableMessage defaultAfkDescription;
+		public static ConfigurableMessage playerAwayFromKeyboard;
 
 		static void load(Configuration config) {
 			playerStarted = config.getConfigurableMessage(
@@ -41,8 +44,17 @@ public class Config {
 					"messages.PlayerStopped", 1, 
 					"Stopped recording play time for player %s.");
 			saved = config.getConfigurableMessage(
-					"messages.Saved", 1, 
+					"messages.Saved", 0, 
 					"Saved play times for all logged in players.");
+			inactivityDetected = config.getConfigurableMessage(
+					"messages.InactivityDetected", 0, 
+					"Inactivity detected");
+			defaultAfkDescription = config.getConfigurableMessage(
+					"messages.DefaultAfkDescription", 0, 
+					"BRB");
+			playerAwayFromKeyboard = config.getConfigurableMessage(
+					"messages.PlayerAwayFromKeyboard", 1, 
+					"AFK with description \"%s\".");
 		}		
 	}
 
