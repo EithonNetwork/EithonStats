@@ -25,6 +25,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
 	private LocalDateTime _lastAliveTime;
+	private long _chatActivities;
+	private LocalDateTime _lastChatActivity;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
 
@@ -39,6 +41,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._lastStopTime = null;
 		this._hasBeenUpdated = false;
 		this._lastAliveTime = LocalDateTime.now();
+		this._chatActivities = 0;
+		this._lastChatActivity = null;
 	}
 
 	PlayerTime() {
@@ -104,6 +108,11 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		start(stopTime);
 	}
 
+	public void addChatActivity() {
+		this._chatActivities++;
+		this._lastChatActivity = LocalDateTime.now(); 
+	}
+
 	@Override
 	public PlayerTime factory() { return new PlayerTime(); }
 
@@ -117,6 +126,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		this._intervals = (long)jsonObject.get("intervals");
 		this._longestIntervalInSeconds = (long)jsonObject.get("longestIntervalInSeconds");
 		this._lastIntervalInSeconds = (long)jsonObject.get("lastIntervalInSeconds");
+		this._chatActivities = (long)jsonObject.get("chatActivities");
+		this._lastChatActivity = LocalDateTime.parse((String)jsonObject.get("lastChatActivity"));
 		return this;
 	}
 
@@ -148,6 +159,8 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 		json.put("intervals", this._intervals);
 		json.put("longestIntervalInSeconds", this._longestIntervalInSeconds);
 		json.put("lastIntervalInSeconds", this._lastIntervalInSeconds);
+		json.put("chatActivities", this._chatActivities);
+		json.put("lastChatActivity", this._lastChatActivity);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Completed");
 		return json;
 	}
@@ -167,12 +180,10 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		return String.format("%s: %s in %d intervals (longest %s, latest %s)",
+		return String.format("%s: Playtime %s, chats %d",
 				getName(),
-				TimeMisc.secondsToString(this._totalPlayTimeInSeconds), 
-				this._intervals, 
-				TimeMisc.secondsToString(this._longestIntervalInSeconds), 
-				TimeMisc.secondsToString(this._lastIntervalInSeconds));
+				TimeMisc.secondsToString(this._totalPlayTimeInSeconds),
+				this._chatActivities);
 	}
 
 	public String timeStats() {
@@ -181,6 +192,15 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 				this._intervals, 
 				TimeMisc.secondsToString(this._longestIntervalInSeconds), 
 				TimeMisc.secondsToString(this._lastIntervalInSeconds));
+		if (this._afkDescription != null) {
+			result += " AFK: " + this._afkDescription;
+		}
+		return result;
+	}
+
+	public String chatStats() {
+		String result = String.format("%d chats (latest %s)",
+				this._chatActivities, this._lastAliveTime.toString());
 		if (this._afkDescription != null) {
 			result += " AFK: " + this._afkDescription;
 		}

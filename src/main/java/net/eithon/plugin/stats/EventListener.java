@@ -25,7 +25,7 @@ public final class EventListener implements Listener {
 	@EventHandler
 	public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) return;
-		this._controller.playerIsAlive(event.getPlayer());
+		this._controller.addChatActivity(event.getPlayer());
 	}
 
 	@EventHandler

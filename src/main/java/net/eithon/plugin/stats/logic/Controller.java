@@ -96,4 +96,10 @@ public class Controller implements IBlockMoverFollower {
 		time.updateAlive();
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s is alive.", player.getName());
 	}
+
+	public void addChatActivity(Player player) {
+		PlayerTime time = getOrCreatePlayerTime(player);
+		time.updateAlive();
+		time.addChatActivity();
+	}
 }
