@@ -125,7 +125,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showAfkStatus(CommandSender sender, boolean ascending) {
 		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));			
 		}
 	}
 	

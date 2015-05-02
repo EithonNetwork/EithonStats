@@ -202,4 +202,6 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public long getChats() { return this._chatActivities; }
 
 	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
+
+	public Object getAfkDescription() { return this._afkDescription; }
 }
