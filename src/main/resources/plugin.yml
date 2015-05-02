@@ -7,7 +7,7 @@ depend: [EithonLibrary]
 commands:
   stats:
     description: Control jump pads
-    usage: /stats all | player | start | stop | save
+    usage: /stats player | start | stop | save | time
     permission-message: You don't have <permission>
 permissions:
   stats.*:
@@ -17,7 +17,7 @@ permissions:
     stats.start: true
     stats.stop: true
     stats.save: true
-    stats.all: true
+    stats.time: true
   stats.player:
     description: Access to /stats player command
     default: op
@@ -30,6 +30,6 @@ permissions:
   stats.save:
     description: Access to /stats save command
     default: op
-  stats.all:
+  stats.time:
     description: Access to /stats all command
     default: op

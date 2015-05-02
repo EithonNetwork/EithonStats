@@ -1,5 +1,9 @@
 package net.eithon.plugin.stats.logic;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.PlayerCollection;
 import net.eithon.library.move.IBlockMoverFollower;
@@ -59,11 +63,22 @@ public class Controller implements IBlockMoverFollower {
 		sender.sendMessage(time.toString());
 	}
 
-	public void showStats(CommandSender sender) {
-		for (PlayerTime time : this._allPlayerTimes) {
+	public void showTimeStats(CommandSender sender, boolean ascending) {
+		for (PlayerTime time : sortPlayerTimesByTotalTime(ascending)) {
 			time.lap();
-			sender.sendMessage(time.toString());			
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
+	}
+	
+	public PlayerTime[] sortPlayerTimesByTotalTime(boolean ascending) {
+		int factor = ascending ? 1 : -1;
+		PlayerTime[] playerTimes = this._allPlayerTimes.toArray(new PlayerTime[0]);
+		Arrays.sort(playerTimes, new Comparator<PlayerTime>(){
+			public int compare(PlayerTime f1, PlayerTime f2)
+			{
+				return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
+			} });
+		return playerTimes;
 	}
 
 	@Override

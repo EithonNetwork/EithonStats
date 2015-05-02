@@ -9,6 +9,7 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJsonDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 
 import org.bukkit.entity.Player;
@@ -164,8 +165,21 @@ public class PlayerTime implements IJsonDelta<PlayerTime>, IUuidAndName {
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		return String.format("%s: latest: %d seconds, total %d seconds in %d intervals (longest %d seconds)",
-				getName(), this._lastIntervalInSeconds, 
-				this._totalPlayTimeInSeconds, this._intervals, this._longestIntervalInSeconds);
+		return String.format("%s: %s in %d intervals (longest %s, latest %s)",
+				getName(),
+				TimeMisc.secondsToString(this._totalPlayTimeInSeconds), 
+				this._intervals, 
+				TimeMisc.secondsToString(this._longestIntervalInSeconds), 
+				TimeMisc.secondsToString(this._lastIntervalInSeconds));
 	}
+
+	public String timeStats() {
+		return String.format("%s in %d intervals (longest %s, latest %s)",
+				TimeMisc.secondsToString(this._totalPlayTimeInSeconds), 
+				this._intervals, 
+				TimeMisc.secondsToString(this._longestIntervalInSeconds), 
+				TimeMisc.secondsToString(this._lastIntervalInSeconds));
+	}
+
+	public long getTotalTimeInSeconds() { return this._totalPlayTimeInSeconds; }
 }

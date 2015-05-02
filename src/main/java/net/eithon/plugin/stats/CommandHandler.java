@@ -13,7 +13,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
 	private static final String SAVE_COMMAND = "/stats save";
-	private static final String ALL_COMMAND = "/stats all";
+	private static final String TIME_COMMAND = "/stats time [desc|asc]";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -35,14 +35,14 @@ public class CommandHandler implements ICommandHandler {
 		String command = commandParser.getArgumentStringAsLowercase();
 		if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
-		} else if (command.equalsIgnoreCase("all")) {
-			allCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
 			startCommand(commandParser);
 		} else if (command.equalsIgnoreCase("stop")) {
 			stopCommand(commandParser);
 		} else if (command.equalsIgnoreCase("save")) {
 			saveCommand(commandParser);
+		} else if (command.equalsIgnoreCase("time")) {
+			timeCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -57,14 +57,6 @@ public class CommandHandler implements ICommandHandler {
 		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
 		this._controller.showStats(commandParser.getSender(), player);
-	}
-
-	void allCommand(CommandParser commandParser)
-	{
-		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
-		
-		this._controller.showStats(commandParser.getSender());
 	}
 
 	void startCommand(CommandParser commandParser)
@@ -98,9 +90,19 @@ public class CommandHandler implements ICommandHandler {
 		Config.M.saved.sendMessage(commandParser.getSender());
 	}
 
+	void timeCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		
+		String direction = commandParser.getArgumentStringAsLowercase("desc");
+		boolean ascending = direction.equalsIgnoreCase("asc");
+		
+		this._controller.showTimeStats(commandParser.getSender(), ascending);
+	}
+
 	@Override
 	public void showCommandSyntax(CommandSender sender, String command) {
-
 		if (command.equals("player")) {
 			sender.sendMessage(PLAYER_COMMAND);
 		} else if (command.equalsIgnoreCase("start")) {
@@ -109,8 +111,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(STOP_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {
 			sender.sendMessage(SAVE_COMMAND);
-		} else if (command.equalsIgnoreCase("all")) {
-			sender.sendMessage(ALL_COMMAND);
+		} else if (command.equalsIgnoreCase("time")) {
+			sender.sendMessage(TIME_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	
