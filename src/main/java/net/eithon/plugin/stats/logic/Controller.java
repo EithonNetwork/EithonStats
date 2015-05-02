@@ -17,13 +17,13 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class Controller implements IBlockMoverFollower {
 
-	private PlayerCollection<PlayerTime> _allPlayerTimes;
+	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
 	private Logger _eithonLogger;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
-		this._allPlayerTimes = new PlayerCollection<PlayerTime>(new PlayerTime(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
 		this._allPlayerTimes.consolidateDelta(this._eithonPlugin);
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		MoveEventHandler.addBlockMover(this);
@@ -35,14 +35,14 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void startPlayer(Player player) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.start();
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Started player %s.", 
 				player.getName(), this._allPlayerTimes.size());
 	}
 
 	public void stopPlayer(Player player, String description) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.stop(description);
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
@@ -51,33 +51,33 @@ public class Controller implements IBlockMoverFollower {
 		}	
 	}
 
-	private PlayerTime getOrCreatePlayerTime(Player player) {
-		PlayerTime time = this._allPlayerTimes.get(player);
+	private PlayerStatistics getOrCreatePlayerTime(Player player) {
+		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time == null) {
-			time = new PlayerTime(player);
+			time = new PlayerStatistics(player);
 			this._allPlayerTimes.put(player, time);
 		}
 		return time;
 	}
 
 	public void showStats(CommandSender sender, Player player) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.lap();
 		sender.sendMessage(time.toString());
 	}
 
 	public void showTimeStats(CommandSender sender, boolean ascending) {
-		for (PlayerTime time : sortPlayerTimesByTotalTime(ascending)) {
+		for (PlayerStatistics time : sortPlayerTimesByTotalTime(ascending)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
 	}
 	
-	private PlayerTime[] sortPlayerTimesByTotalTime(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByTotalTime(boolean ascending) {
 		int factor = ascending ? 1 : -1;
-		PlayerTime[] playerTimes = this._allPlayerTimes.toArray(new PlayerTime[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerTime>(){
-			public int compare(PlayerTime f1, PlayerTime f2)
+		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
+		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
 			} });
@@ -85,17 +85,17 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void showBlocksStats(CommandSender sender, boolean ascending) {
-		for (PlayerTime time : sortPlayerTimesByBlocksCreated(ascending)) {
+		for (PlayerStatistics time : sortPlayerTimesByBlocksCreated(ascending)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
 	}
 	
-	private PlayerTime[] sortPlayerTimesByBlocksCreated(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByBlocksCreated(boolean ascending) {
 		int factor = ascending ? 1 : -1;
-		PlayerTime[] playerTimes = this._allPlayerTimes.toArray(new PlayerTime[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerTime>(){
-			public int compare(PlayerTime f1, PlayerTime f2)
+		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
+		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getBlocksCreated()).compareTo(f2.getBlocksCreated());
 			} });
@@ -104,17 +104,17 @@ public class Controller implements IBlockMoverFollower {
 
 
 	public void showChatStats(CommandSender sender, boolean ascending) {
-		for (PlayerTime time : sortPlayerTimesByChats(ascending)) {
+		for (PlayerStatistics time : sortPlayerTimesByChats(ascending)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
 	}
 	
-	private PlayerTime[] sortPlayerTimesByChats(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByChats(boolean ascending) {
 		int factor = ascending ? 1 : -1;
-		PlayerTime[] playerTimes = this._allPlayerTimes.toArray(new PlayerTime[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerTime>(){
-			public int compare(PlayerTime f1, PlayerTime f2)
+		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
+		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
 			} });
@@ -133,27 +133,27 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void playerIsAlive(Player player) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s is alive.", player.getName());
 	}
 
 	public void addChatActivity(Player player) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addChatActivity();
 	}
 
 	public void addBlocksCreated(Player player, long blocks) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksCreated(blocks);
 	}
 
 	public void addBlocksDestroyed(Player player, long blocks) {
-		PlayerTime time = getOrCreatePlayerTime(player);
+		PlayerStatistics time = getOrCreatePlayerTime(player);
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksDestroyed(blocks);
