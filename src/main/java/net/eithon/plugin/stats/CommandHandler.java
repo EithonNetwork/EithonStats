@@ -3,6 +3,7 @@ package net.eithon.plugin.stats;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.CommandParser;
 import net.eithon.library.plugin.ICommandHandler;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.command.CommandSender;
@@ -20,6 +21,7 @@ public class CommandHandler implements ICommandHandler {
 	private Controller _controller;
 
 	public CommandHandler(EithonPlugin eithonPlugin, Controller controller) {
+		this._eithonPlugin = eithonPlugin;
 		this._controller = controller;
 	}
 
@@ -29,18 +31,20 @@ public class CommandHandler implements ICommandHandler {
 
 	@Override
 	public boolean onCommand(CommandParser commandParser) {
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return true;
 		Player player = commandParser.getPlayerOrInformSender();
 		if (player == null) return true;
-
-		String command = commandParser.getArgumentStringAsLowercase();
-		if (command.equalsIgnoreCase("player")) {
+		
+		String command = commandParser.getArgumentCommand();
+		if (command == null) {
+			timeCommand(commandParser);
+		} else if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
 			startCommand(commandParser);
 		} else if (command.equalsIgnoreCase("stop")) {
 			stopCommand(commandParser);
 		} else if (command.equalsIgnoreCase("afk")) {
+			this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "Command afk");
 			awayFromKeyboardCommand(commandParser);
 		} else if (command.equalsIgnoreCase("save")) {
 			saveCommand(commandParser);
@@ -85,10 +89,14 @@ public class CommandHandler implements ICommandHandler {
 	}
 
 	private void awayFromKeyboardCommand(CommandParser commandParser) {
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 1");
 		if (!commandParser.hasPermissionOrInformSender("stats.afk")) return;
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 2");
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return;
 
 		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
+
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: %s", description);
 		
 		this._controller.stopPlayer(commandParser.getPlayer(), description);
 		Config.M.playerAwayFromKeyboard.sendMessage(commandParser.getSender(), description);
