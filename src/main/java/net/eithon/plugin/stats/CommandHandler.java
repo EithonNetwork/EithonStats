@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 public class CommandHandler implements ICommandHandler {
 	private static final String PLAYER_COMMAND = "/stats player <player>";
+	private static final String STATUS_COMMAND = "/stats status";
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
@@ -39,6 +40,8 @@ public class CommandHandler implements ICommandHandler {
 		String command = commandParser.getArgumentCommand();
 		if (command == null) {
 			timeCommand(commandParser);
+		} else if (command.equalsIgnoreCase("status")) {
+			statusCommand(commandParser);
 		} else if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
@@ -95,14 +98,10 @@ public class CommandHandler implements ICommandHandler {
 	}
 
 	private void awayFromKeyboardCommand(CommandParser commandParser) {
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 1");
 		if (!commandParser.hasPermissionOrInformSender("stats.afk")) return;
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 2");
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return;
 
 		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
-
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: %s", description);
 		
 		this._controller.stopPlayer(commandParser.getPlayer(), description);
 		Config.M.playerAwayFromKeyboard.sendMessage(commandParser.getSender(), description);
@@ -141,13 +140,24 @@ public class CommandHandler implements ICommandHandler {
 
 	void chatCommand(CommandParser commandParser)
 	{
-		if (!commandParser.hasPermissionOrInformSender("stats.blocks")) return;
+		if (!commandParser.hasPermissionOrInformSender("stats.chat")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
 		
 		this._controller.showChatStats(commandParser.getSender(), ascending);
+	}
+
+	void statusCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.status")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		
+		String direction = commandParser.getArgumentStringAsLowercase("desc");
+		boolean ascending = direction.equalsIgnoreCase("asc");
+		
+		this._controller.showAfkStatus(commandParser.getSender(), ascending);
 	}
 
 	@Override
@@ -166,6 +176,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(TIME_COMMAND);
 		} else if (command.equalsIgnoreCase("blocks")) {
 			sender.sendMessage(BLOCKS_COMMAND);
+		} else if (command.equalsIgnoreCase("status")) {
+			sender.sendMessage(STATUS_COMMAND);
 		} else if (command.equalsIgnoreCase("chat")) {
 			sender.sendMessage(CHAT_COMMAND);
 		} else {

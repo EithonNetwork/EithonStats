@@ -14,10 +14,12 @@ public class Config {
 
 	}
 	public static class V {
-		public static int inactivityMinutes;
+		public static int allowedInactivityInSeconds;
+		public static int secondsBetweenSave;
 		
 		static void load(Configuration config) {
-			inactivityMinutes = config.getInt("InactivityMinutes", 5);
+			allowedInactivityInSeconds = config.getInt("AllowedInactivityInSeconds", 300);
+			secondsBetweenSave = config.getInt("SecondsBetweenSave", 300);
 		}
 
 	}
