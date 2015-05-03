@@ -1,11 +1,15 @@
 package net.eithon.plugin.stats.logic;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.file.FileMisc;
 import net.eithon.library.json.PlayerCollection;
 import net.eithon.library.move.IBlockMoverFollower;
 import net.eithon.library.move.MoveEventHandler;
@@ -17,6 +21,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import com.google.common.io.Files;
+
 public class Controller implements IBlockMoverFollower {
 
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
@@ -25,10 +31,16 @@ public class Controller implements IBlockMoverFollower {
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
-		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
-		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1);
+		this._allPlayerTimes = null;
+		consolidateDelta();
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		MoveEventHandler.addBlockMover(this);
+	}
+
+	private void consolidateDelta() {
+		if (this._allPlayerTimes != null) saveDelta();
+		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1);
 	}
 
 	public void saveDelta() {
@@ -183,5 +195,21 @@ public class Controller implements IBlockMoverFollower {
 		time.updateAlive();
 		time.addBlocksDestroyed(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
+	}
+
+	public void archive() {
+		consolidateDelta();
+		File sourceFile = this._allPlayerTimes.getFile(0);
+		if (!sourceFile.exists()) return;
+		File targetFile = new File(
+				this._eithonPlugin.getDataFile("playerTimeArchive"), 
+				String.format("%s.json", LocalDate.now().minusDays(1)));
+		try {
+			FileMisc.makeSureParentDirectoryExists(targetFile);
+			Files.copy(sourceFile, targetFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 }
