@@ -3,6 +3,7 @@ package net.eithon.plugin.stats.logic;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -45,7 +46,6 @@ public class Controller implements IBlockMoverFollower {
 
 	public void saveDelta() {
 		this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
-		this._eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved statistics delta.");
 	}
 
 	public void startPlayer(Player player) {
@@ -80,80 +80,83 @@ public class Controller implements IBlockMoverFollower {
 		sender.sendMessage(time.toString());
 	}
 
-	public void showTimeStats(CommandSender sender, boolean ascending) {
-		for (PlayerStatistics time : sortPlayerTimesByTotalTime(ascending)) {
+	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
+		for (PlayerStatistics time : sortPlayerTimesByTotalTime(ascending, maxItems)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
 	}
 	
-	private PlayerStatistics[] sortPlayerTimesByTotalTime(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByTotalTime(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
+		statistics.sort(new Comparator<PlayerStatistics>(){
 			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
 			} });
-		return playerTimes;
+		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
+		return statistics.toArray(new PlayerStatistics[0]);
 	}
 
-	public void showBlocksStats(CommandSender sender, boolean ascending) {
-		for (PlayerStatistics time : sortPlayerTimesByBlocksCreated(ascending)) {
+	public void showBlocksStats(CommandSender sender, boolean ascending, int maxItems) {
+		for (PlayerStatistics time : sortPlayerTimesByBlocksCreated(ascending, maxItems)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.blockStats()));			
 		}
 	}
 	
-	private PlayerStatistics[] sortPlayerTimesByBlocksCreated(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByBlocksCreated(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
+		statistics.sort(new Comparator<PlayerStatistics>(){
 			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getBlocksCreated()).compareTo(f2.getBlocksCreated());
 			} });
-		return playerTimes;
+		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
+		return statistics.toArray(new PlayerStatistics[0]);
 	}
 
-	public void showChatStats(CommandSender sender, boolean ascending) {
-		for (PlayerStatistics time : sortPlayerTimesByChats(ascending)) {
+	public void showChatStats(CommandSender sender, boolean ascending, int maxItems) {
+		for (PlayerStatistics time : sortPlayerTimesByChats(ascending, maxItems)) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.chatStats()));			
 		}
 	}
 	
-	private PlayerStatistics[] sortPlayerTimesByChats(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByChats(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		PlayerStatistics[] playerTimes = this._allPlayerTimes.toArray(new PlayerStatistics[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
+		statistics.sort(new Comparator<PlayerStatistics>(){
 			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
 			} });
-		return playerTimes;
+		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
+		return statistics.toArray(new PlayerStatistics[0]);
 	}
 
-	public void showAfkStatus(CommandSender sender, boolean ascending) {
-		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending)) {
+	public void showAfkStatus(CommandSender sender, boolean ascending, int maxItems) {
+		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending, maxItems)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));			
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));
 		}
 	}
 	
-	private PlayerStatistics[] sortPlayerTimesByAfkTime(boolean ascending) {
+	private PlayerStatistics[] sortPlayerTimesByAfkTime(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
 		List<PlayerStatistics> afk = new LinkedList<PlayerStatistics>();
 		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
 			if (playerStatistics.isAfk()) afk.add(playerStatistics);
 		}
-		PlayerStatistics[] playerTimes = afk.toArray(new PlayerStatistics[0]);
-		Arrays.sort(playerTimes, new Comparator<PlayerStatistics>(){
+		afk.sort(new Comparator<PlayerStatistics>(){
 			public int compare(PlayerStatistics f1, PlayerStatistics f2)
 			{
 				return factor*f1.getAfkTime().compareTo(f2.getAfkTime());
 			} });
-		return playerTimes;
+		if (maxItems > 0) afk = afk.subList(0,  maxItems-1);
+		return afk.toArray(new PlayerStatistics[0]);
 	}
 
 	@Override
