@@ -15,7 +15,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	private long _totalPlayTimeInSeconds;
 	private long _intervals;
 	private long _longestIntervalInSeconds;
-	
+
 	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;
 	private LocalDateTime _previousStartTime;
@@ -30,7 +30,20 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		this._longestIntervalInSeconds = 0;
 		this._previousIntervalInSeconds = 0;
 	}
-	
+
+	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) {
+		TimeStatistics diff = new TimeStatistics();
+		diff._firstStartTime = now._firstStartTime;
+		diff._intervals = now._intervals - then._intervals;
+		diff._lastStopTime = now._lastStopTime;
+		diff._longestIntervalInSeconds = now._longestIntervalInSeconds;
+		diff._previousIntervalInSeconds = now._previousIntervalInSeconds;
+		diff._previousStartTime = now._previousStartTime;
+		diff._previousStopTime = now._previousStopTime;
+		diff._totalPlayTimeInSeconds = now._totalPlayTimeInSeconds - then._totalPlayTimeInSeconds;
+		return diff;
+	}
+
 	public void addInterval(LocalDateTime start, LocalDateTime stop) {
 		long useLastInterval = 0;
 		if ((this._previousStopTime != null) && (this._previousStopTime.isEqual(start))) {
@@ -67,7 +80,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
 	public Object getIntervals() { return this._intervals; }
 
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object toJson() {
@@ -96,7 +109,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	public TimeStatistics factory() {
 		return new TimeStatistics();
 	}
-	
+
 	public static TimeStatistics getFromJson(Object json) {
 		TimeStatistics info = new TimeStatistics();
 		return info.fromJson(json);

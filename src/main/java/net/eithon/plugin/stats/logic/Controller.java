@@ -8,9 +8,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.file.FileMisc;
+import net.eithon.library.json.FileContent;
 import net.eithon.library.json.PlayerCollection;
 import net.eithon.library.move.IBlockMoverFollower;
 import net.eithon.library.move.MoveEventHandler;
@@ -86,17 +88,16 @@ public class Controller implements IBlockMoverFollower {
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
 		}
 	}
-	
-	private PlayerStatistics[] sortPlayerTimesByTotalTime(boolean ascending, int maxItems) {
+
+	private List<PlayerStatistics> sortPlayerTimesByTotalTime(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
-		statistics.sort(new Comparator<PlayerStatistics>(){
-			public int compare(PlayerStatistics f1, PlayerStatistics f2)
-			{
-				return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
-			} });
-		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
-		return statistics.toArray(new PlayerStatistics[0]);
+		return this._allPlayerTimes.sort(
+				maxItems,
+				new Comparator<PlayerStatistics>(){
+					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+					{
+						return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
+					} });
 	}
 
 	public void showBlocksStats(CommandSender sender, boolean ascending, int maxItems) {
@@ -105,17 +106,16 @@ public class Controller implements IBlockMoverFollower {
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.blockStats()));			
 		}
 	}
-	
-	private PlayerStatistics[] sortPlayerTimesByBlocksCreated(boolean ascending, int maxItems) {
+
+	private List<PlayerStatistics> sortPlayerTimesByBlocksCreated(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
-		statistics.sort(new Comparator<PlayerStatistics>(){
-			public int compare(PlayerStatistics f1, PlayerStatistics f2)
-			{
-				return factor*Long.valueOf(f1.getBlocksCreated()).compareTo(f2.getBlocksCreated());
-			} });
-		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
-		return statistics.toArray(new PlayerStatistics[0]);
+		return this._allPlayerTimes.sort(
+				maxItems,
+				new Comparator<PlayerStatistics>(){
+					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+					{
+						return factor*Long.valueOf(f1.getBlocksCreated()).compareTo(f2.getBlocksCreated());
+					} });
 	}
 
 	public void showChatStats(CommandSender sender, boolean ascending, int maxItems) {
@@ -124,17 +124,35 @@ public class Controller implements IBlockMoverFollower {
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.chatStats()));			
 		}
 	}
-	
-	private PlayerStatistics[] sortPlayerTimesByChats(boolean ascending, int maxItems) {
+
+	private List<PlayerStatistics> sortPlayerTimesByChats(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		List<PlayerStatistics> statistics = new ArrayList<PlayerStatistics>(this._allPlayerTimes.values());
-		statistics.sort(new Comparator<PlayerStatistics>(){
-			public int compare(PlayerStatistics f1, PlayerStatistics f2)
-			{
-				return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
-			} });
-		if (maxItems > 0) statistics = statistics.subList(0,  maxItems-1);
-		return statistics.toArray(new PlayerStatistics[0]);
+		return this._allPlayerTimes.sort(
+				maxItems,
+				new Comparator<PlayerStatistics>(){
+					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+					{
+						return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
+					} });
+	}
+
+	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) {
+		for (PlayerStatistics time : sortDiffsByTotalTime(daysBack, ascending, maxItems)) {
+			if (time == null) this._eithonLogger.error("showDiffStats: Unexpected null");
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.diffStats()));			
+		}
+	}
+
+	private List<PlayerStatistics> sortDiffsByTotalTime(int daysBack, boolean ascending, int maxItems) {
+		int factor = ascending ? 1 : -1;
+		PlayerCollection<PlayerStatistics> diff = diffWithArchive(1);
+		return diff.sort(
+				maxItems,
+				new Comparator<PlayerStatistics>(){
+					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+					{
+						return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
+					} });
 	}
 
 	public void showAfkStatus(CommandSender sender, boolean ascending, int maxItems) {
@@ -143,20 +161,21 @@ public class Controller implements IBlockMoverFollower {
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));
 		}
 	}
-	
-	private PlayerStatistics[] sortPlayerTimesByAfkTime(boolean ascending, int maxItems) {
+
+	private List<PlayerStatistics> sortPlayerTimesByAfkTime(boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		List<PlayerStatistics> afk = new LinkedList<PlayerStatistics>();
-		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-			if (playerStatistics.isAfk()) afk.add(playerStatistics);
-		}
-		afk.sort(new Comparator<PlayerStatistics>(){
-			public int compare(PlayerStatistics f1, PlayerStatistics f2)
-			{
-				return factor*f1.getAfkTime().compareTo(f2.getAfkTime());
-			} });
-		if (maxItems > 0) afk = afk.subList(0,  maxItems-1);
-		return afk.toArray(new PlayerStatistics[0]);
+		return this._allPlayerTimes.sort(
+				maxItems, 
+				new Predicate<PlayerStatistics>() {
+					public boolean test(PlayerStatistics t) {
+						return !t.isAfk();
+					}
+				},
+				new Comparator<PlayerStatistics>(){
+					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+					{
+						return factor*f1.getAfkTime().compareTo(f2.getAfkTime());
+					} });
 	}
 
 	@Override
@@ -203,6 +222,38 @@ public class Controller implements IBlockMoverFollower {
 	public void archive() {
 		File targetFile = getArchiveFileForDayFromNow(1);
 		consolidateDelta(targetFile);
+	}
+
+	public PlayerCollection<PlayerStatistics> diffWithArchive(int daysBack) {
+		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>(new PlayerStatistics());
+		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive: %d, %d", daysBack, archive.size());			
+		for (PlayerStatistics then : archive) {
+			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive then: %s", then.toString());			
+		}
+		for (PlayerStatistics now : this._allPlayerTimes) {
+			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive now: %s", now.toString());
+			PlayerStatistics then = archive.get(now.getUniqueId());
+			if (then == null) continue;
+			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive then: %s", then.toString());
+			now.lap();
+			PlayerStatistics diff = PlayerStatistics.getDifference(now, then);
+			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive diff: %s", diff.toString());
+			differences.put(now.getUniqueId(), diff);
+		}
+		return differences;
+	}
+
+	private PlayerCollection<PlayerStatistics> getFromArchive(int daysBack)
+	{
+		File archive = getArchiveFileForDayFromNow(daysBack);
+		if (!archive.exists()) {
+			this._eithonLogger.warning("Archive file \"%s\" not found.", archive.getAbsolutePath());
+			return null;
+		}
+		
+		FileContent fileContent = FileContent.loadFromFile(archive);
+		return new PlayerCollection<PlayerStatistics>(new PlayerStatistics()).fromJson(fileContent.getPayload());
 	}
 
 	private File getArchiveFileForDayFromNow(int daysBack) {
