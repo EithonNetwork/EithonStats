@@ -122,15 +122,11 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	@SuppressWarnings("unchecked")
 	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Enter toJson: %s", getName());
 		if (!saveAll && !this._hasBeenUpdated) {
-			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Not updated");
 			return null;
 		}
 		if (doLap) {
-			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Do lap");
 			lap();
-			this._hasBeenUpdated = false;
 		}
 		JSONObject json = new JSONObject();
 		json.put("player", this._eithonPlayer.toJson());
@@ -139,7 +135,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		json.put("lastChatActivity", TimeMisc.fromLocalDateTime(this._lastChatActivity));
 		json.put("blocksCreated", this._blocksCreated);
 		json.put("blocksDestroyed", this._blocksDestroyed);
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Completed");
+		this._hasBeenUpdated = false;
 		return json;
 	}
 	
