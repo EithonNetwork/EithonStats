@@ -54,15 +54,15 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 			PlayerStatistics then) {
 		PlayerStatistics diff = new PlayerStatistics();
 		diff._afkDescription = now._afkDescription;
-		diff._blocksCreated = now._blocksCreated - then._blocksCreated;
-		diff._blocksDestroyed = now._blocksDestroyed - then._blocksDestroyed;
-		diff._chatActivities = now._chatActivities - then._chatActivities;
+		diff._blocksCreated = now._blocksCreated - ((then == null) ? 0 : then._blocksCreated);
+		diff._blocksDestroyed = now._blocksDestroyed - ((then == null) ? 0 : then._blocksDestroyed);
+		diff._chatActivities = now._chatActivities - ((then == null) ? 0 : then._chatActivities);
 		diff._eithonPlayer = now._eithonPlayer;
 		diff._hasBeenUpdated = now._hasBeenUpdated;
 		diff._lastAliveTime = now._lastAliveTime;
 		diff._lastChatActivity = now._lastChatActivity;
 		diff._startTime = now._startTime;
-		diff._timeInfo = TimeStatistics.getDifference(now._timeInfo, then._timeInfo);
+		diff._timeInfo = TimeStatistics.getDifference(now._timeInfo, (then == null) ? null : then._timeInfo);
 		return diff;
 	}
 

@@ -145,7 +145,7 @@ public class Controller implements IBlockMoverFollower {
 
 	private List<PlayerStatistics> sortDiffsByTotalTime(int daysBack, boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		PlayerCollection<PlayerStatistics> diff = diffWithArchive(1);
+		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
 		return diff.sort(
 				maxItems,
 				new Comparator<PlayerStatistics>(){
@@ -226,19 +226,11 @@ public class Controller implements IBlockMoverFollower {
 
 	public PlayerCollection<PlayerStatistics> diffWithArchive(int daysBack) {
 		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>(new PlayerStatistics());
-		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive: %d, %d", daysBack, archive.size());			
-		for (PlayerStatistics then : archive) {
-			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive then: %s", then.toString());			
-		}
+		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);		
 		for (PlayerStatistics now : this._allPlayerTimes) {
-			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive now: %s", now.toString());
-			PlayerStatistics then = archive.get(now.getUniqueId());
-			if (then == null) continue;
-			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive then: %s", then.toString());
 			now.lap();
+			PlayerStatistics then = (archive==null) ? null : archive.get(now.getUniqueId());
 			PlayerStatistics diff = PlayerStatistics.getDifference(now, then);
-			this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "diffWithArchive diff: %s", diff.toString());
 			differences.put(now.getUniqueId(), diff);
 		}
 		return differences;
@@ -247,6 +239,8 @@ public class Controller implements IBlockMoverFollower {
 	private PlayerCollection<PlayerStatistics> getFromArchive(int daysBack)
 	{
 		File archive = getArchiveFileForDayFromNow(daysBack);
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE,
+				"Will try to read from file \"%s\".", archive.getAbsolutePath());
 		if (!archive.exists()) {
 			this._eithonLogger.warning("Archive file \"%s\" not found.", archive.getAbsolutePath());
 			return null;
