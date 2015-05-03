@@ -26,13 +26,13 @@ public class Controller implements IBlockMoverFollower {
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
-		this._allPlayerTimes.consolidateDelta(this._eithonPlugin);
+		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1);
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		MoveEventHandler.addBlockMover(this);
 	}
 
 	public void saveDelta() {
-		this._allPlayerTimes.saveDelta(this._eithonPlugin);
+		this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
 		this._eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved delta.");
 	}
 
@@ -89,7 +89,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showBlocksStats(CommandSender sender, boolean ascending) {
 		for (PlayerStatistics time : sortPlayerTimesByBlocksCreated(ascending)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.blockStats()));			
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showChatStats(CommandSender sender, boolean ascending) {
 		for (PlayerStatistics time : sortPlayerTimesByChats(ascending)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
+			sender.sendMessage(String.format("%s: %s", time.getName(), time.chatStats()));			
 		}
 	}
 	

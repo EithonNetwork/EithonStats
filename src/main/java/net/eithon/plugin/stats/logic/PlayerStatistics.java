@@ -113,7 +113,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._eithonPlayer = EithonPlayer.getFromJSon(jsonObject.get("player"));
 		this._timeInfo = TimeStatistics.getFromJson(jsonObject.get("timeInfo"));
 		this._chatActivities = (long)jsonObject.get("chatActivities");
-		this._lastChatActivity = LocalDateTime.parse((String)jsonObject.get("lastChatActivity"));
+		this._lastChatActivity = TimeMisc.toLocalDateTime(jsonObject.get("lastChatActivity"));
 		this._blocksCreated = (long)jsonObject.get("blocksCreated");
 		this._blocksDestroyed = (long)jsonObject.get("blocksDestroyed");
 		return this;
@@ -135,7 +135,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		json.put("player", this._eithonPlayer.toJson());
 		json.put("timeInfo", this._timeInfo.toJson());
 		json.put("chatActivities", this._chatActivities);
-		json.put("lastChatActivity", this._lastChatActivity);
+		json.put("lastChatActivity", TimeMisc.fromLocalDateTime(this._lastChatActivity));
 		json.put("blocksCreated", this._blocksCreated);
 		json.put("blocksDestroyed", this._blocksDestroyed);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Completed");

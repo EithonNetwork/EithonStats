@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import net.eithon.library.json.IJson;
+import net.eithon.library.time.TimeMisc;
 
 import org.json.simple.JSONObject;
 
@@ -67,16 +68,8 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	@Override
 	public Object toJson() {
 		JSONObject json = new JSONObject();
-		String firstStart = "";
-		if (this._firstStartTime != null) {
-			firstStart = this._firstStartTime.toString();
-		}
-		json.put("firstStart", firstStart);
-		String lastStop = "";
-		if (this._lastStopTime != null) {
-			lastStop = this._lastStopTime.toString();
-		}
-		json.put("lastStop", lastStop);
+		json.put("firstStart", TimeMisc.fromLocalDateTime(this._firstStartTime));
+		json.put("lastStop", TimeMisc.fromLocalDateTime(this._lastStopTime));
 		json.put("totalPlayTimeInSeconds", this._totalPlayTimeInSeconds);
 		json.put("intervals", this._intervals);
 		json.put("longestIntervalInSeconds", this._longestIntervalInSeconds);
@@ -86,8 +79,9 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	@Override
 	public TimeStatistics fromJson(Object json) {
 		JSONObject jsonObject = (JSONObject) json;
-		this._firstStartTime = LocalDateTime.parse((String)jsonObject.get("lastStop"));
-		this._lastStopTime = LocalDateTime.parse((String)jsonObject.get("firstStart"));
+		if (jsonObject == null) return null;
+		this._firstStartTime = TimeMisc.toLocalDateTime(jsonObject.get("firstStart"));
+		this._lastStopTime = TimeMisc.toLocalDateTime(jsonObject.get("lastStop"));
 		this._totalPlayTimeInSeconds = (long)jsonObject.get("totalPlayTimeInSeconds");
 		this._intervals = (long)jsonObject.get("intervals");
 		this._longestIntervalInSeconds = (long)jsonObject.get("longestIntervalInSeconds");
