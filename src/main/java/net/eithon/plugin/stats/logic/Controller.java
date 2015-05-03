@@ -45,7 +45,6 @@ public class Controller implements IBlockMoverFollower {
 
 	public void saveDelta() {
 		this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
-		this._eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved statistics delta.");
 	}
 
 	public void startPlayer(Player player) {
