@@ -16,6 +16,10 @@ AllowedInactivityInSeconds: 300
 # This is the time that you risk to lose statistics for if your server crashes.
 SecondsBetweenSave: 300
 
+#
+# The time of day to archive the day statistics. Recommended: 00:00
+ArchiveAtTimeOfDay: 00:00
+
 messages:
 
   #

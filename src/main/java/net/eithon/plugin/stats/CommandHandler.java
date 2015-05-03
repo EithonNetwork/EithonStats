@@ -19,6 +19,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc] [maxItems]";
 	private static final String CHAT_COMMAND = "/stats chat [desc|asc] [maxItems]";
 	private static final String STATUS_COMMAND = "/stats status [desc|asc] [maxItems]";
+	private static final String DIFF_COMMAND = "/stats diff [desc|asc] [maxItems]";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -59,6 +60,8 @@ public class CommandHandler implements ICommandHandler {
 			blocksCommand(commandParser);
 		} else if (command.equalsIgnoreCase("chat")) {
 			chatCommand(commandParser);
+		} else if (command.equalsIgnoreCase("diff")) {
+			diffCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -155,6 +158,21 @@ public class CommandHandler implements ICommandHandler {
 		this._controller.showChatStats(commandParser.getSender(), ascending, maxItems);
 	}
 
+	void diffCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 4)) return;
+		
+		int daysBack = commandParser.getArgumentInteger(7);
+
+		String direction = commandParser.getArgumentStringAsLowercase("desc");
+		boolean ascending = direction.equalsIgnoreCase("asc");
+		
+		int maxItems = commandParser.getArgumentInteger(0);
+		
+		this._controller.showDiffStats(commandParser.getSender(), daysBack, ascending, maxItems);
+	}
+
 	void statusCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.status")) return;
@@ -188,6 +206,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(STATUS_COMMAND);
 		} else if (command.equalsIgnoreCase("chat")) {
 			sender.sendMessage(CHAT_COMMAND);
+		} else if (command.equalsIgnoreCase("diff")) {
+			sender.sendMessage(DIFF_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

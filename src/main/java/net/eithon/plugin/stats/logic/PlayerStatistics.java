@@ -50,6 +50,22 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._afkDescription = null;
 	}
 
+	public static PlayerStatistics getDifference(PlayerStatistics now,
+			PlayerStatistics then) {
+		PlayerStatistics diff = new PlayerStatistics();
+		diff._afkDescription = now._afkDescription;
+		diff._blocksCreated = now._blocksCreated - then._blocksCreated;
+		diff._blocksDestroyed = now._blocksDestroyed - then._blocksDestroyed;
+		diff._chatActivities = now._chatActivities - then._chatActivities;
+		diff._eithonPlayer = now._eithonPlayer;
+		diff._hasBeenUpdated = now._hasBeenUpdated;
+		diff._lastAliveTime = now._lastAliveTime;
+		diff._lastChatActivity = now._lastChatActivity;
+		diff._startTime = now._startTime;
+		diff._timeInfo = TimeStatistics.getDifference(now._timeInfo, then._timeInfo);
+		return diff;
+	}
+
 	private void start(LocalDateTime startTime) {
 		if (startTime == null) startTime = LocalDateTime.now();
 		this._startTime = startTime;
@@ -170,6 +186,19 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 				this._timeInfo.getIntervals(), 
 				TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()), 
 				TimeMisc.secondsToString(this._timeInfo.getPreviousInterval()));
+		if (this._afkDescription != null) {
+			result += " AFK: " + this._afkDescription;
+		}
+		return result;
+	}
+
+	public String diffStats() {
+		String result = String.format("%s in %d intervals, %d blocks created, %d destroyed, %d chats.",
+				TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()), 
+				this._timeInfo.getIntervals(),
+				this._blocksCreated,
+				this._blocksDestroyed,
+				this._chatActivities);
 		if (this._afkDescription != null) {
 			result += " AFK: " + this._afkDescription;
 		}
