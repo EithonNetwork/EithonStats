@@ -1,5 +1,7 @@
 package net.eithon.plugin.stats;
 
+import java.time.LocalTime;
+
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.ConfigurableMessage;
 import net.eithon.library.plugin.Configuration;
@@ -16,10 +18,12 @@ public class Config {
 	public static class V {
 		public static int allowedInactivityInSeconds;
 		public static int secondsBetweenSave;
+		public static LocalTime archiveAtTimeOfDay;
 		
 		static void load(Configuration config) {
 			allowedInactivityInSeconds = config.getInt("AllowedInactivityInSeconds", 300);
 			secondsBetweenSave = config.getInt("SecondsBetweenSave", 300);
+			archiveAtTimeOfDay = config.getLocalTime("ArchiveAtTimeOfDay", LocalTime.of(0, 0));
 		}
 
 	}

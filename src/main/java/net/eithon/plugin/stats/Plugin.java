@@ -46,7 +46,7 @@ public final class Plugin extends EithonPlugin {
 
 	private void repeatArchive() {
 		final Plugin thisObject = this;
-		AlarmTrigger.get().repeatEveryDay("Archive player statistics", LocalTime.of(0,0,1), 
+		AlarmTrigger.get().repeatEveryDay("Archive player statistics", Config.V.archiveAtTimeOfDay, 
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {

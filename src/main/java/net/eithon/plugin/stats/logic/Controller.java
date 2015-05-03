@@ -33,15 +33,15 @@ public class Controller implements IBlockMoverFollower {
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = null;
-		consolidateDelta();
+		consolidateDelta(null);
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		MoveEventHandler.addBlockMover(this);
 	}
 
-	private void consolidateDelta() {
+	private void consolidateDelta(File archiveFile) {
 		if (this._allPlayerTimes != null) saveDelta();
 		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
-		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1);
+		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
 	}
 
 	public void saveDelta() {
@@ -201,18 +201,14 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void archive() {
-		consolidateDelta();
-		File sourceFile = this._allPlayerTimes.getFile(0);
-		if (!sourceFile.exists()) return;
+		File targetFile = getArchiveFileForDayFromNow(1);
+		consolidateDelta(targetFile);
+	}
+
+	private File getArchiveFileForDayFromNow(int daysBack) {
 		File targetFile = new File(
 				this._eithonPlugin.getDataFile("playerTimeArchive"), 
-				String.format("%s.json", LocalDate.now().minusDays(1)));
-		try {
-			FileMisc.makeSureParentDirectoryExists(targetFile);
-			Files.copy(sourceFile, targetFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+				String.format("%s.json", LocalDate.now().minusDays(daysBack)));
+		return targetFile;
 	}
 }
