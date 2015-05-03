@@ -11,14 +11,14 @@ import org.bukkit.entity.Player;
 
 public class CommandHandler implements ICommandHandler {
 	private static final String PLAYER_COMMAND = "/stats player <player>";
-	private static final String STATUS_COMMAND = "/stats status";
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
-	private static final String TIME_COMMAND = "/stats time [desc|asc]";
-	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc]";
-	private static final String CHAT_COMMAND = "/stats chat [desc|asc]";
+	private static final String TIME_COMMAND = "/stats time [desc|asc] [maxItems]";
+	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc] [maxItems]";
+	private static final String CHAT_COMMAND = "/stats chat [desc|asc] [maxItems]";
+	private static final String STATUS_COMMAND = "/stats status [desc|asc] [maxItems]";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -119,45 +119,53 @@ public class CommandHandler implements ICommandHandler {
 	void timeCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.time")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
 		
-		this._controller.showTimeStats(commandParser.getSender(), ascending);
+		int maxItems = commandParser.getArgumentInteger(0);
+		
+		this._controller.showTimeStats(commandParser.getSender(), ascending, maxItems);
 	}
 
 	void blocksCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.blocks")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
 		
-		this._controller.showBlocksStats(commandParser.getSender(), ascending);
+		int maxItems = commandParser.getArgumentInteger(0);
+		
+		this._controller.showBlocksStats(commandParser.getSender(), ascending, maxItems);
 	}
 
 	void chatCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.chat")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
 		
-		this._controller.showChatStats(commandParser.getSender(), ascending);
+		int maxItems = commandParser.getArgumentInteger(0);
+		
+		this._controller.showChatStats(commandParser.getSender(), ascending, maxItems);
 	}
 
 	void statusCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.status")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
 		
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
 		
-		this._controller.showAfkStatus(commandParser.getSender(), ascending);
+		int maxItems = commandParser.getArgumentInteger(0);
+		
+		this._controller.showAfkStatus(commandParser.getSender(), ascending, maxItems);
 	}
 
 	@Override
