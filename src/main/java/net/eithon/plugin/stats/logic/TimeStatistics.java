@@ -34,13 +34,13 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) {
 		TimeStatistics diff = new TimeStatistics();
 		diff._firstStartTime = now._firstStartTime;
-		diff._intervals = now._intervals - then._intervals;
+		diff._intervals = now._intervals - ((then == null) ? 0 : then._intervals);
 		diff._lastStopTime = now._lastStopTime;
 		diff._longestIntervalInSeconds = now._longestIntervalInSeconds;
 		diff._previousIntervalInSeconds = now._previousIntervalInSeconds;
 		diff._previousStartTime = now._previousStartTime;
 		diff._previousStopTime = now._previousStopTime;
-		diff._totalPlayTimeInSeconds = now._totalPlayTimeInSeconds - then._totalPlayTimeInSeconds;
+		diff._totalPlayTimeInSeconds = now._totalPlayTimeInSeconds - ((then == null) ? 0 : then._totalPlayTimeInSeconds);
 		return diff;
 	}
 
