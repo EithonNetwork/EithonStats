@@ -33,17 +33,21 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	
 	public void addInterval(LocalDateTime start, LocalDateTime stop) {
 		long useLastInterval = 0;
-		if ((this._previousStopTime != null) && (this._previousStopTime.isEqual(start))) useLastInterval = this._previousIntervalInSeconds;
+		if ((this._previousStopTime != null) && (this._previousStopTime.isEqual(start))) {
+			useLastInterval = this._previousIntervalInSeconds;
+		}
 		long playTimeInSeconds = stop.toEpochSecond(ZoneOffset.UTC) - start.toEpochSecond(ZoneOffset.UTC);
 		rememberStartTime(start);
 		rememberStopTime(stop);
-		rememberInterval(useLastInterval + playTimeInSeconds);
+		rememberInterval(useLastInterval, playTimeInSeconds);
 		this._totalPlayTimeInSeconds += playTimeInSeconds;
 	}
 
-	private void rememberInterval(long interval) {
+	private void rememberInterval(long useLastInterval, long playTimeInSeconds) {
+		long interval = useLastInterval + playTimeInSeconds;
 		this._previousIntervalInSeconds = interval;
 		if (this._longestIntervalInSeconds < interval) this._longestIntervalInSeconds = interval;
+		if (useLastInterval == 0) this._intervals++;
 	}
 
 	private void rememberStartTime(LocalDateTime start) {
