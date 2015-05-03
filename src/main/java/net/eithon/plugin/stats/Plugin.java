@@ -1,6 +1,9 @@
 package net.eithon.plugin.stats;
 
+import java.time.LocalDateTime;
+
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.time.AlarmTrigger;
 import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.event.Listener;
@@ -23,5 +26,22 @@ public final class Plugin extends EithonPlugin {
 		this._controller.saveDelta();
 		super.onDisable();
 		this._controller = null;
+	}
+	
+	private void setSaveAlarm() {
+		LocalDateTime saveTime = LocalDateTime.now().plusSeconds(Config.V.secondsBeforeSave);
+		AlarmTrigger.get().setAlarm("Delta save",
+				saveTime, 
+				new Runnable() {
+			public void run() {
+				keepOnSaving();
+			}
+		});
+	}
+
+	protected void keepOnSaving() {
+		if (this._controller == null) return;
+		this._controller.saveDelta();
+		setSaveAlarm();
 	}
 }

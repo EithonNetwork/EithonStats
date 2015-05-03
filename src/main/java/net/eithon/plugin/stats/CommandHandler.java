@@ -98,14 +98,10 @@ public class CommandHandler implements ICommandHandler {
 	}
 
 	private void awayFromKeyboardCommand(CommandParser commandParser) {
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 1");
 		if (!commandParser.hasPermissionOrInformSender("stats.afk")) return;
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: 2");
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return;
 
 		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
-
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "awayFromKeyboardCommand: %s", description);
 		
 		this._controller.stopPlayer(commandParser.getPlayer(), description);
 		Config.M.playerAwayFromKeyboard.sendMessage(commandParser.getSender(), description);

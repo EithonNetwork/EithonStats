@@ -33,7 +33,7 @@ public class Controller implements IBlockMoverFollower {
 
 	public void saveDelta() {
 		this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
-		this._eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved delta.");
+		this._eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved statistics delta.");
 	}
 
 	public void startPlayer(Player player) {
@@ -147,7 +147,7 @@ public class Controller implements IBlockMoverFollower {
 	@Override
 	public void moveEventHandler(PlayerMoveEvent event) {
 		if (event.isCancelled()) return;
-		playerIsAlive(event.getPlayer());
+		playerMoved(event.getPlayer());
 	}
 
 	@Override
@@ -155,10 +155,10 @@ public class Controller implements IBlockMoverFollower {
 		return this._eithonPlugin.getName();
 	}
 
-	public void playerIsAlive(Player player) {
+	public void playerMoved(Player player) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s is alive.", player.getName());
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s moved.", player.getName());
 	}
 
 	public void addChatActivity(Player player) {
@@ -166,6 +166,7 @@ public class Controller implements IBlockMoverFollower {
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addChatActivity();
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s chatted.", player.getName());
 	}
 
 	public void addBlocksCreated(Player player, long blocks) {
@@ -173,12 +174,14 @@ public class Controller implements IBlockMoverFollower {
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksCreated(blocks);
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s created a block.", player.getName());
 	}
 
-	public void addBlocksDestroyed(Player player, long blocks) {
+	public void addBlocksBroken(Player player, long blocks) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksDestroyed(blocks);
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
 	}
 }

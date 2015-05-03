@@ -33,7 +33,7 @@ public final class EventListener implements Listener {
 	@EventHandler
 	public void onBlockBreakEvent(BlockBreakEvent event) {
 		if (event.isCancelled()) return;
-		this._controller.addBlocksDestroyed(event.getPlayer(), 1);
+		this._controller.addBlocksBroken(event.getPlayer(), 1);
 	}
 	
 	@EventHandler

@@ -71,7 +71,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	private boolean tooLongInactive(LocalDateTime time) {
-		return time.minusMinutes(Config.V.inactivityMinutes).isAfter(this._lastAliveTime);
+		return time.minusSeconds(Config.V.allowedInactivityInSeconds).isAfter(this._lastAliveTime);
 	}
 
 	public LocalDateTime stop(String description) {
