@@ -15,11 +15,11 @@ public class Config {
 	}
 	public static class V {
 		public static int allowedInactivityInSeconds;
-		public static int secondsBeforeSave;
+		public static int secondsBetweenSave;
 		
 		static void load(Configuration config) {
 			allowedInactivityInSeconds = config.getInt("AllowedInactivityInSeconds", 300);
-			secondsBeforeSave = config.getInt("SecondsBeforeSave", 300);
+			secondsBetweenSave = config.getInt("SecondsBetweenSave", 300);
 		}
 
 	}

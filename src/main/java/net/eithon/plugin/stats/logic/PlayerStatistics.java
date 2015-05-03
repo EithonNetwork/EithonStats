@@ -68,6 +68,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		if (tooLongInactive(now)) lap();
 		this._lastAliveTime = now;
 		if (this._startTime == null) start(this._lastAliveTime);
+		this._hasBeenUpdated = true;
 	}
 
 	private boolean tooLongInactive(LocalDateTime time) {
@@ -128,8 +129,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		}
 		if (doLap) {
 			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "toJson: Do lap");
-			this._hasBeenUpdated = false;
 			lap();
+			this._hasBeenUpdated = false;
 		}
 		JSONObject json = new JSONObject();
 		json.put("player", this._eithonPlayer.toJson());

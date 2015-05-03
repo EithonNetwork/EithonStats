@@ -1,9 +1,9 @@
 #
 # Debug level
-#	0 = NONE (no debug messages)
-#	1 = MAJOR (only major messages)
-#	2 = MINOR (also minor messages)
-#	3 = VERBOSE (all messages)
+#  0 = NONE (no debug messages)
+#  1 = MAJOR (only major messages)
+#  2 = MINOR (also minor messages)
+#  3 = VERBOSE (all messages)
 #
 EithonDebugLevel: 3
 
@@ -14,43 +14,42 @@ AllowedInactivityInSeconds: 300
 #
 # The number of seconds between saving the current statistics.
 # This is the time that you risk to lose statistics for if your server crashes.
-SecondsBeforeSave: 5
+SecondsBetweenSave: 300
 
 messages:
 
-	#
-	# Parameters: <player name> (%s)
-	PlayerStarted: Started recording play time for player %s.
+  #
+  # Parameters: <player name> (%s)
+  PlayerStarted: Started recording play time for player %s.
 
-	#
-	# Parameters: <player name> (%s)
-	PlayerStopped: Stopped recording play time for player %s.
+  #
+  # Parameters: <player name> (%s)
+  PlayerStopped: Stopped recording play time for player %s.
 
-	#
-	# Parameters: -
-	PlayerAwayFromKeyboard: AFK with description \"%s\".
+  #
+  # Parameters: -
+  PlayerAwayFromKeyboard: AFK with description \"%s\".
 
-	#
-	# Parameters: -
-	Saved: Saved play times for all logged in players.
+  #
+  # Parameters: -
+  Saved: Saved play times for all logged in players.
 
-	#
-	# AFK message when detected by the plugin
-	# Parameters: -
-	InactivityDetected: Inactivity detected
+  #
+  # AFK message when detected by the plugin
+  # Parameters: -
+  InactivityDetected: Inactivity detected
 
-	#
-	# AFK default description (when issuing the command /stats afk, but without a description).
-	# Parameters: -
-	DefaultAfkDescription: BRB
-	
-	#
-	#
-	# Parameters: <Player> (%s), <Description> (%s)
-	ToAfkBroadcast: %s AFK: %s
-	
-	#
-	#
-	# Parameters: <Player> (%s)
-	FromAfkBroadcast: %s is back
-	
+  #
+  # AFK default description (when issuing the command /stats afk, but without a description).
+  # Parameters: -
+  DefaultAfkDescription: BRB
+  
+  #
+  #
+  # Parameters: <Player> (%s), <Description> (%s)
+  ToAfkBroadcast: Player %s is AFK (%s)
+  
+  #
+  #
+  # Parameters: <Player> (%s)
+  FromAfkBroadcast: Player %s is back

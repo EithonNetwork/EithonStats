@@ -94,8 +94,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 
 	@Override
 	public TimeStatistics factory() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TimeStatistics();
 	}
 	
 	public static TimeStatistics getFromJson(Object json) {
