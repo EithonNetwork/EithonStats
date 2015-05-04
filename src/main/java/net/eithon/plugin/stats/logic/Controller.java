@@ -1,17 +1,12 @@
 package net.eithon.plugin.stats.logic;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
 import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.file.FileMisc;
 import net.eithon.library.json.FileContent;
 import net.eithon.library.json.PlayerCollection;
 import net.eithon.library.move.IBlockMoverFollower;
@@ -23,8 +18,6 @@ import net.eithon.plugin.stats.Config;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import com.google.common.io.Files;
 
 public class Controller implements IBlockMoverFollower {
 
