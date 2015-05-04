@@ -18,7 +18,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
-	private long _blocksDestroyed;
+	private long _blocksBroken;
 	private long _blocksCreated;
 	private long _chatActivities;
 	private LocalDateTime _lastChatActivity;
@@ -38,7 +38,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	PlayerStatistics() {
-		this._blocksDestroyed = 0;
+		this._blocksBroken = 0;
 		this._blocksCreated = 0;
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
@@ -55,7 +55,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		PlayerStatistics diff = new PlayerStatistics();
 		diff._afkDescription = now._afkDescription;
 		diff._blocksCreated = now._blocksCreated - ((then == null) ? 0 : then._blocksCreated);
-		diff._blocksDestroyed = now._blocksDestroyed - ((then == null) ? 0 : then._blocksDestroyed);
+		diff._blocksBroken = now._blocksBroken - ((then == null) ? 0 : then._blocksBroken);
 		diff._chatActivities = now._chatActivities - ((then == null) ? 0 : then._chatActivities);
 		diff._eithonPlayer = now._eithonPlayer;
 		diff._hasBeenUpdated = now._hasBeenUpdated;
@@ -119,7 +119,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
-	public void addBlocksDestroyed(long blocks) { this._blocksDestroyed += blocks; }
+	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
 
 	@Override
 	public PlayerStatistics factory() { return new PlayerStatistics(); }
@@ -132,7 +132,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._chatActivities = (long)jsonObject.get("chatActivities");
 		this._lastChatActivity = TimeMisc.toLocalDateTime(jsonObject.get("lastChatActivity"));
 		this._blocksCreated = (long)jsonObject.get("blocksCreated");
-		this._blocksDestroyed = (long)jsonObject.get("blocksDestroyed");
+		this._blocksBroken = (long)jsonObject.get("blocksBroken");
 		return this;
 	}
 
@@ -150,7 +150,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		json.put("chatActivities", this._chatActivities);
 		json.put("lastChatActivity", TimeMisc.fromLocalDateTime(this._lastChatActivity));
 		json.put("blocksCreated", this._blocksCreated);
-		json.put("blocksDestroyed", this._blocksDestroyed);
+		json.put("blocksBroken", this._blocksBroken);
 		this._hasBeenUpdated = false;
 		return json;
 	}
@@ -193,11 +193,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	public String diffStats() {
-		String result = String.format("%s in %d intervals, %d blocks created, %d destroyed, %d chats.",
+		String result = String.format("%s in %d intervals, %d blocks created or broken, %d chats.",
 				TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()), 
 				this._timeInfo.getIntervals(),
-				this._blocksCreated,
-				this._blocksDestroyed,
+				this._blocksCreated + this._blocksBroken,
 				this._chatActivities);
 		if (this._afkDescription != null) {
 			result += " AFK: " + this._afkDescription;
@@ -212,8 +211,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	public String blockStats() {
-		String result = String.format("%d blocks created (destroyed %d)",
-				this._blocksCreated, this._blocksDestroyed);
+		String result = String.format("%d blocks created (broken %d)",
+				this._blocksCreated, this._blocksBroken);
 		return result;
 	}
 

@@ -208,7 +208,7 @@ public class Controller implements IBlockMoverFollower {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
-		time.addBlocksDestroyed(blocks);
+		time.addBlocksBroken(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
 	}
 
