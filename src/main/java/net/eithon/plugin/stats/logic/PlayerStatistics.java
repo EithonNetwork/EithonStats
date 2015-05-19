@@ -1,6 +1,7 @@
 package net.eithon.plugin.stats.logic;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
@@ -170,53 +171,26 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		String result = String.format("%s: Playtime %s, chats %d, blocks %d",
-				getName(),
-				TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()),
-				this._chatActivities, this._blocksCreated);
-		if (this._afkDescription != null) {
-			result += " AFK: " + this._afkDescription;
-		}
-		return result;
+		return Config.M.playerStats.getMessage(getNamedArguments());
 	}
 
 	public String timeStats() {
-		String result = String.format("%s in %d intervals (longest %s, latest %s)",
-				TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()), 
-				this._timeInfo.getIntervals(), 
-				TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()), 
-				TimeMisc.secondsToString(this._timeInfo.getPreviousInterval()));
-		if (this._afkDescription != null) {
-			result += " AFK: " + this._afkDescription;
-		}
-		return result;
+		return Config.M.timeStats.getMessage(getNamedArguments());
 	}
 
 	public String diffStats() {
-		String result = String.format("%s in %d intervals, %d blocks created or broken, %d chats.",
-				TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()), 
-				this._timeInfo.getIntervals(),
-				this._blocksCreated + this._blocksBroken,
-				this._chatActivities);
-		if (this._afkDescription != null) {
-			result += " AFK: " + this._afkDescription;
-		}
-		return result;
+		return Config.M.diffStats.getMessage(getNamedArguments());
 	}
 
 	public String chatStats() {
-		String result = String.format("%d chats (latest %s)",
-				this._chatActivities, this._lastAliveTime.toString());
-		return result;
+		return Config.M.chatStats.getMessage(getNamedArguments());
 	}
 
 	public String blockStats() {
-		String result = String.format("%d blocks created (broken %d)",
-				this._blocksCreated, this._blocksBroken);
-		return result;
+		return Config.M.blockStats.getMessage(getNamedArguments());
 	}
 
-	public long getTotalTimeInSeconds() { return this._timeInfo.getLongestIntervalInSeconds(); }
+	public long getTotalTimeInSeconds() { return this._timeInfo.getTotalPlayTimeInSeconds(); }
 
 	public boolean isAfk() {
 		return this._afkDescription != null;
@@ -229,4 +203,20 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
 
 	public Object getAfkDescription() { return this._afkDescription; }
+	
+	private HashMap<String,String> getNamedArguments() {
+		HashMap<String,String> namedArguments = new HashMap<String, String>();
+		namedArguments.put("PLAYER_NAME", this._eithonPlayer.getName());
+		namedArguments.put("AFK_DESCRIPTION", this._afkDescription == null ? "" : this._afkDescription);
+		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
+		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
+		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));
+		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatActivities));
+		namedArguments.put("INTERVALS", String.format("%d", this._timeInfo.getIntervals()));
+		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()));
+		namedArguments.put("LONGEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()));
+		namedArguments.put("LATEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getPreviousIntervalInSeconds()));
+		
+		return namedArguments;
+	}
 }
