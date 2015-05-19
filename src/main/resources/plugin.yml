@@ -1,54 +1,54 @@
-name: EithonStats
+name: Eithonstats
 main: net.eithon.plugin.stats.Plugin
-version: 0.2
+version: 0.3
 author: vanbrayne
 description: Player statistics
 depend: [EithonLibrary]
 commands:
-  stats:
+  estats:
     description: Control jump pads
-    usage: /stats status | player | start | stop | diff | afk | save | time | blocks | chat
+    usage: /estats status | player | start | stop | diff | afk | save | time | blocks | chat
     permission-message: You don't have <permission>
 permissions:
-  stats.*:
-    description: Gives access to all stats commands
+  estats.*:
+    description: Gives access to all estats commands
     default: op
-    stats.player: true
-    stats.start: true
-    stats.stop: true
-    stats.afk: true
-    stats.save: true
-    stats.time: true
-    stats.blocks: true
-    stats.chat: true
-    stats.diff: true
-  stats.status:
-    description: Access to /stats status command
+    estats.player: true
+    estats.start: true
+    estats.stop: true
+    estats.afk: true
+    estats.save: true
+    estats.time: true
+    estats.blocks: true
+    estats.chat: true
+    estats.diff: true
+  estats.status:
+    description: Access to /estats status command
     default: op
-  stats.player:
-    description: Access to /stats player command
+  estats.player:
+    description: Access to /estats player command
     default: op
-  stats.start:
-    description: Access to /stats start command
+  estats.start:
+    description: Access to /estats start command
     default: op
-  stats.stop:
-    description: Access to /stats stop command
+  estats.stop:
+    description: Access to /estats stop command
     default: op
-  stats.afk:
-    description: Access to /stats afk command
+  estats.afk:
+    description: Access to /estats afk command
     default: op
-  stats.save:
-    description: Access to /stats save command
+  estats.save:
+    description: Access to /estats save command
     default: op
-  stats.time:
-    description: Access to /stats time command
+  estats.time:
+    description: Access to /estats time command
     default: op
-  stats.blocks:
-    description: Access to /stats blocks command
+  estats.blocks:
+    description: Access to /estats blocks command
     default: op
-  stats.chat:
-    description: Access to /stats chat command
+  estats.chat:
+    description: Access to /estats chat command
     default: op
-  stats.diff:
-    description: Access to /stats diff command
+  estats.diff:
+    description: Access to /estats diff command
     default: op
