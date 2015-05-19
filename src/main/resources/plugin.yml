@@ -1,4 +1,4 @@
-name: Eithonstats
+name: EithonStats
 main: net.eithon.plugin.stats.Plugin
 version: 0.3
 author: vanbrayne
