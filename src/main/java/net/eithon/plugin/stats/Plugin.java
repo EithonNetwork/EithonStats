@@ -1,7 +1,5 @@
 package net.eithon.plugin.stats;
 
-import java.time.LocalTime;
-
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.IRepeatable;

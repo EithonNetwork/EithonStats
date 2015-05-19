@@ -75,7 +75,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 
 	public LocalDateTime getPreviousStartTime() { return this._previousStartTime; }
 	public LocalDateTime getPreviousStopTime() { return this._previousStopTime; }
-	public long getPreviousInterval() { return this._previousIntervalInSeconds; }
+	public long getPreviousIntervalInSeconds() { return this._previousIntervalInSeconds; }
 	public long getTotalPlayTimeInSeconds() { return this._totalPlayTimeInSeconds; }
 	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
 	public Object getIntervals() { return this._intervals; }

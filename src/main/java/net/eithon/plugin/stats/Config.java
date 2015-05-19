@@ -43,6 +43,11 @@ public class Config {
 		public static ConfigurableMessage playerAwayFromKeyboard;
 		public static ConfigurableMessage toAfkBroadcast;
 		public static ConfigurableMessage fromAfkBroadcast;
+		public static ConfigurableMessage timeStats;
+		public static ConfigurableMessage chatStats;
+		public static ConfigurableMessage blockStats;
+		public static ConfigurableMessage playerStats;
+		public static ConfigurableMessage diffStats;
 
 		static void load(Configuration config) {
 			playerStarted = config.getConfigurableMessage(
@@ -69,6 +74,21 @@ public class Config {
 			fromAfkBroadcast = config.getConfigurableMessage(
 					"messages.FromAfkBroadcast", 1, 
 					"%s is back");
+			timeStats = config.getConfigurableMessage(
+					"messages.TimeStats", 0, 
+					"%TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%");
+			chatStats = config.getConfigurableMessage(
+					"messages.ChatStats", 0, 
+					"%CHAT_ACTIVITIES% chats");
+			blockStats = config.getConfigurableMessage(
+					"messages.BlockStats", 0, 
+					"%BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)");
+			playerStats = config.getConfigurableMessage(
+					"messages.PlayerStats", 0, 
+					"%PLAYER_NAME%: Playtime %TOTAL_PLAY_TIME%, chats %CHAT_ACTIVITIES%, blocks %BLOCKS_CREATED_OR_BROKEN% AFK: %AFK_DESCRIPTION%");
+			diffStats = config.getConfigurableMessage(
+					"messages.DiffStats", 0, 
+					"%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)");
 		}		
 	}
 

@@ -57,3 +57,22 @@ messages:
   #
   # Parameters: <Player> (%s)
   FromAfkBroadcast: Player %s is back
+  
+  #
+  # The following messages have the following possible parameters
+  # %PLAYER_NAME%: The name of the player that the statistics is for.
+  # %AFK_DESCRIPTION%: The AFK reason. Empty if not AFK.
+  # %BLOCKS_BROKEN%: The total number of blocks that the player has broken.
+  # %BLOCKS_CREATED%: The total number of blocks that the player has created.
+  # %BLOCKS_CREATED_OR_BROKEN%: The total number of blocks that the player has created or broken (the sum).
+  # %CHAT_ACTIVITIES%: The number of chats that the player has sent
+  # %INTERVALS%: The number of time intervals that has been recorded for the player.  
+  # %TOTAL_PLAY_TIME%: The total play time for the player.
+  # %LONGEST_INTERVAL%: The longest time that the player has played without a break.
+  # %LATEST_INTERVAL%: The latest recorded play time for the player.
+  TimeStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%"
+  ChatStats: "%CHAT_ACTIVITIES% chats"
+  BlockStats: "%BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"
+  PlayerStats: "%PLAYER_NAME%: Playtime %TOTAL_PLAY_TIME%, chats %CHAT_ACTIVITIES%, blocks %BLOCKS_CREATED_OR_BROKEN% AFK: %AFK_DESCRIPTION%"
+  DiffStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)"
+
