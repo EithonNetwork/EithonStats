@@ -1,11 +1,11 @@
 #
 # Debug level
-#  0 = NONE (no debug messages)
-#  1 = MAJOR (only major messages)
-#  2 = MINOR (also minor messages)
-#  3 = VERBOSE (all messages)
+#	0 = NONE (no debug messages)
+#	1 = MAJOR (only major messages)
+#	2 = MINOR (also minor messages)
+#	3 = VERBOSE (all messages)
 #
-EithonDebugLevel: 3
+EithonDebugLevel: 1
 
 #
 # The number of seconds that a player may be inactive before we stop the play time timer.
