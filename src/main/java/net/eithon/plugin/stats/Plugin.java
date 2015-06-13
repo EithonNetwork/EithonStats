@@ -20,6 +20,7 @@ public final class Plugin extends EithonPlugin {
 		repeatSave();
 		repeatArchive();
 		super.activate(commandHandler, eventListener);
+		EithonStatsApi.initialize(this._controller);
 	}
 
 	@Override

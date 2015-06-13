@@ -59,6 +59,10 @@ public class Controller implements IBlockMoverFollower {
 			Config.M.toAfkBroadcast.broadcastMessage(player.getName(), description);
 		}	
 	}
+	
+	public PlayerStatistics getPlayerStatistics(Player player) {
+		return this._allPlayerTimes.get(player);
+	}
 
 	private PlayerStatistics getOrCreatePlayerTime(Player player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
