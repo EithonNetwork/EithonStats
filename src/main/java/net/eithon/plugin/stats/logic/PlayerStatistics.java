@@ -139,10 +139,15 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	@SuppressWarnings("unchecked")
 	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
 		if (!saveAll && !this._hasBeenUpdated) {
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
 			return null;
 		}
+
 		if (doLap) {
+			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s calls lap()", this.getName());
 			lap();
 		}
 		JSONObject json = new JSONObject();
@@ -153,6 +158,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		json.put("blocksCreated", this._blocksCreated);
 		json.put("blocksBroken", this._blocksBroken);
 		this._hasBeenUpdated = false;
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s result: %s", this.getName(), json.toString());
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
 		return json;
 	}
 	
