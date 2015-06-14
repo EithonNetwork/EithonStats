@@ -178,23 +178,23 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
 
 	public String toString() {
-		return Config.M.playerStats.getMessage(getNamedArguments());
+		return Config.M.playerStats.getMessageWithColorCoding(getNamedArguments());
 	}
 
 	public String timeStats() {
-		return Config.M.timeStats.getMessage(getNamedArguments());
+		return Config.M.timeStats.getMessageWithColorCoding(getNamedArguments());
 	}
 
 	public String diffStats() {
-		return Config.M.diffStats.getMessage(getNamedArguments());
+		return Config.M.diffStats.getMessageWithColorCoding(getNamedArguments());
 	}
 
 	public String chatStats() {
-		return Config.M.chatStats.getMessage(getNamedArguments());
+		return Config.M.chatStats.getMessageWithColorCoding(getNamedArguments());
 	}
 
 	public String blockStats() {
-		return Config.M.blockStats.getMessage(getNamedArguments());
+		return Config.M.blockStats.getMessageWithColorCoding(getNamedArguments());
 	}
 
 	public long getTotalTimeInSeconds() { return this._timeInfo.getTotalPlayTimeInSeconds(); }
