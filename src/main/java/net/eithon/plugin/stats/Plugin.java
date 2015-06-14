@@ -1,7 +1,5 @@
 package net.eithon.plugin.stats;
 
-import java.time.LocalTime;
-
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.IRepeatable;
@@ -22,6 +20,7 @@ public final class Plugin extends EithonPlugin {
 		repeatSave();
 		repeatArchive();
 		super.activate(commandHandler, eventListener);
+		EithonStatsApi.initialize(this._controller);
 	}
 
 	@Override
