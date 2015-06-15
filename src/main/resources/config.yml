@@ -1,3 +1,7 @@
+eithon: 
+  UseMarkUpForMessages: 1
+  UseWrappingForMessages: 1
+
 #
 # Debug level
 #	0 = NONE (no debug messages)
@@ -31,6 +35,10 @@ messages:
   PlayerStopped: Stopped recording play time for player %s.
 
   #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  PlayTimeAdded: Added %s play time to player %s, resulting in a total play time of %s.
+
+  #
   # Parameters: -
   PlayerAwayFromKeyboard: AFK with description \"%s\".
 
@@ -59,6 +67,16 @@ messages:
   FromAfkBroadcast: Player %s is back
   
   #
+  #
+  # Parameters: <Description> (%s)
+  AfkYes: "AFK: Yes (%s)"
+  
+  #
+  #
+  # Parameters: -
+  AfkNo: "AFK: No"
+  
+  #
   # The following messages have the following possible parameters
   # %PLAYER_NAME%: The name of the player that the statistics is for.
   # %AFK_DESCRIPTION%: The AFK reason. Empty if not AFK.
@@ -73,6 +91,5 @@ messages:
   TimeStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%"
   ChatStats: "%CHAT_ACTIVITIES% chats"
   BlockStats: "%BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"
-  PlayerStats: "%PLAYER_NAME%: Playtime %TOTAL_PLAY_TIME%, chats %CHAT_ACTIVITIES%, blocks %BLOCKS_CREATED_OR_BROKEN% AFK: %AFK_DESCRIPTION%"
+  PlayerStats: "[s] â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”[/s][ [color=aqua]%PLAYER_NAME% Stats [/color]][s]â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€” [/s] \n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
   DiffStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)"
-

@@ -37,7 +37,10 @@ public class Config {
 
 		public static ConfigurableMessage playerStarted;
 		public static ConfigurableMessage playerStopped;
+		public static ConfigurableMessage playTimeAdded;
 		public static ConfigurableMessage saved;
+		public static ConfigurableMessage afkYes;
+		public static ConfigurableMessage afkNo;
 		public static ConfigurableMessage inactivityDetected;
 		public static ConfigurableMessage defaultAfkDescription;
 		public static ConfigurableMessage playerAwayFromKeyboard;
@@ -56,9 +59,18 @@ public class Config {
 			playerStopped = config.getConfigurableMessage(
 					"messages.PlayerStopped", 1, 
 					"Stopped recording play time for player %s.");
+			playTimeAdded = config.getConfigurableMessage(
+					"messages.PlayTimeAdded", 3, 
+					"Added %s play time to player %s, resulting in a total play time of %s.");
 			saved = config.getConfigurableMessage(
 					"messages.Saved", 0, 
 					"Saved play times for all logged in players.");
+			afkYes = config.getConfigurableMessage(
+					"messages.AfkYes", 1, 
+					"AFK: Yes (%s)");
+			afkNo = config.getConfigurableMessage(
+					"messages.AfkNo", 0, 
+					"AFK: No");
 			inactivityDetected = config.getConfigurableMessage(
 					"messages.InactivityDetected", 0, 
 					"Inactivity detected");

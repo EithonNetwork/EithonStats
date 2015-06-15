@@ -103,6 +103,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return stopTime;
 	}
 
+	public long addToTotalPlayTime(long playTimeInSeconds) {
+		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
+	}
+
 	private LocalDateTime noLaterThanLastAliveTime(LocalDateTime time) {
 		if (!tooLongInactive(time)) return time;
 		return this._lastAliveTime;
@@ -212,9 +216,13 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public Object getAfkDescription() { return this._afkDescription; }
 	
 	private HashMap<String,String> getNamedArguments() {
+		String afkDescription = Config.M.afkNo.getMessage();
+		if (this._afkDescription != null) {
+			afkDescription = Config.M.afkYes.getMessageWithColorCoding(this._afkDescription);
+		}
 		HashMap<String,String> namedArguments = new HashMap<String, String>();
 		namedArguments.put("PLAYER_NAME", this._eithonPlayer.getName());
-		namedArguments.put("AFK_DESCRIPTION", this._afkDescription == null ? "" : this._afkDescription);
+		namedArguments.put("AFK_DESCRIPTION", afkDescription);
 		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
 		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
 		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));

@@ -56,6 +56,11 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		this._totalPlayTimeInSeconds += playTimeInSeconds;
 	}
 
+	public long addToTotalPlayTime(long playTimeInSeconds) {
+		this._totalPlayTimeInSeconds += playTimeInSeconds;
+		return this._totalPlayTimeInSeconds;
+	}
+
 	private void rememberInterval(long useLastInterval, long playTimeInSeconds) {
 		long interval = useLastInterval + playTimeInSeconds;
 		this._previousIntervalInSeconds = interval;

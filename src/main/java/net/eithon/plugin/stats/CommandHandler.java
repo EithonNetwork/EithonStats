@@ -4,6 +4,7 @@ import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.CommandParser;
 import net.eithon.library.plugin.ICommandHandler;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.command.CommandSender;
@@ -13,6 +14,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String PLAYER_COMMAND = "/stats player <player>";
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
+	private static final String ADD_COMMAND = "/stats add <player> <HH:MM:SS>";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
 	private static final String TIME_COMMAND = "/stats time [desc|asc] [maxItems]";
@@ -43,6 +45,8 @@ public class CommandHandler implements ICommandHandler {
 			timeCommand(commandParser);
 		} else if (command.equalsIgnoreCase("status")) {
 			statusCommand(commandParser);
+		} else if (command.equalsIgnoreCase("add")) {
+			addCommand(commandParser);
 		} else if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
@@ -76,6 +80,22 @@ public class CommandHandler implements ICommandHandler {
 		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
 		
 		this._controller.showStats(commandParser.getSender(), player);
+	}
+
+	void addCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.add")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3, 3)) return;
+
+		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
+		long playTimeInSeconds = commandParser.getArgumentTimeAsSeconds(0);
+		
+		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), player, playTimeInSeconds);
+		Config.M.playTimeAdded.sendMessage(
+				commandParser.getSender(),
+				TimeMisc.secondsToString(playTimeInSeconds),
+				player.getName(), 
+				TimeMisc.secondsToString(totalPlayTimeInSeconds));
 	}
 
 	void startCommand(CommandParser commandParser)
@@ -194,6 +214,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(START_COMMAND);
 		} else if (command.equalsIgnoreCase("stop")) {
 			sender.sendMessage(STOP_COMMAND);
+		} else if (command.equalsIgnoreCase("add")) {
+			sender.sendMessage(ADD_COMMAND);
 		} else if (command.equalsIgnoreCase("afk")) {
 			sender.sendMessage(AFK_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {

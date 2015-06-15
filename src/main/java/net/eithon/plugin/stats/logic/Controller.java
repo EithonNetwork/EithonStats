@@ -253,4 +253,12 @@ public class Controller implements IBlockMoverFollower {
 				String.format("%s.json", LocalDate.now().minusDays(daysBack)));
 		return targetFile;
 	}
+
+	public long addPlayTime(
+			CommandSender sender, 
+			Player player,
+			long playTimeInSeconds) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(player);
+		return statistics.addToTotalPlayTime(playTimeInSeconds);
+	}
 }

@@ -7,7 +7,7 @@ depend: [EithonLibrary]
 commands:
   estats:
     description: Control jump pads
-    usage: /estats status | player | start | stop | diff | afk | save | time | blocks | chat
+    usage: /estats status | player | start | stop | diff | afk | save | time | blocks | chat | add
     permission-message: You don't have <permission>
 permissions:
   estats.*:
@@ -22,6 +22,7 @@ permissions:
     estats.blocks: true
     estats.chat: true
     estats.diff: true
+    estats.add: true
   estats.status:
     description: Access to /estats status command
     default: op
@@ -51,4 +52,7 @@ permissions:
     default: op
   estats.diff:
     description: Access to /estats diff command
+    default: op
+  estats.add:
+    description: Access to /estats add command
     default: op
