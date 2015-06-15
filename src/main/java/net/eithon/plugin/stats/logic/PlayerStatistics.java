@@ -9,6 +9,7 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJsonDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 
@@ -28,6 +29,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	// Non-saved, internal variables
 	private LocalDateTime _startTime;
 	private LocalDateTime _lastAliveTime;
+	private UUID _alarmId;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
 
@@ -44,11 +46,32 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
 		this._timeInfo = new TimeStatistics();
-		
 		this._startTime = null;
-		this._lastAliveTime = LocalDateTime.now();
 		this._hasBeenUpdated = false;
 		this._afkDescription = null;
+		this._lastAliveTime = LocalDateTime.now();
+		resetAlarm();
+	}
+	
+	private void resetAlarm() {
+		AlarmTrigger alarmTrigger = AlarmTrigger.get();
+		if (alarmTrigger.resetAlarm(this._alarmId, Config.V.allowedInactivityInSeconds)) return;
+		this._alarmId = setAlarm();	
+	}
+
+	private UUID setAlarm() {
+		return AlarmTrigger.get().setAlarm(String.format("%s is idle", this._eithonPlayer.getName()),
+				Config.V.allowedInactivityInSeconds,
+				new Runnable() {
+			public void run() {
+				isIdle();
+			}
+		});
+	}
+
+	protected void isIdle() {
+		stop(Config.M.playerIdle.getMessage());
+		this._alarmId = null;
 	}
 
 	public static PlayerStatistics getDifference(PlayerStatistics now,
@@ -68,7 +91,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	private void start(LocalDateTime startTime) {
-		if (startTime == null) startTime = LocalDateTime.now();
+		if (startTime == null) {
+			startTime = LocalDateTime.now();
+			resetAlarm();
+		}
 		this._startTime = startTime;
 		this._hasBeenUpdated = true;
 		this._afkDescription = null;
@@ -82,21 +108,16 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	
 	public void updateAlive() {
 		LocalDateTime now = LocalDateTime.now();
-		if (tooLongInactive(now)) lap();
 		this._lastAliveTime = now;
+		resetAlarm();
 		if (this._startTime == null) start(this._lastAliveTime);
 		this._hasBeenUpdated = true;
-	}
-
-	private boolean tooLongInactive(LocalDateTime time) {
-		return time.minusSeconds(Config.V.allowedInactivityInSeconds).isAfter(this._lastAliveTime);
 	}
 
 	public LocalDateTime stop(String description) {
 		this._afkDescription = description;
 		if (this._startTime == null) return null;
-		LocalDateTime stopTime = noLaterThanLastAliveTime(LocalDateTime.now());
-		this._lastAliveTime = stopTime;
+		LocalDateTime stopTime = this._lastAliveTime;
 		this._timeInfo.addInterval(this._startTime, stopTime);
 		this._startTime = null;
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", stopTime.toString(), description);
@@ -105,11 +126,6 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	public long addToTotalPlayTime(long playTimeInSeconds) {
 		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
-	}
-
-	private LocalDateTime noLaterThanLastAliveTime(LocalDateTime time) {
-		if (!tooLongInactive(time)) return time;
-		return this._lastAliveTime;
 	}
 
 	public void lap() {

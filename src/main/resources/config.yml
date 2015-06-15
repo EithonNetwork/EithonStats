@@ -27,6 +27,10 @@ ArchiveAtTimeOfDay: 00:00
 messages:
 
   #
+  # Parameters: -
+  PlayerIdle: Idle
+
+  #
   # Parameters: <player name> (%s)
   PlayerStarted: Started recording play time for player %s.
 
@@ -39,7 +43,7 @@ messages:
   PlayTimeAdded: Added %s play time to player %s, resulting in a total play time of %s.
 
   #
-  # Parameters: -
+  # Parameters: <description> (%s)
   PlayerAwayFromKeyboard: AFK with description \"%s\".
 
   #
