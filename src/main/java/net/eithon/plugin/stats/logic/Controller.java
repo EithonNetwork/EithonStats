@@ -28,9 +28,22 @@ public class Controller implements IBlockMoverFollower {
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = null;
-		consolidateDelta(null);
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
+		PlayerStatistics.initialize(this._eithonLogger);
+		consolidateDelta(null);
 		MoveEventHandler.addBlockMover(this);
+	}
+
+	@Override
+	public void moveEventHandler(PlayerMoveEvent event) {
+		if (event.isCancelled()) return;
+		playerMoved(event.getPlayer());
+	}
+
+	public void playerMoved(Player player) {
+		PlayerStatistics time = getOrCreatePlayerTime(player);
+		time.updateAlive();
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s moved.", player.getName());
 	}
 
 	private void consolidateDelta(File archiveFile) {
@@ -55,9 +68,6 @@ public class Controller implements IBlockMoverFollower {
 		time.stop(description);
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
-		if (time.isAfk()) {
-			Config.M.toAfkBroadcast.broadcastMessage(player.getName(), description);
-		}	
 	}
 	
 	public PlayerStatistics getPlayerStatistics(Player player) {
@@ -67,6 +77,8 @@ public class Controller implements IBlockMoverFollower {
 	private PlayerStatistics getOrCreatePlayerTime(Player player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time == null) {
+			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
+					player.getName());
 			time = new PlayerStatistics(player);
 			this._allPlayerTimes.put(player, time);
 		}
@@ -176,25 +188,12 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	@Override
-	public void moveEventHandler(PlayerMoveEvent event) {
-		if (event.isCancelled()) return;
-		playerMoved(event.getPlayer());
-	}
-
-	@Override
 	public String getName() {
 		return this._eithonPlugin.getName();
 	}
 
-	public void playerMoved(Player player) {
-		PlayerStatistics time = getOrCreatePlayerTime(player);
-		time.updateAlive();
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s moved.", player.getName());
-	}
-
 	public void addChatActivity(Player player) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
-		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addChatActivity();
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s chatted.", player.getName());
@@ -202,7 +201,6 @@ public class Controller implements IBlockMoverFollower {
 
 	public void addBlocksCreated(Player player, long blocks) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
-		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksCreated(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s created a block.", player.getName());
@@ -210,7 +208,6 @@ public class Controller implements IBlockMoverFollower {
 
 	public void addBlocksBroken(Player player, long blocks) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
-		if (time.isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(player.getName());
 		time.updateAlive();
 		time.addBlocksBroken(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());

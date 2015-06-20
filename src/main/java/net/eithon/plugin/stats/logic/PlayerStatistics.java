@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
+import net.eithon.library.extensions.EithonLocation;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJsonDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 
@@ -16,7 +18,8 @@ import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndName {
-	
+	private static Logger eithonLogger;
+
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
 	private long _blocksBroken;
@@ -24,13 +27,17 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	private long _chatActivities;
 	private LocalDateTime _lastChatActivity;
 	private TimeStatistics _timeInfo;	
-	
+
 	// Non-saved, internal variables
 	private LocalDateTime _startTime;
 	private LocalDateTime _lastAliveTime;
+	private UUID _alarmId;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
 
+	public static void initialize(Logger logger) {
+		eithonLogger = logger;
+	}
 
 	public PlayerStatistics(Player player)
 	{
@@ -44,11 +51,36 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
 		this._timeInfo = new TimeStatistics();
-		
 		this._startTime = null;
-		this._lastAliveTime = LocalDateTime.now();
 		this._hasBeenUpdated = false;
 		this._afkDescription = null;
+		this._lastAliveTime = LocalDateTime.now();
+	}
+
+	private void resetAlarm() {
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "Reset alarm for player %s", getName());
+		AlarmTrigger alarmTrigger = AlarmTrigger.get();
+		if (alarmTrigger.resetAlarm(this._alarmId, Config.V.allowedInactivityInSeconds)) return;
+		this._alarmId = setAlarm();	
+	}
+
+	private UUID setAlarm() {
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "Setting alarm for player %s in %d seconds",
+				getName(), Config.V.allowedInactivityInSeconds);
+		return AlarmTrigger.get()
+				.setAlarm(String.format("%s is idle", getName()),
+						Config.V.allowedInactivityInSeconds,
+						new Runnable() {
+					public void run() {
+						isIdle();
+					}
+				});
+	}
+
+	protected void isIdle() {
+		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
+		stop(Config.M.playerIdle.getMessage());
+		this._alarmId = null;
 	}
 
 	public static PlayerStatistics getDifference(PlayerStatistics now,
@@ -68,48 +100,45 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	private void start(LocalDateTime startTime) {
-		if (startTime == null) startTime = LocalDateTime.now();
+		if (startTime == null) {
+			startTime = LocalDateTime.now();
+			resetAlarm();
+		}
 		this._startTime = startTime;
 		this._hasBeenUpdated = true;
 		this._afkDescription = null;
 		this._lastAliveTime = this._startTime;
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Start: %s", startTime.toString());
+		eithonLogger.debug(DebugPrintLevel.MINOR, "Start: %s", startTime.toString());
 	}
 
 	public void start() {
 		start(null);
 	}
-	
+
 	public void updateAlive() {
+		if (isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(getName());
 		LocalDateTime now = LocalDateTime.now();
-		if (tooLongInactive(now)) lap();
 		this._lastAliveTime = now;
+		resetAlarm();
 		if (this._startTime == null) start(this._lastAliveTime);
 		this._hasBeenUpdated = true;
-	}
-
-	private boolean tooLongInactive(LocalDateTime time) {
-		return time.minusSeconds(Config.V.allowedInactivityInSeconds).isAfter(this._lastAliveTime);
 	}
 
 	public LocalDateTime stop(String description) {
 		this._afkDescription = description;
 		if (this._startTime == null) return null;
-		LocalDateTime stopTime = noLaterThanLastAliveTime(LocalDateTime.now());
-		this._lastAliveTime = stopTime;
+		LocalDateTime stopTime = this._lastAliveTime;
 		this._timeInfo.addInterval(this._startTime, stopTime);
 		this._startTime = null;
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "Stop: %s (%s)", stopTime.toString(), description);
+		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
+		if (isAfk()) {
+			Config.M.toAfkBroadcast.broadcastMessage(getName(), description);
+		}	
 		return stopTime;
 	}
 
 	public long addToTotalPlayTime(long playTimeInSeconds) {
 		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
-	}
-
-	private LocalDateTime noLaterThanLastAliveTime(LocalDateTime time) {
-		if (!tooLongInactive(time)) return time;
-		return this._lastAliveTime;
 	}
 
 	public void lap() {
@@ -143,15 +172,15 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	@SuppressWarnings("unchecked")
 	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
 		if (!saveAll && !this._hasBeenUpdated) {
-			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
-			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
+			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
+			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
 			return null;
 		}
 
 		if (doLap) {
-			Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s calls lap()", this.getName());
+			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s calls lap()", this.getName());
 			lap();
 		}
 		JSONObject json = new JSONObject();
@@ -162,11 +191,11 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		json.put("blocksCreated", this._blocksCreated);
 		json.put("blocksBroken", this._blocksBroken);
 		this._hasBeenUpdated = false;
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s result: %s", this.getName(), json.toString());
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s result: %s", this.getName(), json.toString());
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
 		return json;
 	}
-	
+
 	@Override
 	public JSONObject toJson() {
 		return toJsonDelta(true, true);
@@ -177,9 +206,14 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return toJsonDelta(saveAll, true);
 	}
 
-	public String getName() { return this._eithonPlayer.getName(); }
+	public String getName() {
+		if (this._eithonPlayer == null) return null;
+		return this._eithonPlayer.getName(); }
 
-	public UUID getUniqueId() { return this._eithonPlayer.getUniqueId(); }
+	public UUID getUniqueId() { 
+		if (this._eithonPlayer == null) return null;
+		return this._eithonPlayer.getUniqueId(); 
+	}
 
 	public String toString() {
 		return Config.M.playerStats.getMessageWithColorCoding(getNamedArguments());
@@ -214,7 +248,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
 
 	public Object getAfkDescription() { return this._afkDescription; }
-	
+
 	private HashMap<String,String> getNamedArguments() {
 		String afkDescription = Config.M.afkNo.getMessage();
 		if (this._afkDescription != null) {
@@ -231,7 +265,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()));
 		namedArguments.put("LONGEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()));
 		namedArguments.put("LATEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getPreviousIntervalInSeconds()));
-		
+
 		return namedArguments;
 	}
 }
