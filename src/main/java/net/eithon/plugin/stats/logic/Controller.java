@@ -88,13 +88,13 @@ public class Controller implements IBlockMoverFollower {
 	public void showStats(CommandSender sender, Player player) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.lap();
-		sender.sendMessage(time.toString());
+		time.sendPlayerStatistics(sender);
 	}
 
 	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortPlayerTimesByTotalTime(ascending, maxItems)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.timeStats()));			
+			time.sendTimeStats(sender);	
 		}
 	}
 
@@ -112,7 +112,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showBlocksStats(CommandSender sender, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortPlayerTimesByBlocksCreated(ascending, maxItems)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.blockStats()));			
+			time.sendBlockStats(sender);	
 		}
 	}
 
@@ -130,7 +130,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showChatStats(CommandSender sender, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortPlayerTimesByChats(ascending, maxItems)) {
 			time.lap();
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.chatStats()));			
+			time.sendChatStats(sender);		
 		}
 	}
 
@@ -148,7 +148,7 @@ public class Controller implements IBlockMoverFollower {
 	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortDiffsByTotalTime(daysBack, ascending, maxItems)) {
 			if (time == null) this._eithonLogger.error("showDiffStats: Unexpected null");
-			sender.sendMessage(String.format("%s: %s", time.getName(), time.diffStats()));			
+			time.sendDiffStats(sender);			
 		}
 	}
 

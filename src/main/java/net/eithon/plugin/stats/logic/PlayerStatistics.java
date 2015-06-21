@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
-import net.eithon.library.extensions.EithonLocation;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.json.IJsonDelta;
 import net.eithon.library.plugin.Logger;
@@ -14,6 +13,7 @@ import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
@@ -215,24 +215,24 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return this._eithonPlayer.getUniqueId(); 
 	}
 
-	public String toString() {
-		return Config.M.playerStats.getMessageWithColorCoding(getNamedArguments());
+	public void sendPlayerStatistics(CommandSender sender) {
+		Config.M.playerStats.sendMessage(sender, getNamedArguments());
 	}
 
-	public String timeStats() {
-		return Config.M.timeStats.getMessageWithColorCoding(getNamedArguments());
+	public void sendTimeStats(CommandSender sender) {
+		Config.M.timeStats.sendMessage(sender, getNamedArguments());
 	}
 
-	public String diffStats() {
-		return Config.M.diffStats.getMessageWithColorCoding(getNamedArguments());
+	public void sendDiffStats(CommandSender sender) {
+		Config.M.diffStats.sendMessage(sender, getNamedArguments());
 	}
 
-	public String chatStats() {
-		return Config.M.chatStats.getMessageWithColorCoding(getNamedArguments());
+	public void sendChatStats(CommandSender sender) {
+		Config.M.chatStats.sendMessage(sender, getNamedArguments());
 	}
 
-	public String blockStats() {
-		return Config.M.blockStats.getMessageWithColorCoding(getNamedArguments());
+	public void sendBlockStats(CommandSender sender) {
+		Config.M.blockStats.sendMessage(sender, getNamedArguments());
 	}
 
 	public long getTotalTimeInSeconds() { return this._timeInfo.getTotalPlayTimeInSeconds(); }
