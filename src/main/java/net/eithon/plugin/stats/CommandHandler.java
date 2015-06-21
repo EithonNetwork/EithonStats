@@ -40,6 +40,8 @@ public class CommandHandler implements ICommandHandler {
 		Player player = commandParser.getPlayerOrInformSender();
 		if (player == null) return true;
 		
+		this._controller.playerCommand(player);
+		
 		String command = commandParser.getArgumentCommand();
 		if (command == null) {
 			timeCommand(commandParser);
