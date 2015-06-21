@@ -127,7 +127,6 @@ public class CommandHandler implements ICommandHandler {
 		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
 		
 		this._controller.stopPlayer(commandParser.getPlayer(), description);
-		Config.M.playerAwayFromKeyboard.sendMessage(commandParser.getSender(), description);
 	}
 
 	void saveCommand(CommandParser commandParser)

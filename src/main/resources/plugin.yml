@@ -10,49 +10,49 @@ commands:
     usage: /estats status | player | start | stop | diff | afk | save | time | blocks | chat | add
     permission-message: You don't have <permission>
 permissions:
-  estats.*:
+  stats.*:
     description: Gives access to all estats commands
     default: op
-    estats.player: true
-    estats.start: true
-    estats.stop: true
-    estats.afk: true
-    estats.save: true
-    estats.time: true
-    estats.blocks: true
-    estats.chat: true
-    estats.diff: true
-    estats.add: true
-  estats.status:
+    stats.player: true
+    stats.start: true
+    stats.stop: true
+    stats.afk: true
+    stats.save: true
+    stats.time: true
+    stats.blocks: true
+    stats.chat: true
+    stats.diff: true
+    stats.add: true
+  stats.status:
     description: Access to /estats status command
     default: op
-  estats.player:
+  stats.player:
     description: Access to /estats player command
     default: op
-  estats.start:
+  stats.start:
     description: Access to /estats start command
     default: op
-  estats.stop:
+  stats.stop:
     description: Access to /estats stop command
     default: op
-  estats.afk:
+  stats.afk:
     description: Access to /estats afk command
     default: op
-  estats.save:
+  stats.save:
     description: Access to /estats save command
     default: op
-  estats.time:
+  stats.time:
     description: Access to /estats time command
     default: op
-  estats.blocks:
+  stats.blocks:
     description: Access to /estats blocks command
     default: op
-  estats.chat:
+  stats.chat:
     description: Access to /estats chat command
     default: op
-  estats.diff:
+  stats.diff:
     description: Access to /estats diff command
     default: op
-  estats.add:
+  stats.add:
     description: Access to /estats add command
     default: op

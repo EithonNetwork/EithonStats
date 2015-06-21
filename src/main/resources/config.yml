@@ -43,10 +43,6 @@ messages:
   PlayTimeAdded: Added %s play time to player %s, resulting in a total play time of %s.
 
   #
-  # Parameters: <description> (%s)
-  PlayerAwayFromKeyboard: AFK with description \"%s\".
-
-  #
   # Parameters: -
   Saved: Saved play times for all logged in players.
 
@@ -73,12 +69,12 @@ messages:
   #
   #
   # Parameters: <Description> (%s)
-  AfkYes: "AFK: Yes (%s)"
+  AfkYes: "Yes (%s)"
   
   #
   #
   # Parameters: -
-  AfkNo: "AFK: No"
+  AfkNo: "No"
   
   #
   # The following messages have the following possible parameters
@@ -95,5 +91,5 @@ messages:
   TimeStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%"
   ChatStats: "%CHAT_ACTIVITIES% chats"
   BlockStats: "%BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"
-  PlayerStats: "[hl=15][ [color=aqua]%PLAYER_NAME% Stats [/color] ][hl=15] \n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
+  PlayerStats: "\t[hl=1][ [color=aqua]%PLAYER_NAME% Stats [/color] ]\n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
   DiffStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)"
