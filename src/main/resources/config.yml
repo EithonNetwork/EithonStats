@@ -1,16 +1,3 @@
-eithon: 
-  UseMarkUpForMessages: 1
-  UseWrappingForMessages: 1
-
-#
-# Debug level
-#	0 = NONE (no debug messages)
-#	1 = MAJOR (only major messages)
-#	2 = MINOR (also minor messages)
-#	3 = VERBOSE (all messages)
-#
-EithonDebugLevel: 1
-
 #
 # The number of seconds that a player may be inactive before we stop the play time timer.
 AllowedInactivityInSeconds: 300
@@ -23,6 +10,19 @@ SecondsBetweenSave: 300
 #
 # The time of day to archive the day statistics. Recommended: 00:00
 ArchiveAtTimeOfDay: 00:00
+
+eithon:
+  UseMarkUpForMessages: 0
+  UseWrappingForMessages: 0
+  
+  #
+  # Debug level
+  #  0 = NONE (no debug messages)
+  #  1 = MAJOR (only major messages)
+  #  2 = MINOR (also minor messages)
+  #  3 = VERBOSE (all messages)
+  #
+  EithonDebugLevel: 1
 
 messages:
 
