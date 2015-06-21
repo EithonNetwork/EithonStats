@@ -91,5 +91,5 @@ messages:
   TimeStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%"
   ChatStats: "%CHAT_ACTIVITIES% chats"
   BlockStats: "%BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"
-  PlayerStats: "\t[hl=1][ [color=aqua]%PLAYER_NAME% Stats [/color] ]\n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
+  PlayerStats: "	[hl=1][ [color=aqua]%PLAYER_NAME% Stats [/color] ]\n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
   DiffStats: "%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)"
