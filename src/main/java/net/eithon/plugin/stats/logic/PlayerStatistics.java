@@ -41,8 +41,13 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	public PlayerStatistics(Player player)
 	{
+		this(new EithonPlayer(player));
+	}
+
+	public PlayerStatistics(EithonPlayer eithonPlayer)
+	{
 		this();
-		this._eithonPlayer = new EithonPlayer(player);
+		this._eithonPlayer = eithonPlayer;
 	}
 
 	PlayerStatistics() {
@@ -254,6 +259,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		if (this._afkDescription != null) {
 			afkDescription = Config.M.afkYes.getMessageWithColorCoding(this._afkDescription);
 		}
+		
 		HashMap<String,String> namedArguments = new HashMap<String, String>();
 		namedArguments.put("PLAYER_NAME", this._eithonPlayer.getName());
 		namedArguments.put("AFK_DESCRIPTION", afkDescription);

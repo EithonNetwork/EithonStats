@@ -1,5 +1,6 @@
 package net.eithon.plugin.stats;
 
+import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.CommandParser;
 import net.eithon.library.plugin.ICommandHandler;
@@ -79,9 +80,9 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasPermissionOrInformSender("stats.player")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
-		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
+		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
 		
-		this._controller.showStats(commandParser.getSender(), player);
+		this._controller.showStats(commandParser.getSender(), eithonPlayer);
 	}
 
 	void addCommand(CommandParser commandParser)

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.FileContent;
 import net.eithon.library.json.PlayerCollection;
@@ -80,6 +81,12 @@ public class Controller implements IBlockMoverFollower {
 		return this._allPlayerTimes.get(player);
 	}
 
+	public void showStats(CommandSender sender, EithonPlayer eithonPlayer) {
+		PlayerStatistics time = getOrCreatePlayerTime(eithonPlayer);
+		time.lap();
+		time.sendPlayerStatistics(sender);
+	}
+
 	private PlayerStatistics getOrCreatePlayerTime(Player player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time == null) {
@@ -91,10 +98,15 @@ public class Controller implements IBlockMoverFollower {
 		return time;
 	}
 
-	public void showStats(CommandSender sender, Player player) {
-		PlayerStatistics time = getOrCreatePlayerTime(player);
-		time.lap();
-		time.sendPlayerStatistics(sender);
+	private PlayerStatistics getOrCreatePlayerTime(EithonPlayer eithonPlayer) {
+		PlayerStatistics time = this._allPlayerTimes.get(eithonPlayer);
+		if (time == null) {
+			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
+					eithonPlayer.getName());
+			time = new PlayerStatistics(eithonPlayer);
+			this._allPlayerTimes.put(eithonPlayer, time);
+		}
+		return time;
 	}
 
 	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
