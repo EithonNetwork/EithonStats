@@ -14,7 +14,6 @@ import net.eithon.library.move.IBlockMoverFollower;
 import net.eithon.library.move.MoveEventHandler;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
-import net.eithon.plugin.stats.Config;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
