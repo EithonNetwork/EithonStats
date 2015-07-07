@@ -46,6 +46,12 @@ public class Controller implements IBlockMoverFollower {
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s moved.", player.getName());
 	}
 
+	public void playerCommand(Player player) {
+		PlayerStatistics time = getOrCreatePlayerTime(player);
+		time.updateAlive();
+		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s issued a estas command.", player.getName());
+	}
+
 	private void consolidateDelta(File archiveFile) {
 		if (this._allPlayerTimes != null) saveDelta();
 		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
