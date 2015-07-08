@@ -8,6 +8,7 @@ Keep track of Player statistics
 
 * CHANGE: When a player is already AFK, going idle does not change anything.
 * BUG: Couldn't add playtime to offline players.
+* BUG: Now shows subcommands if no subcommand was given.
 
 ### 1.0 (2015-06-13)
 

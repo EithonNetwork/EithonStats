@@ -44,7 +44,7 @@ public class CommandHandler implements ICommandHandler {
 		this._controller.playerCommand(player);
 		String command = commandParser.getArgumentCommand();
 		if (command == null) {
-			timeCommand(commandParser);
+			return false;
 		} else if (command.equalsIgnoreCase("status")) {
 			statusCommand(commandParser);
 		} else if (command.equalsIgnoreCase("add")) {
