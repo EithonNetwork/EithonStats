@@ -270,9 +270,9 @@ public class Controller implements IBlockMoverFollower {
 
 	public long addPlayTime(
 			CommandSender sender, 
-			Player player,
+			EithonPlayer eithonPlayer,
 			long playTimeInSeconds) {
-		PlayerStatistics statistics = getOrCreatePlayerTime(player);
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToTotalPlayTime(playTimeInSeconds);
 	}
 }

@@ -89,14 +89,14 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasPermissionOrInformSender("stats.add")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3, 3)) return;
 
-		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
+		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
 		long playTimeInSeconds = commandParser.getArgumentTimeAsSeconds(0);
 		
-		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), player, playTimeInSeconds);
+		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), eithonPlayer, playTimeInSeconds);
 		Config.M.playTimeAdded.sendMessage(
 				commandParser.getSender(),
 				TimeMisc.secondsToString(playTimeInSeconds),
-				player.getName(), 
+				eithonPlayer.getName(), 
 				TimeMisc.secondsToString(totalPlayTimeInSeconds));
 	}
 

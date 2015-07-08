@@ -83,6 +83,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	protected void isIdle() {
+		if (isAfk()) return;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
 		this._alarmId = null;
