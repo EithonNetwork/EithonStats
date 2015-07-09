@@ -177,7 +177,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
+	private JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
 		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
 		if (!saveAll && !this._hasBeenUpdated) {
 			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
