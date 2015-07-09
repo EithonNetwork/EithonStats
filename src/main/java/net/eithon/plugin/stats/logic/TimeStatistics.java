@@ -24,11 +24,9 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	public TimeStatistics()
 	{
 		this._previousStartTime = null;
-		this._firstStartTime = null;
-		this._totalPlayTimeInSeconds = 0;
-		this._intervals = 0;
-		this._longestIntervalInSeconds = 0;
+		this._previousStopTime = null;
 		this._previousIntervalInSeconds = 0;
+		resetTotalPlayTime();
 	}
 
 	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) {
@@ -58,7 +56,15 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 
 	public long addToTotalPlayTime(long playTimeInSeconds) {
 		this._totalPlayTimeInSeconds += playTimeInSeconds;
+		if (this._totalPlayTimeInSeconds < 0) resetTotalPlayTime();
 		return this._totalPlayTimeInSeconds;
+	}
+
+	public void resetTotalPlayTime() {
+		this._firstStartTime = null;
+		this._totalPlayTimeInSeconds = 0;
+		this._intervals = 0;
+		this._longestIntervalInSeconds = 0;
 	}
 
 	private void rememberInterval(long useLastInterval, long playTimeInSeconds) {

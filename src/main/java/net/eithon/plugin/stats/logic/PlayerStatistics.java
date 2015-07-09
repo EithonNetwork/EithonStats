@@ -147,6 +147,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
 	}
 
+	public void resetTotalPlayTime() {
+		this._timeInfo.resetTotalPlayTime();
+	}
+
 	public void lap() {
 		if (this._startTime == null) return;
 		LocalDateTime stopTime = stop(null);

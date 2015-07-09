@@ -38,6 +38,8 @@ public class Config {
 		public static ConfigurableMessage playerStarted;
 		public static ConfigurableMessage playerStopped;
 		public static ConfigurableMessage playTimeAdded;
+		public static ConfigurableMessage playTimeTaken;
+		public static ConfigurableMessage playTimeReset;
 		public static ConfigurableMessage saved;
 		public static ConfigurableMessage afkYes;
 		public static ConfigurableMessage afkNo;
@@ -62,6 +64,12 @@ public class Config {
 			playTimeAdded = config.getConfigurableMessage(
 					"messages.PlayTimeAdded", 3, 
 					"Added %s play time to player %s, resulting in a total play time of %s.");
+			playTimeTaken = config.getConfigurableMessage(
+					"messages.PlayTimeTaken", 3, 
+					"Took %s play time from player %s, resulting in a total play time of %s.");
+			playTimeReset = config.getConfigurableMessage(
+					"messages.PlayTimeReset", 1, 
+					"Took away all play time from player %s.");
 			saved = config.getConfigurableMessage(
 					"messages.Saved", 0, 
 					"Saved play times for all logged in players.");

@@ -4,6 +4,11 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.2 (2015-07-09)
+
+* NEW: Added command "take" that is the reverse of the "add" command.
+* NEW: Added command "reset" that removes all play time for a player.
+
 ### 1.1 (2015-07-08)
 
 * CHANGE: When a player is already AFK, going idle does not change anything.

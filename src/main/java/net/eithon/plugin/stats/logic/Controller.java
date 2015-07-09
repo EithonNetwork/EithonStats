@@ -275,4 +275,11 @@ public class Controller implements IBlockMoverFollower {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToTotalPlayTime(playTimeInSeconds);
 	}
+
+	public void resetPlayTime(
+			CommandSender sender, 
+			EithonPlayer eithonPlayer) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		statistics.resetTotalPlayTime();
+	}
 }
