@@ -35,7 +35,6 @@ public class CommandHandler implements ICommandHandler {
 	}
 
 	void disable() {
-		this._controller.saveDelta();
 	}
 
 	@Override

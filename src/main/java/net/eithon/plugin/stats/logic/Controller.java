@@ -53,8 +53,11 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	private void consolidateDelta(File archiveFile) {
-		if (this._allPlayerTimes != null) saveDelta();
-		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		if (this._allPlayerTimes == null)  {
+			this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		} else  {
+			saveDelta();
+		}
 		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
 	}
 
@@ -75,7 +78,7 @@ public class Controller implements IBlockMoverFollower {
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
 	}
-	
+
 	public PlayerStatistics getPlayerStatistics(Player player) {
 		return this._allPlayerTimes.get(player);
 	}
@@ -256,7 +259,7 @@ public class Controller implements IBlockMoverFollower {
 			this._eithonLogger.warning("Archive file \"%s\" not found.", archive.getAbsolutePath());
 			return null;
 		}
-		
+
 		FileContent fileContent = FileContent.loadFromFile(archive);
 		return new PlayerCollection<PlayerStatistics>(new PlayerStatistics()).fromJson(fileContent.getPayload());
 	}
