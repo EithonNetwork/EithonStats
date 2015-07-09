@@ -18,6 +18,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String ADD_COMMAND = "/stats add <player> <HH:MM:SS>";
 	private static final String TAKE_COMMAND = "/stats take <player> <HH:MM:SS>";
 	private static final String RESET_COMMAND = "/stats reset <player>";
+	private static final String WHO_COMMAND = "/stats who";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
 	private static final String TIME_COMMAND = "/stats time [desc|asc] [maxItems]";
@@ -65,6 +66,8 @@ public class CommandHandler implements ICommandHandler {
 			awayFromKeyboardCommand(commandParser);
 		} else if (command.equalsIgnoreCase("save")) {
 			saveCommand(commandParser);
+		} else if (command.equalsIgnoreCase("who")) {
+			whoCommand(commandParser);
 		} else if (command.equalsIgnoreCase("time")) {
 			timeCommand(commandParser);
 		} else if (command.equalsIgnoreCase("blocks")) {
@@ -174,6 +177,14 @@ public class CommandHandler implements ICommandHandler {
 		Config.M.saved.sendMessage(commandParser.getSender());
 	}
 
+	void whoCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.who")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
+		
+		this._controller.who(commandParser.getSender());
+	}
+
 	void timeCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.time")) return;
@@ -259,6 +270,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(AFK_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {
 			sender.sendMessage(SAVE_COMMAND);
+		} else if (command.equalsIgnoreCase("who")) {
+			sender.sendMessage(WHO_COMMAND);
 		} else if (command.equalsIgnoreCase("time")) {
 			sender.sendMessage(TIME_COMMAND);
 		} else if (command.equalsIgnoreCase("blocks")) {

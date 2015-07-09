@@ -2,6 +2,7 @@ package net.eithon.plugin.stats.logic;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -284,5 +285,20 @@ public class Controller implements IBlockMoverFollower {
 			EithonPlayer eithonPlayer) {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		statistics.resetTotalPlayTime();
+	}
+
+	public void who(CommandSender sender) {
+		ArrayList<String> active = new ArrayList<String>();
+		ArrayList<String> afk = new ArrayList<String>();
+		for (PlayerStatistics statistics : this._allPlayerTimes) {
+			if (!statistics.isOnline()) continue;
+			if (statistics.isAfk()) afk.add(statistics.getName());
+			else active.add(statistics.getName());
+		}
+
+		String activePlayers = String.join(", ", active);
+		String afkPlayers = String.join(", ", afk);
+		sender.sendMessage(String.format("Active: %s", activePlayers));
+		sender.sendMessage(String.format("AFK: %s", afkPlayers));
 	}
 }

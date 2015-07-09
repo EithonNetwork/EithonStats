@@ -77,12 +77,16 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 						Config.V.allowedInactivityInSeconds,
 						new Runnable() {
 					public void run() {
-						isIdle();
+						setAsIdle();
 					}
 				});
 	}
+	
+	public boolean isOnline() {
+		return this._eithonPlayer.isOnline();
+	}
 
-	protected void isIdle() {
+	protected void setAsIdle() {
 		if (isAfk()) return;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
