@@ -16,6 +16,9 @@ public class CommandHandler implements ICommandHandler {
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
 	private static final String ADD_COMMAND = "/stats add <player> <HH:MM:SS>";
+	private static final String TAKE_COMMAND = "/stats take <player> <HH:MM:SS>";
+	private static final String RESET_COMMAND = "/stats reset <player>";
+	private static final String WHO_COMMAND = "/stats who";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
 	private static final String TIME_COMMAND = "/stats time [desc|asc] [maxItems]";
@@ -33,7 +36,6 @@ public class CommandHandler implements ICommandHandler {
 	}
 
 	void disable() {
-		this._controller.saveDelta();
 	}
 
 	@Override
@@ -49,6 +51,10 @@ public class CommandHandler implements ICommandHandler {
 			statusCommand(commandParser);
 		} else if (command.equalsIgnoreCase("add")) {
 			addCommand(commandParser);
+		} else if (command.equalsIgnoreCase("take")) {
+			takeCommand(commandParser);
+		} else if (command.equalsIgnoreCase("reset")) {
+			resetCommand(commandParser);
 		} else if (command.equalsIgnoreCase("player")) {
 			playerCommand(commandParser);
 		} else if (command.equalsIgnoreCase("start")) {
@@ -60,6 +66,8 @@ public class CommandHandler implements ICommandHandler {
 			awayFromKeyboardCommand(commandParser);
 		} else if (command.equalsIgnoreCase("save")) {
 			saveCommand(commandParser);
+		} else if (command.equalsIgnoreCase("who")) {
+			whoCommand(commandParser);
 		} else if (command.equalsIgnoreCase("time")) {
 			timeCommand(commandParser);
 		} else if (command.equalsIgnoreCase("blocks")) {
@@ -100,6 +108,35 @@ public class CommandHandler implements ICommandHandler {
 				TimeMisc.secondsToString(totalPlayTimeInSeconds));
 	}
 
+	void takeCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.take")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3, 3)) return;
+
+		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
+		long playTimeInSeconds = commandParser.getArgumentTimeAsSeconds(0);
+		
+		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), eithonPlayer, -playTimeInSeconds);
+		Config.M.playTimeTaken.sendMessage(
+				commandParser.getSender(),
+				TimeMisc.secondsToString(playTimeInSeconds),
+				eithonPlayer.getName(), 
+				TimeMisc.secondsToString(totalPlayTimeInSeconds));
+	}
+
+	void resetCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.take")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+
+		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
+		
+		this._controller.resetPlayTime(commandParser.getSender(), eithonPlayer);
+		Config.M.playTimeReset.sendMessage(
+				commandParser.getSender(),
+				eithonPlayer.getName());
+	}
+
 	void startCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.start")) return;
@@ -138,6 +175,14 @@ public class CommandHandler implements ICommandHandler {
 		
 		this._controller.saveDelta();
 		Config.M.saved.sendMessage(commandParser.getSender());
+	}
+
+	void whoCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.who")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
+		
+		this._controller.who(commandParser.getSender());
 	}
 
 	void timeCommand(CommandParser commandParser)
@@ -217,10 +262,16 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(STOP_COMMAND);
 		} else if (command.equalsIgnoreCase("add")) {
 			sender.sendMessage(ADD_COMMAND);
+		} else if (command.equalsIgnoreCase("take")) {
+			sender.sendMessage(TAKE_COMMAND);
+		} else if (command.equalsIgnoreCase("reset")) {
+			sender.sendMessage(RESET_COMMAND);
 		} else if (command.equalsIgnoreCase("afk")) {
 			sender.sendMessage(AFK_COMMAND);
 		} else if (command.equalsIgnoreCase("save")) {
 			sender.sendMessage(SAVE_COMMAND);
+		} else if (command.equalsIgnoreCase("who")) {
+			sender.sendMessage(WHO_COMMAND);
 		} else if (command.equalsIgnoreCase("time")) {
 			sender.sendMessage(TIME_COMMAND);
 		} else if (command.equalsIgnoreCase("blocks")) {

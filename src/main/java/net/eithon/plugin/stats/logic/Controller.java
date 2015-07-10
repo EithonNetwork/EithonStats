@@ -2,6 +2,7 @@ package net.eithon.plugin.stats.logic;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -53,8 +54,11 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	private void consolidateDelta(File archiveFile) {
-		if (this._allPlayerTimes != null) saveDelta();
-		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		if (this._allPlayerTimes == null)  {
+			this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
+		} else  {
+			saveDelta();
+		}
 		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
 	}
 
@@ -75,7 +79,7 @@ public class Controller implements IBlockMoverFollower {
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
 	}
-	
+
 	public PlayerStatistics getPlayerStatistics(Player player) {
 		return this._allPlayerTimes.get(player);
 	}
@@ -256,7 +260,7 @@ public class Controller implements IBlockMoverFollower {
 			this._eithonLogger.warning("Archive file \"%s\" not found.", archive.getAbsolutePath());
 			return null;
 		}
-		
+
 		FileContent fileContent = FileContent.loadFromFile(archive);
 		return new PlayerCollection<PlayerStatistics>(new PlayerStatistics()).fromJson(fileContent.getPayload());
 	}
@@ -274,5 +278,27 @@ public class Controller implements IBlockMoverFollower {
 			long playTimeInSeconds) {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToTotalPlayTime(playTimeInSeconds);
+	}
+
+	public void resetPlayTime(
+			CommandSender sender, 
+			EithonPlayer eithonPlayer) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		statistics.resetTotalPlayTime();
+	}
+
+	public void who(CommandSender sender) {
+		ArrayList<String> active = new ArrayList<String>();
+		ArrayList<String> afk = new ArrayList<String>();
+		for (PlayerStatistics statistics : this._allPlayerTimes) {
+			if (!statistics.isOnline()) continue;
+			if (statistics.isAfk()) afk.add(statistics.getName());
+			else active.add(statistics.getName());
+		}
+
+		String activePlayers = String.join(", ", active);
+		String afkPlayers = String.join(", ", afk);
+		sender.sendMessage(String.format("Active: %s", activePlayers));
+		sender.sendMessage(String.format("AFK: %s", afkPlayers));
 	}
 }

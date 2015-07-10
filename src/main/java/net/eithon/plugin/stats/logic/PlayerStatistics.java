@@ -77,12 +77,16 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 						Config.V.allowedInactivityInSeconds,
 						new Runnable() {
 					public void run() {
-						isIdle();
+						setAsIdle();
 					}
 				});
 	}
+	
+	public boolean isOnline() {
+		return this._eithonPlayer.isOnline();
+	}
 
-	protected void isIdle() {
+	protected void setAsIdle() {
 		if (isAfk()) return;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
@@ -147,6 +151,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
 	}
 
+	public void resetTotalPlayTime() {
+		this._timeInfo.resetTotalPlayTime();
+	}
+
 	public void lap() {
 		if (this._startTime == null) return;
 		LocalDateTime stopTime = stop(null);
@@ -177,7 +185,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
+	private JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
 		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
 		if (!saveAll && !this._hasBeenUpdated) {
 			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());

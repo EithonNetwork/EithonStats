@@ -43,6 +43,14 @@ messages:
   PlayTimeAdded: Added %s play time to player %s, resulting in a total play time of %s.
 
   #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  PlayTimeTaken: Took %s play time from player %s, resulting in a total play time of %s.
+
+  #
+  # Parameters: <player name> (%s)
+  PlayTimeReset: Took away all play time from player %s.
+
+  #
   # Parameters: -
   Saved: Saved play times for all logged in players.
 

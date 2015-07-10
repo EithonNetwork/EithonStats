@@ -4,6 +4,13 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.2 (2015-07-09)
+
+* NEW: Added command "take" that is the reverse of the "add" command.
+* NEW: Added command "reset" that removes all play time for a player.
+* NEW: Added command "who" that lists all online players divided into active and AFK.
+* BUG: Archiving at midnight caused every on-line player to be marked as idle.
+
 ### 1.1 (2015-07-08)
 
 * CHANGE: When a player is already AFK, going idle does not change anything.
