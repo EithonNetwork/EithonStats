@@ -7,6 +7,7 @@ Keep track of Player statistics
 ### 1.3 (2015-07-14)
 
 * CHANGE: Changed from AFK Yes/No to Online/Offline/AFK
+* CHANGE: savedelta() now is synchronized for concurrency reasons.
 
 ### 1.2 (2015-07-09)
 

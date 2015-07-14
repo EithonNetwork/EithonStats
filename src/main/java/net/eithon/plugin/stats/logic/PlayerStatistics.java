@@ -175,7 +175,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	@Override
 	public PlayerStatistics fromJson(Object json) {
 		JSONObject jsonObject = (JSONObject) json;
-		this._eithonPlayer = EithonPlayer.getFromJSon(jsonObject.get("player"));
+		this._eithonPlayer = EithonPlayer.getFromJson(jsonObject.get("player"));
 		this._timeInfo = TimeStatistics.getFromJson(jsonObject.get("timeInfo"));
 		this._chatActivities = (long)jsonObject.get("chatActivities");
 		this._lastChatActivity = TimeMisc.toLocalDateTime(jsonObject.get("lastChatActivity"));
