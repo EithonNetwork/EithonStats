@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.3 (2015-07-14)
+
+* CHANGE: Changed from AFK Yes/No to Online/Offline/AFK
+
 ### 1.2 (2015-07-09)
 
 * NEW: Added command "take" that is the reverse of the "add" command.

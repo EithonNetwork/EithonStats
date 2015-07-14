@@ -41,8 +41,9 @@ public class Config {
 		public static ConfigurableMessage playTimeTaken;
 		public static ConfigurableMessage playTimeReset;
 		public static ConfigurableMessage saved;
-		public static ConfigurableMessage afkYes;
-		public static ConfigurableMessage afkNo;
+		public static ConfigurableMessage statusOnline;
+		public static ConfigurableMessage statusOffline;
+		public static ConfigurableMessage statusAfk;
 		public static ConfigurableMessage inactivityDetected;
 		public static ConfigurableMessage defaultAfkDescription;
 		public static ConfigurableMessage playerIdle;
@@ -73,12 +74,15 @@ public class Config {
 			saved = config.getConfigurableMessage(
 					"messages.Saved", 0, 
 					"Saved play times for all logged in players.");
-			afkYes = config.getConfigurableMessage(
-					"messages.AfkYes", 1, 
-					"AFK: Yes (%s)");
-			afkNo = config.getConfigurableMessage(
-					"messages.AfkNo", 0, 
-					"AFK: No");
+			statusOnline = config.getConfigurableMessage(
+					"messages.StatusOnline", 0, 
+					"Online");
+			statusOffline = config.getConfigurableMessage(
+					"messages.StatusOffline", 0, 
+					"Offline");
+			statusAfk = config.getConfigurableMessage(
+					"messages.StatusAfk", 1, 
+					"AFK (%s)");
 			inactivityDetected = config.getConfigurableMessage(
 					"messages.InactivityDetected", 0, 
 					"Inactivity detected");

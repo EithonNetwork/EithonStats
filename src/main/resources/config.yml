@@ -76,18 +76,23 @@ messages:
   
   #
   #
-  # Parameters: <Description> (%s)
-  AfkYes: "Yes (%s)"
+  # Parameters: -
+  StatusOnline: "Online"
   
   #
   #
   # Parameters: -
-  AfkNo: "No"
+  StatusOffline: "Offline"
+  
+  #
+  # 
+  # Parameters: <Description> (%s)
+  StatusAfk: "AFK (%s)"
   
   #
   # The following messages have the following possible parameters
   # %PLAYER_NAME%: The name of the player that the statistics is for.
-  # %AFK_DESCRIPTION%: The AFK reason. Empty if not AFK.
+  # %STATUS_DESCRIPTION%: Status (online/offline/afk (reason)), see StatusOnline, StatusOffline, StatusAfk
   # %BLOCKS_BROKEN%: The total number of blocks that the player has broken.
   # %BLOCKS_CREATED%: The total number of blocks that the player has created.
   # %BLOCKS_CREATED_OR_BROKEN%: The total number of blocks that the player has created or broken (the sum).
@@ -96,8 +101,8 @@ messages:
   # %TOTAL_PLAY_TIME%: The total play time for the player.
   # %LONGEST_INTERVAL%: The longest time that the player has played without a break.
   # %LATEST_INTERVAL%: The latest recorded play time for the player.
-  TimeStats: "%PLAYER_NAME%: %TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) AFK: %AFK_DESCRIPTION%"
+  TimeStats: "%PLAYER_NAME%: %TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) Status: %STATUS_DESCRIPTION%"
   ChatStats: "%PLAYER_NAME%: %CHAT_ACTIVITIES% chats"
   BlockStats: "%PLAYER_NAME%: %BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"
-  PlayerStats: "	[hl=1][ [color=aqua]%PLAYER_NAME% stats [/color] ]\n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]AFK:[/color] %AFK_DESCRIPTION% "
+  PlayerStats: "	[hl=1][ [color=aqua]%PLAYER_NAME% stats [/color] ]\n[color=darkgrey]  -[/color] [color=darkaqua]Playtime:[/color] %TOTAL_PLAY_TIME% \n[color=darkgrey]  -[/color] [color=darkaqua]Messages Sent:[/color] %CHAT_ACTIVITIES% \n[color=darkgrey]  -[/color] [color=darkaqua]Blocks Placed/Broken:[/color] %BLOCKS_CREATED%/%BLOCKS_BROKEN% \n[color=darkgrey]  -[/color] [color=darkaqua]Status:[/color] %STATUS_DESCRIPTION% "
   DiffStats: "%PLAYER_NAME%: %TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)%TOTAL_PLAY_TIME% in %INTERVALS% intervals, %CHAT_ACTIVITIES% chats, %BLOCKS_CREATED_OR_BROKEN% blocks created or broken)"

@@ -81,7 +81,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 					}
 				});
 	}
-	
+
 	public boolean isOnline() {
 		return this._eithonPlayer.isOnline();
 	}
@@ -264,14 +264,17 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public Object getAfkDescription() { return this._afkDescription; }
 
 	private HashMap<String,String> getNamedArguments() {
-		String afkDescription = Config.M.afkNo.getMessage();
-		if (this._afkDescription != null) {
-			afkDescription = Config.M.afkYes.getMessageWithColorCoding(this._afkDescription);
+		String status = "";
+		if (this._eithonPlayer.isOnline()) {
+			if (this._afkDescription == null) status = Config.M.statusOnline.getMessageWithColorCoding();
+			else status = Config.M.statusAfk.getMessageWithColorCoding(this._afkDescription);
+		} else {
+			status = Config.M.statusOffline.getMessageWithColorCoding();
 		}
-		
+
 		HashMap<String,String> namedArguments = new HashMap<String, String>();
 		namedArguments.put("PLAYER_NAME", this._eithonPlayer.getName());
-		namedArguments.put("AFK_DESCRIPTION", afkDescription);
+		namedArguments.put("STATUS_DESCRIPTION", status);
 		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
 		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
 		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));
