@@ -59,11 +59,15 @@ public class Controller implements IBlockMoverFollower {
 		} else  {
 			saveDelta();
 		}
-		this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
+		synchronized(this._allPlayerTimes) {
+			this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
+		}
 	}
 
 	public void saveDelta() {
-		this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
+		synchronized(this._allPlayerTimes) {
+			this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
+		}
 	}
 
 	public void startPlayer(Player player) {
