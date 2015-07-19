@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.4 (2015-07-19)
+
+* NEW: New API method for EithonRankUp.
+
 ### 1.3 (2015-07-14)
 
 * CHANGE: Changed from AFK Yes/No to Online/Offline/AFK

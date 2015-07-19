@@ -255,6 +255,10 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		return this._afkDescription != null;
 	}
 
+	public boolean isActive() {
+		return isOnline() && !isAfk();
+	}
+
 	public long getBlocksCreated() { return this._blocksCreated; }
 
 	public long getChats() { return this._chatActivities; }

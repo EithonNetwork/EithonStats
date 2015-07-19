@@ -1,5 +1,6 @@
 package net.eithon.plugin.stats;
 
+import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.plugin.stats.logic.Controller;
 import net.eithon.plugin.stats.logic.PlayerStatistics;
 
@@ -11,8 +12,7 @@ public class EithonStatsApi {
 	public void test() {}
 
 	public static long getPlaytimeHours(Player player) {
-		if (controller == null) return 0;
-		PlayerStatistics playerStatistics = controller.getPlayerStatistics(player);
+		PlayerStatistics playerStatistics = getPlayerStatistics(player);
 		if (playerStatistics == null) return 0;
 		return playerStatistics.getTotalTimeInSeconds()/3600;
 	}
@@ -20,4 +20,17 @@ public class EithonStatsApi {
 	static void initialize(Controller _controller) {
 		controller = _controller;
 	}
+
+	public static boolean isActive(Player player) {
+		PlayerStatistics playerStatistics = getPlayerStatistics(player);
+		if (playerStatistics == null) return false;
+		return playerStatistics.isActive();
+	}
+
+	private static PlayerStatistics getPlayerStatistics(Player player) {
+		if (controller == null) return null;
+		return controller.getPlayerStatistics(player);
+	}
+	
+	
 }
