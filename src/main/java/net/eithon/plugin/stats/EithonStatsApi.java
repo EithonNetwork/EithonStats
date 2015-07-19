@@ -1,6 +1,5 @@
 package net.eithon.plugin.stats;
 
-import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.plugin.stats.logic.Controller;
 import net.eithon.plugin.stats.logic.PlayerStatistics;
 
