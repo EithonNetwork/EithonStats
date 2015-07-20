@@ -5,9 +5,9 @@ author: vanbrayne
 description: Player statistics
 depend: [EithonLibrary]
 commands:
-  estats:
+  stats:
     description: Control jump pads
-    usage: /estats status | who | player | start | stop | diff | afk | save | time | blocks | chat | add | take | reset
+    usage: /stats status | who | player | start | stop | diff | afk | save | time | blocks | chat | add | take | reset
     permission-message: You don't have <permission>
 permissions:
   stats.*:
