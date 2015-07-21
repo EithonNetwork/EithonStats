@@ -21,11 +21,12 @@ public class CommandHandler implements ICommandHandler {
 	private static final String WHO_COMMAND = "/stats who";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
 	private static final String SAVE_COMMAND = "/stats save";
-	private static final String TIME_COMMAND = "/stats time [desc|asc] [maxItems]";
-	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc] [maxItems]";
-	private static final String CHAT_COMMAND = "/stats chat [desc|asc] [maxItems]";
-	private static final String STATUS_COMMAND = "/stats status [desc|asc] [maxItems]";
-	private static final String DIFF_COMMAND = "/stats diff [desc|asc] [maxItems]";
+	private static final String TIME_COMMAND = "/stats time [desc|asc] [<maxItems>]";
+	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc] [<maxItems>]";
+	private static final String CHAT_COMMAND = "/stats chat [desc|asc] [<maxItems>]";
+	private static final String STATUS_COMMAND = "/stats status [desc|asc] [<maxItems>]";
+	private static final String DIFF_COMMAND = "/stats diff <daysback> [desc|asc] [<maxItems>]";
+	private static final String PLAYER_DIFF_COMMAND = "/stats playerdiff <player> <daysback>";
 
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
@@ -76,6 +77,8 @@ public class CommandHandler implements ICommandHandler {
 			chatCommand(commandParser);
 		} else if (command.equalsIgnoreCase("diff")) {
 			diffCommand(commandParser);
+		} else if (command.equalsIgnoreCase("playerdiff")) {
+			playerDiffCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -227,7 +230,7 @@ public class CommandHandler implements ICommandHandler {
 	void diffCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 4)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 4)) return;
 		
 		int daysBack = commandParser.getArgumentInteger(7);
 
@@ -237,6 +240,17 @@ public class CommandHandler implements ICommandHandler {
 		int maxItems = commandParser.getArgumentInteger(0);
 		
 		this._controller.showDiffStats(commandParser.getSender(), daysBack, ascending, maxItems);
+	}
+
+	void playerDiffCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3,5)) return;
+		
+		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
+		int daysBack = commandParser.getArgumentInteger(7);
+		
+		this._controller.showDiffStats(commandParser.getSender(), player, daysBack);
 	}
 
 	void statusCommand(CommandParser commandParser)
@@ -282,6 +296,8 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(CHAT_COMMAND);
 		} else if (command.equalsIgnoreCase("diff")) {
 			sender.sendMessage(DIFF_COMMAND);
+		} else if (command.equalsIgnoreCase("playerdiff")) {
+			sender.sendMessage(PLAYER_DIFF_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

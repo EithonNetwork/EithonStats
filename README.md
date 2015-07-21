@@ -4,6 +4,11 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.5 (2015-07-21)
+
+* NEW: Added command /stats playerdiff to show the diff for a specific player
+* BUG: Corrected commanddocumentation for /stats diff
+
 ### 1.4 (2015-07-19)
 
 * NEW: New API method for EithonRankUp.
