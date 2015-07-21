@@ -170,6 +170,14 @@ public class Controller implements IBlockMoverFollower {
 					} });
 	}
 
+	public void showDiffStats(CommandSender sender, Player player, int daysBack) {
+		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
+		PlayerStatistics statistics = diff.get(player);
+		if (statistics == null) return;
+		statistics.sendDiffStats(sender);
+		return;
+	}
+
 	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortDiffsByTotalTime(daysBack, ascending, maxItems)) {
 			if (time == null) this._eithonLogger.error("showDiffStats: Unexpected null");

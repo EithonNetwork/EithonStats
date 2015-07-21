@@ -1,13 +1,13 @@
 name: EithonStats
 main: net.eithon.plugin.stats.Plugin
-version: 1.4
+version: 1.5
 author: vanbrayne
 description: Player statistics
 depend: [EithonLibrary]
 commands:
   stats:
     description: Control jump pads
-    usage: /stats status | who | player | start | stop | diff | afk | save | time | blocks | chat | add | take | reset
+    usage: /stats status | who | player | start | stop | diff  | playerdiff | afk | save | time | blocks | chat | add | take | reset
     permission-message: You don't have <permission>
 permissions:
   stats.*:
@@ -22,6 +22,7 @@ permissions:
     stats.blocks: true
     stats.chat: true
     stats.diff: true
+    stats.playerdiff: true
     stats.add: true
     stats.take: true
     stats.reset: true
@@ -55,6 +56,9 @@ permissions:
     default: op
   stats.diff:
     description: Access to /estats diff command
+    default: op
+  stats.playerdiff:
+    description: Access to /estats playerdiff command
     default: op
   stats.add:
     description: Access to /estats add command
