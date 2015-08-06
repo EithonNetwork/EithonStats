@@ -16,13 +16,13 @@ public class Config {
 
 	}
 	public static class V {
-		public static int allowedInactivityInSeconds;
-		public static int secondsBetweenSave;
+		public static long allowedInactivityInSeconds;
+		public static long secondsBetweenSave;
 		public static LocalTime archiveAtTimeOfDay;
 		
 		static void load(Configuration config) {
-			allowedInactivityInSeconds = config.getInt("AllowedInactivityInSeconds", 300);
-			secondsBetweenSave = config.getInt("SecondsBetweenSave", 300);
+			allowedInactivityInSeconds = config.getSeconds("AllowedInactivityTimeSpan", "5m");
+			secondsBetweenSave = config.getSeconds("TimeSpanBetweenSave", "5m");
 			archiveAtTimeOfDay = config.getLocalTime("ArchiveAtTimeOfDay", LocalTime.of(0, 0));
 		}
 
