@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.eithon.plugin</groupId>
   <artifactId>EithonStats</artifactId>
-  <version>1.6</version>
+  <version>1.7</version>
   <name>EithonStats</name>
   <build>
       <plugins>
@@ -34,6 +34,12 @@
 		<dependency>
 			<groupId>net.eithon.plugin</groupId>
 			<artifactId>EithonLibrary</artifactId>
+			<version>[1.0,)</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.eithon.plugin</groupId>
+			<artifactId>EithonCop</artifactId>
 			<version>[1.0,)</version>
 			<scope>provided</scope>
 		</dependency>
