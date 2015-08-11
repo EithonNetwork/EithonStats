@@ -14,17 +14,21 @@ import net.eithon.library.json.PlayerCollection;
 import net.eithon.library.move.IBlockMoverFollower;
 import net.eithon.library.move.MoveEventHandler;
 import net.eithon.library.plugin.Logger;
+import net.eithon.library.plugin.PluginMisc;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.plugin.cop.EithonCopApi;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.plugin.Plugin;
 
 public class Controller implements IBlockMoverFollower {
 
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
 	private Logger _eithonLogger;
+	private Plugin _eithonCopPlugin;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
@@ -33,6 +37,17 @@ public class Controller implements IBlockMoverFollower {
 		PlayerStatistics.initialize(this._eithonLogger);
 		consolidateDelta(null);
 		MoveEventHandler.addBlockMover(this);
+		connectToStats(this._eithonPlugin);
+	}
+
+	private void connectToStats(EithonPlugin eithonPlugin) {
+		this._eithonCopPlugin = PluginMisc.getPlugin("EithonStats");
+		if (this._eithonCopPlugin != null && this._eithonCopPlugin.isEnabled()) {
+			eithonPlugin.getEithonLogger().info("Succesfully hooked into the EithonCop plugin!");
+		} else {
+			this._eithonCopPlugin = null;
+			eithonPlugin.getEithonLogger().warning("EithonStats can't censor AFK messages without the EithonCop plugin.");			
+		}
 	}
 
 	@Override
@@ -79,6 +94,9 @@ public class Controller implements IBlockMoverFollower {
 
 	public void stopPlayer(Player player, String description) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
+		if (this._eithonCopPlugin != null) {
+			description = EithonCopApi.censorMessage(player, description);
+		}
 		time.stop(description);
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());

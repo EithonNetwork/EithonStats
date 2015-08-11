@@ -4,6 +4,14 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.7 (2015.08-11)
+
+* CHANGE: Now censors the AFK messages using EithonCop.
+
+### 1.6 (2015-08-10)
+
+* CHANGE: All time span configuration values are now in the general TimeSpan format instead of hard coded to seconds or minutes or hours.
+
 ### 1.5 (2015-07-21)
 
 * NEW: Added command /stats playerdiff to show the diff for a specific player
