@@ -2,6 +2,7 @@ package net.eithon.plugin.stats.logic;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import net.eithon.library.json.IJson;
 import net.eithon.library.time.TimeMisc;
@@ -15,6 +16,8 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	private long _totalPlayTimeInSeconds;
 	private long _intervals;
 	private long _longestIntervalInSeconds;
+	private LocalDateTime _today;
+	private long _playTimeTodayInSeconds;
 
 	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;
@@ -24,7 +27,6 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	public TimeStatistics()
 	{
 		this._previousStartTime = null;
-		this._previousStopTime = null;
 		this._previousIntervalInSeconds = 0;
 		resetTotalPlayTime();
 	}
@@ -38,6 +40,8 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		diff._previousIntervalInSeconds = now._previousIntervalInSeconds;
 		diff._previousStartTime = now._previousStartTime;
 		diff._previousStopTime = now._previousStopTime;
+		diff._today = now.getToday();
+		diff._playTimeTodayInSeconds = now.getPlayTimeTodayInSeconds();
 		diff._totalPlayTimeInSeconds = now._totalPlayTimeInSeconds - ((then == null) ? 0 : then._totalPlayTimeInSeconds);
 		return diff;
 	}
@@ -47,11 +51,26 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		if ((this._previousStopTime != null) && (this._previousStopTime.isEqual(start))) {
 			useLastInterval = this._previousIntervalInSeconds;
 		}
-		long playTimeInSeconds = stop.toEpochSecond(ZoneOffset.UTC) - start.toEpochSecond(ZoneOffset.UTC);
+		long playTimeInSeconds = differenceInSeconds(start, stop);
 		rememberStartTime(start);
 		rememberStopTime(stop);
 		rememberInterval(useLastInterval, playTimeInSeconds);
 		this._totalPlayTimeInSeconds += playTimeInSeconds;
+		if (this._today == null) this._today = start.truncatedTo(ChronoUnit.DAYS);
+		if (!isSameDay(this._today, stop)) {
+			this._today = stop.truncatedTo(ChronoUnit.DAYS);
+			this._playTimeTodayInSeconds = 0;
+		}
+		this._playTimeTodayInSeconds += playTimeInSeconds;
+	}
+
+	static boolean isSameDay(LocalDateTime time1, LocalDateTime time2) {
+		if ((time1 == null)  || (time2 == null)) return false;
+		return time1.toLocalDate().isEqual(time2.toLocalDate());
+	}
+
+	static long differenceInSeconds(LocalDateTime start, LocalDateTime stop) {
+		return stop.toEpochSecond(ZoneOffset.UTC) - start.toEpochSecond(ZoneOffset.UTC);
 	}
 
 	public long addToTotalPlayTime(long playTimeInSeconds) {
@@ -65,6 +84,7 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		this._totalPlayTimeInSeconds = 0;
 		this._intervals = 0;
 		this._longestIntervalInSeconds = 0;
+		resetIfNewDay();
 	}
 
 	private void rememberInterval(long useLastInterval, long playTimeInSeconds) {
@@ -85,9 +105,24 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 	}
 
 	public LocalDateTime getPreviousStartTime() { return this._previousStartTime; }
+	LocalDateTime getToday() { 		
+		resetIfNewDay();
+		return this._today; 
+	}
 	public LocalDateTime getPreviousStopTime() { return this._previousStopTime; }
 	public long getPreviousIntervalInSeconds() { return this._previousIntervalInSeconds; }
 	public long getTotalPlayTimeInSeconds() { return this._totalPlayTimeInSeconds; }
+	long getPlayTimeTodayInSeconds() { 
+		resetIfNewDay();
+		return this._playTimeTodayInSeconds;
+	}
+
+	private void resetIfNewDay() {
+		if (!isSameDay(this._today, LocalDateTime.now())) {
+			this._today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+			this._playTimeTodayInSeconds = 0;
+		}
+	}
 	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
 	public Object getIntervals() { return this._intervals; }
 
@@ -101,6 +136,8 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		json.put("totalPlayTimeInSeconds", this._totalPlayTimeInSeconds);
 		json.put("intervals", this._intervals);
 		json.put("longestIntervalInSeconds", this._longestIntervalInSeconds);
+		json.put("playTimeTodayInSeconds", this.getPlayTimeTodayInSeconds());
+		json.put("today", TimeMisc.fromLocalDateTime(this.getToday()));
 		return json;
 	}
 
@@ -113,6 +150,10 @@ public class TimeStatistics implements IJson<TimeStatistics>{
 		this._totalPlayTimeInSeconds = (long)jsonObject.get("totalPlayTimeInSeconds");
 		this._intervals = (long)jsonObject.get("intervals");
 		this._longestIntervalInSeconds = (long)jsonObject.get("longestIntervalInSeconds");
+		final Object seconds = jsonObject.get("playTimeTodayInSeconds");
+		if (seconds == null) this._playTimeTodayInSeconds = 0;
+		else this._playTimeTodayInSeconds= (long)seconds;
+		this._today = TimeMisc.toLocalDateTime(jsonObject.get("today"));
 		return this;
 	}
 

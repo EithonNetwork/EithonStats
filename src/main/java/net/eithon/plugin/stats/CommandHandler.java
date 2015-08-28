@@ -24,7 +24,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String TIME_COMMAND = "/stats time [desc|asc] [<maxItems>]";
 	private static final String BLOCKS_COMMAND = "/stats blocks [desc|asc] [<maxItems>]";
 	private static final String CHAT_COMMAND = "/stats chat [desc|asc] [<maxItems>]";
-	private static final String STATUS_COMMAND = "/stats status [desc|asc] [<maxItems>]";
+	private static final String STATUS_COMMAND = "/stats st atus [desc|asc] [<maxItems>]";
 	private static final String DIFF_COMMAND = "/stats diff <daysback> [desc|asc] [<maxItems>]";
 	private static final String PLAYER_DIFF_COMMAND = "/stats playerdiff <player> <daysback>";
 

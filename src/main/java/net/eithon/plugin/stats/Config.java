@@ -19,11 +19,13 @@ public class Config {
 		public static long allowedInactivityInSeconds;
 		public static long secondsBetweenSave;
 		public static LocalTime archiveAtTimeOfDay;
+		public static long secondsPerDayForConsecutiveDays;
 		
 		static void load(Configuration config) {
 			allowedInactivityInSeconds = config.getSeconds("AllowedInactivityTimeSpan", "5m");
 			secondsBetweenSave = config.getSeconds("TimeSpanBetweenSave", "5m");
 			archiveAtTimeOfDay = config.getLocalTime("ArchiveAtTimeOfDay", LocalTime.of(0, 0));
+			secondsPerDayForConsecutiveDays = config.getSeconds("TimeSpanPerDayForConsecutiveDays", "1h");
 		}
 
 	}
