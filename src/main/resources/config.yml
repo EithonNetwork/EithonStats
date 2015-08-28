@@ -11,6 +11,10 @@ TimeSpanBetweenSave: 5m
 # The time of day to archive the day statistics. Recommended: 00:00
 ArchiveAtTimeOfDay: 00:00
 
+#
+# The time span that a player needs to be active during a day to get another "consecutive day".
+TimeSpanPerDayForConsecutiveDays: 1h
+
 eithon:
   UseMarkUpForMessages: 1
   UseWrappingForMessages: 1
@@ -101,6 +105,8 @@ messages:
   # %TOTAL_PLAY_TIME%: The total play time for the player.
   # %LONGEST_INTERVAL%: The longest time that the player has played without a break.
   # %LATEST_INTERVAL%: The latest recorded play time for the player.
+  # %CONSECUTIVE_DAYS%: The number of consecutive days that the player has.
+  # %LAST_CONSECUTIVE_DAY%: The last date that the player received a consecutive day.
   TimeStats: "%PLAYER_NAME%: %TOTAL_PLAY_TIME% in %INTERVALS% intervals (longest %LONGEST_INTERVAL%, latest %LATEST_INTERVAL%) Status: %STATUS_DESCRIPTION%"
   ChatStats: "%PLAYER_NAME%: %CHAT_ACTIVITIES% chats"
   BlockStats: "%PLAYER_NAME%: %BLOCKS_CREATED% blocks created (broken %BLOCKS_BROKEN%)"

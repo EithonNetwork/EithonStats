@@ -4,7 +4,11 @@ Keep track of Player statistics
 
 ## Release history
 
-### 1.7 (2015.08-11)
+### 1.8 (2015-08-28)
+
+* NEW: Now counts the number of consecutive days that the player has been active for more than TimeSpanPerDayForConsecutiveDays.
+
+### 1.7 (2015-08-11)
 
 * CHANGE: Now censors the AFK messages using EithonCop.
 
