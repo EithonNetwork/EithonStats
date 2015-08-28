@@ -7,6 +7,7 @@ Keep track of Player statistics
 ### 1.8 (2015-08-28)
 
 * NEW: Now counts the number of consecutive days that the player has been active for more than TimeSpanPerDayForConsecutiveDays.
+* BUG: /estats status was showing all off-line players as idle.
 
 ### 1.7 (2015-08-11)
 

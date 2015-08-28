@@ -94,7 +94,7 @@ public class Controller implements IBlockMoverFollower {
 
 	public void stopPlayer(Player player, String description) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
-		if (this._eithonCopPlugin != null) {
+		if ((this._eithonCopPlugin != null && (description != null))) {
 			description = EithonCopApi.censorMessage(player, description);
 		}
 		time.stop(description);

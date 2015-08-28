@@ -284,7 +284,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public long getTotalTimeInSeconds() { return this._timeInfo.getTotalPlayTimeInSeconds(); }
 
 	public boolean isAfk() {
-		return this._afkDescription != null;
+		return isOnline() && (this._afkDescription != null);
 	}
 
 	public boolean isActive() {
