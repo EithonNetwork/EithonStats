@@ -216,7 +216,12 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void showAfkStatus(CommandSender sender, boolean ascending, int maxItems) {
-		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending, maxItems)) {
+		final List<PlayerStatistics> sortedStatistics = sortPlayerTimesByAfkTime(ascending, maxItems);
+		if ((sortedStatistics == null) || (sortedStatistics.size() == 0)) {
+			sender.sendMessage("There is currently nobody afk");
+			return;
+		}
+		for (PlayerStatistics time : sortedStatistics) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));
 		}
