@@ -8,6 +8,7 @@ Keep track of Player statistics
 
 * NEW: Added an event when someone has updated their consecutive days.
 * CHANGE: /estats status now has a message when there are no AFK players.
+* BUG: Could not use diffstats for offline players.
 
 ### 1.8 (2015-08-28)
 

@@ -188,7 +188,7 @@ public class Controller implements IBlockMoverFollower {
 					} });
 	}
 
-	public void showDiffStats(CommandSender sender, Player player, int daysBack) {
+	public void showDiffStats(CommandSender sender, EithonPlayer player, int daysBack) {
 		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
 		PlayerStatistics statistics = diff.get(player);
 		if (statistics == null) return;
