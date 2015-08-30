@@ -247,7 +247,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3,5)) return;
 		
-		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
+		EithonPlayer player = commandParser.getArgumentEithonPlayer(commandParser.getEithonPlayer());
 		int daysBack = commandParser.getArgumentInteger(7);
 		
 		this._controller.showDiffStats(commandParser.getSender(), player, daysBack);

@@ -163,6 +163,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 				this._consecutiveDays++;
 				eithonLogger.debug(DebugPrintLevel.MAJOR, "Player %s now has %d consecutive days", 
 						this._eithonPlayer.getName(), this._consecutiveDays);
+				ConsecutiveDaysEvent e = new ConsecutiveDaysEvent(this._eithonPlayer.getPlayer(), this._consecutiveDays);
+				this._eithonPlayer.getServer().getPluginManager().callEvent(e);
 			}
 		}
 		this._startTime = null;

@@ -188,7 +188,7 @@ public class Controller implements IBlockMoverFollower {
 					} });
 	}
 
-	public void showDiffStats(CommandSender sender, Player player, int daysBack) {
+	public void showDiffStats(CommandSender sender, EithonPlayer player, int daysBack) {
 		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
 		PlayerStatistics statistics = diff.get(player);
 		if (statistics == null) return;
@@ -216,7 +216,12 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void showAfkStatus(CommandSender sender, boolean ascending, int maxItems) {
-		for (PlayerStatistics time : sortPlayerTimesByAfkTime(ascending, maxItems)) {
+		final List<PlayerStatistics> sortedStatistics = sortPlayerTimesByAfkTime(ascending, maxItems);
+		if ((sortedStatistics == null) || (sortedStatistics.size() == 0)) {
+			sender.sendMessage("There is currently nobody afk");
+			return;
+		}
+		for (PlayerStatistics time : sortedStatistics) {
 			time.lap();
 			sender.sendMessage(String.format("%s: %s", time.getName(), time.getAfkDescription()));
 		}
