@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.9.1 (2015-09-09)
+
+* BUG: Consecutive days were not zeroed if they were past time.
+
 ### 1.9 (2015-08-29)
 
 * NEW: Added an event when someone has updated their consecutive days.

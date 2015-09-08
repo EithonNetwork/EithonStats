@@ -57,13 +57,17 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._blocksCreated = 0;
 		this._chatActivities = 0;
 		this._lastChatActivity = null;
-		this._consecutiveDays = 0;
-		this._lastConsecutiveDay = null;
+		resetConsecutiveDays();
 		this._timeInfo = new TimeStatistics();
 		this._startTime = null;
 		this._hasBeenUpdated = false;
 		this._afkDescription = null;
 		this._lastAliveTime = LocalDateTime.now();
+	}
+
+	void resetConsecutiveDays() {
+		this._consecutiveDays = 0;
+		this._lastConsecutiveDay = null;
 	}
 
 	private void resetAlarm() {
@@ -150,9 +154,9 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._timeInfo.addInterval(this._startTime, stopTime);
 		if (this._timeInfo.getPlayTimeTodayInSeconds() >= Config.V.secondsPerDayForConsecutiveDays) {
 			final LocalDateTime today = this._timeInfo.getToday();
-			if (!TimeStatistics.isSameDay(today, this._lastConsecutiveDay)) {
+			if (!lastConsecutiveDayWasToday()) {
 				final LocalDateTime yesterday = today.minusDays(1);
-				if (!TimeStatistics.isSameDay(yesterday, this._lastConsecutiveDay)) {
+				if (!lastConsecutiveDayWasThisDay(yesterday)) {
 					if (this._consecutiveDays > 0) {
 						eithonLogger.debug(DebugPrintLevel.MAJOR, "Player %s was last logged in %s (today is %s), lost %d consecutive days", 
 								this._eithonPlayer.getName(), this._lastConsecutiveDay.toString(), today.toString(), this._consecutiveDays);
@@ -295,7 +299,28 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 
 	public long getBlocksCreated() { return this._blocksCreated; }
 
-	public long getConsecutiveDays() { return this._consecutiveDays; }
+	public LocalDateTime getLastConsecutiveDay() {
+		if (!lastConsecutiveDayWasToday()) {
+			resetConsecutiveDays();
+		}
+		return this._lastConsecutiveDay; 
+	}
+
+	public long getConsecutiveDays() {
+		if (!lastConsecutiveDayWasToday()) {
+			resetConsecutiveDays();
+		}
+		return this._consecutiveDays; 
+	}
+
+	private boolean lastConsecutiveDayWasToday() {
+		final LocalDateTime today = this._timeInfo.getToday();
+		return lastConsecutiveDayWasThisDay(today);
+	}
+
+	private boolean lastConsecutiveDayWasThisDay(LocalDateTime day) {
+		return TimeStatistics.isSameDay(day, this._lastConsecutiveDay);
+	}
 
 	public long getChats() { return this._chatActivities; }
 
@@ -323,8 +348,9 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()));
 		namedArguments.put("LONGEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()));
 		namedArguments.put("LATEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getPreviousIntervalInSeconds()));
-		namedArguments.put("CONSECUTIVE_DAYS", String.format("%d", this._consecutiveDays));
-		namedArguments.put("LAST_CONSECUTIVE_DAY", this._lastConsecutiveDay == null ? "-" : this._lastConsecutiveDay.toString());
+		namedArguments.put("CONSECUTIVE_DAYS", String.format("%d", getConsecutiveDays()));
+		final LocalDateTime lastConsecutiveDay = getLastConsecutiveDay();
+		namedArguments.put("LAST_CONSECUTIVE_DAY", lastConsecutiveDay == null ? "-" : lastConsecutiveDay.toString());
 
 		return namedArguments;
 	}
