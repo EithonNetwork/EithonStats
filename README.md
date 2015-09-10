@@ -1,8 +1,12 @@
-# Stats plugin
+# EithonStats plugin
 
 Keep track of Player statistics
 
 ## Release history
+
+### 1.9.2 (2015-09-10)
+
+* BUG: Consecutive days were reset next day.
 
 ### 1.9.1 (2015-09-09)
 

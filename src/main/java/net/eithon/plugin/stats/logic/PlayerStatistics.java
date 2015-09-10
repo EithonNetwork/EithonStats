@@ -155,8 +155,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		if (this._timeInfo.getPlayTimeTodayInSeconds() >= Config.V.secondsPerDayForConsecutiveDays) {
 			final LocalDateTime today = this._timeInfo.getToday();
 			if (!lastConsecutiveDayWasToday()) {
-				final LocalDateTime yesterday = today.minusDays(1);
-				if (!lastConsecutiveDayWasThisDay(yesterday)) {
+				if (!lastConsecutiveDayWasYesterday()) {
 					if (this._consecutiveDays > 0) {
 						eithonLogger.debug(DebugPrintLevel.MAJOR, "Player %s was last logged in %s (today is %s), lost %d consecutive days", 
 								this._eithonPlayer.getName(), this._lastConsecutiveDay.toString(), today.toString(), this._consecutiveDays);
@@ -300,22 +299,31 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	public long getBlocksCreated() { return this._blocksCreated; }
 
 	public LocalDateTime getLastConsecutiveDay() {
-		if (!lastConsecutiveDayWasToday()) {
+		if (lastConsecutiveDayWasTooLongAgo()) {
 			resetConsecutiveDays();
 		}
 		return this._lastConsecutiveDay; 
 	}
 
 	public long getConsecutiveDays() {
-		if (!lastConsecutiveDayWasToday()) {
+		if (lastConsecutiveDayWasTooLongAgo()) {
 			resetConsecutiveDays();
 		}
 		return this._consecutiveDays; 
 	}
 
+	boolean lastConsecutiveDayWasTooLongAgo() {
+		return !lastConsecutiveDayWasToday() && !lastConsecutiveDayWasYesterday();
+	}
+
 	private boolean lastConsecutiveDayWasToday() {
 		final LocalDateTime today = this._timeInfo.getToday();
 		return lastConsecutiveDayWasThisDay(today);
+	}
+
+	private boolean lastConsecutiveDayWasYesterday() {
+		final LocalDateTime yesterday = this._timeInfo.getToday().minusDays(1);
+		return lastConsecutiveDayWasThisDay(yesterday);
 	}
 
 	private boolean lastConsecutiveDayWasThisDay(LocalDateTime day) {
