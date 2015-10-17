@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.10 (2015-10-13)
+
+* CHANGE: Now broadcasts AFK messages to all servers.
+
 ### 1.9.2 (2015-09-10)
 
 * BUG: Consecutive days were reset next day.

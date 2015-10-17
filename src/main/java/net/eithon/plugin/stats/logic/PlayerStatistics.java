@@ -139,7 +139,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 	}
 
 	public void updateAlive() {
-		if (isAfk()) Config.M.fromAfkBroadcast.broadcastMessage(getName());
+		if (isAfk()) Config.M.fromAfkBroadcast.broadcastMessageToAllServers(getName());
 		LocalDateTime now = LocalDateTime.now();
 		this._lastAliveTime = now;
 		resetAlarm();
@@ -173,7 +173,7 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._startTime = null;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
 		if (isAfk()) {
-			Config.M.toAfkBroadcast.broadcastMessage(getName(), description);
+			Config.M.toAfkBroadcast.broadcastMessageToAllServers(getName(), description);
 		}	
 		return stopTime;
 	}
