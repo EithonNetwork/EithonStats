@@ -37,7 +37,7 @@ public class Controller implements IBlockMoverFollower {
 		this._allPlayerTimes = null;
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		PlayerStatistics.initialize(this._eithonLogger);
-		consolidateDelta(null);
+		saveDeltaAndConsolidate(null);
 		MoveEventHandler.addBlockMover(this);
 		connectToStats(this._eithonPlugin);
 	}
@@ -70,20 +70,43 @@ public class Controller implements IBlockMoverFollower {
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s invoked estats command.", player.getName());
 	}
 
-	private void consolidateDelta(File archiveFile) {
+	private void saveDeltaAndConsolidate(File archiveFile) {
 		if (this._allPlayerTimes == null)  {
 			this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
 		} else  {
 			saveDelta();
 		}
+		consolidateDelta(archiveFile);
+	}
+
+	private void consolidateDelta(File archiveFile) {
+		if (!this.isPrimaryBungeeServer()) return;
 		synchronized(this._allPlayerTimes) {
 			this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
 		}
 	}
 
 	public void saveDelta() {
+		if (this.isPrimaryBungeeServer()) {
+			saveDeltaPrimary();
+		} else {
+			saveDeltaSlave();			
+		}
+	}
+	
+	private void saveDeltaPrimary() {
 		synchronized(this._allPlayerTimes) {
 			this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
+		}
+	}
+
+	private void saveDeltaSlave() {
+		synchronized(this._allPlayerTimes) {
+			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+				if (playerStatistics.isActive()) {
+					transferPlayerStatsToPrimaryServer(playerStatistics.getEithonPlayer(), false);
+				}
+			}
 		}
 	}
 
@@ -273,11 +296,12 @@ public class Controller implements IBlockMoverFollower {
 
 	public void archive() {
 		File targetFile = getArchiveFileForDayFromNow(1);
-		consolidateDelta(targetFile);
+		saveDeltaAndConsolidate(targetFile);
 	}
 
 	public PlayerCollection<PlayerStatistics> diffWithArchive(int daysBack) {
 		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>(new PlayerStatistics());
+		if (!isPrimaryBungeeServer()) return differences;
 		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);		
 		for (PlayerStatistics now : this._allPlayerTimes) {
 			now.lap();
@@ -348,40 +372,43 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void transferPlayerStatsToSlaveServer(EithonPlayer player, String slaveServerName) {
-		verbose("transferPlayerStatsToSlaveServer", "Enter; player=%s, slaveServername=%s", player == null ? "NULL" : player.getName(), slaveServerName);
+		verbose("transferPlayerStatsToSlaveServer", "Enter; slaveServerName=%s, player=%s", 
+				slaveServerName, player == null ? "NULL" : player.getName());
+		transferPlayerStats(slaveServerName, player, true);
 		verbose("transferPlayerStatsToSlaveServer", "Leave");
-		return;
-		/*
-		PlayerStatistics statistics = getOrCreatePlayerTime(player);
-		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		this._eithonPlugin.getApi().bungeeSendDataToServer(slaveServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
-		*/
 	}
 
 	public void transferPlayerStatsToPrimaryServer(EithonPlayer player, boolean move) {
-		verbose("transferPlayerStatsToSlaveServer", "Enter; player=%s, move=%s",
+		verbose("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s", 
 				player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
-		verbose("transferPlayerStatsToSlaveServer", "Leave");
-		return;
-		/*
+		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
+		verbose("transferPlayerStatsToPrimaryServer", "primaryBungeeServerName=%s", primaryBungeeServerName);
+		transferPlayerStats(primaryBungeeServerName, player, move);
+		verbose("transferPlayerStatsToPrimaryServer", "Leave");
+	}
+
+	private void transferPlayerStats(String targetServerName, EithonPlayer player, boolean move) {
+		verbose("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
+				targetServerName, player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
 		PlayerStatistics statistics = getOrCreatePlayerTime(player);
 		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
-		this._eithonPlugin.getApi().bungeeSendDataToServer(primaryBungeeServerName, EITHON_STATS_BUNGEE_TRANSFER, info, move);
-		*/
+		this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		verbose("transferPlayerStats", "Leave");
 	}
 
 	public void handleEithonBungeeEvent(EithonBungeeEvent event) {
 		verbose("handleEithonBungeeEvent", "Enter; event.name=%s, event.data=%s",
-				event.getEventName(), event.getData().toJSONString());
-		verbose("handleEithonBungeeEvent", "Leave");
-		return;
-		/*
-		if (!event.getEventName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
+				event.getName(), event.getData().toJSONString());
+		if (!event.getName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
 		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
+		verbose("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
 		PlayerStatistics statistics = getOrCreatePlayerTime(info.getStatistics().getEithonPlayer());
 		statistics.fromJson(info.getStatistics().toJson());
-		*/
+		if (info.getMove()) {
+			verbose("handleEithonBungeeEvent", "Player %s statistics is started.", statistics.getName());
+			statistics.start();
+		}
+		verbose("handleEithonBungeeEvent", "Leave");
 	}
 
 	private void verbose(String method, String format, Object... args) {
