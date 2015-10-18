@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import net.eithon.library.bungee.EithonBungeeEvent;
+import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.FileContent;
@@ -347,22 +348,44 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void transferPlayerStatsToSlaveServer(EithonPlayer player, String slaveServerName) {
+		verbose("transferPlayerStatsToSlaveServer", "Enter; player=%s, slaveServername=%s", player == null ? "NULL" : player.getName(), slaveServerName);
+		verbose("transferPlayerStatsToSlaveServer", "Leave");
+		return;
+		/*
 		PlayerStatistics statistics = getOrCreatePlayerTime(player);
 		BungeeTransfer info = new BungeeTransfer(statistics, true);
 		this._eithonPlugin.getApi().bungeeSendDataToServer(slaveServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		*/
 	}
 
 	public void transferPlayerStatsToPrimaryServer(EithonPlayer player, boolean move) {
+		verbose("transferPlayerStatsToSlaveServer", "Enter; player=%s, move=%s",
+				player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
+		verbose("transferPlayerStatsToSlaveServer", "Leave");
+		return;
+		/*
 		PlayerStatistics statistics = getOrCreatePlayerTime(player);
 		BungeeTransfer info = new BungeeTransfer(statistics, true);
 		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
 		this._eithonPlugin.getApi().bungeeSendDataToServer(primaryBungeeServerName, EITHON_STATS_BUNGEE_TRANSFER, info, move);
+		*/
 	}
 
 	public void handleEithonBungeeEvent(EithonBungeeEvent event) {
+		verbose("handleEithonBungeeEvent", "Enter; event.name=%s, event.data=%s",
+				event.getEventName(), event.getData().toJSONString());
+		verbose("handleEithonBungeeEvent", "Leave");
+		return;
+		/*
 		if (!event.getEventName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
 		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
 		PlayerStatistics statistics = getOrCreatePlayerTime(info.getStatistics().getEithonPlayer());
 		statistics.fromJson(info.getStatistics().toJson());
+		*/
+	}
+
+	private void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
 	}
 }
