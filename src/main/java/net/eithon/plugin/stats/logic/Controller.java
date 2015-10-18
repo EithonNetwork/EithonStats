@@ -372,21 +372,28 @@ public class Controller implements IBlockMoverFollower {
 	}
 
 	public void transferPlayerStatsToSlaveServer(EithonPlayer player, String slaveServerName) {
-		verbose("transferPlayerStatsToSlaveServer", "Enter; player=%s, slaveServername=%s", player == null ? "NULL" : player.getName(), slaveServerName);
-		PlayerStatistics statistics = getOrCreatePlayerTime(player);
-		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		this._eithonPlugin.getApi().bungeeSendDataToServer(slaveServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		verbose("transferPlayerStatsToSlaveServer", "Enter; slaveServerName=%s, player=%s", 
+				slaveServerName, player == null ? "NULL" : player.getName());
+		transferPlayerStats(slaveServerName, player, true);
 		verbose("transferPlayerStatsToSlaveServer", "Leave");
 	}
 
 	public void transferPlayerStatsToPrimaryServer(EithonPlayer player, boolean move) {
-		verbose("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s",
+		verbose("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s", 
 				player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
+		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
+		verbose("transferPlayerStatsToPrimaryServer", "primaryBungeeServerName=%s", primaryBungeeServerName);
+		transferPlayerStats(primaryBungeeServerName, player, move);
+		verbose("transferPlayerStatsToPrimaryServer", "Leave");
+	}
+
+	private void transferPlayerStats(String targetServerName, EithonPlayer player, boolean move) {
+		verbose("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
+				targetServerName, player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
 		PlayerStatistics statistics = getOrCreatePlayerTime(player);
 		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
-		this._eithonPlugin.getApi().bungeeSendDataToServer(primaryBungeeServerName, EITHON_STATS_BUNGEE_TRANSFER, info, move);
-		verbose("transferPlayerStatsToPrimaryServer", "Leave");
+		this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		verbose("transferPlayerStats", "Leave");
 	}
 
 	public void handleEithonBungeeEvent(EithonBungeeEvent event) {
