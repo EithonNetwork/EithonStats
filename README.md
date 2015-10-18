@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.12.3 (2015-10-18)
+
+* BUG: Disabled stats transfer due to BungeeChord problems.
+
 ### 1.12.2 (2015-10-18)
 
 * BUG: BungeeChord problems.
