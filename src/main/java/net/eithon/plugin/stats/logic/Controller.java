@@ -159,6 +159,10 @@ public class Controller implements IBlockMoverFollower {
 		return time;
 	}
 
+	private void setPlayerStatistics(PlayerStatistics statistics) {
+		this._allPlayerTimes.put(statistics.getEithonPlayer(), statistics);
+	}
+
 	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
 		for (PlayerStatistics time : sortPlayerTimesByTotalTime(ascending, maxItems)) {
 			time.lap();
@@ -390,9 +394,9 @@ public class Controller implements IBlockMoverFollower {
 	private void transferPlayerStats(String targetServerName, EithonPlayer player, boolean move) {
 		verbose("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
 				targetServerName, player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
-		PlayerStatistics statistics = getOrCreatePlayerTime(player);
-		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		//PlayerStatistics statistics = getOrCreatePlayerTime(player);
+		//BungeeTransfer info = new BungeeTransfer(statistics, true);
+		//this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
 		verbose("transferPlayerStats", "Leave");
 	}
 
@@ -402,8 +406,8 @@ public class Controller implements IBlockMoverFollower {
 		if (!event.getName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
 		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
 		verbose("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
-		PlayerStatistics statistics = getOrCreatePlayerTime(info.getStatistics().getEithonPlayer());
-		statistics.fromJson(info.getStatistics().toJson());
+		PlayerStatistics statistics = info.getStatistics();
+		setPlayerStatistics(statistics);
 		if (info.getMove()) {
 			verbose("handleEithonBungeeEvent", "Player %s statistics is started.", statistics.getName());
 			statistics.start();
