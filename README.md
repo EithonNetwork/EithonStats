@@ -4,6 +4,11 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.11 (2015-10-18)
+
+* NEW: Added first support for BungeeChord
+* CHANGE: Refactoring EithonLibrary.
+
 ### 1.10 (2015-10-13)
 
 * CHANGE: Now broadcasts AFK messages to all servers.

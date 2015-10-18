@@ -1,8 +1,12 @@
 package net.eithon.plugin.stats;
 
+import net.eithon.library.bungee.EithonBungeeEvent;
+import net.eithon.library.bungee.EithonBungeeJoinEvent;
+import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.plugin.stats.logic.Controller;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -42,8 +46,26 @@ public final class EventListener implements Listener {
 		this._controller.addBlocksCreated(event.getPlayer(), 1);
 	}
 
+	// Transfer player statistics to the primary server
 	@EventHandler
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		this._controller.stopPlayer(event.getPlayer(), null);
+		Player player = event.getPlayer();
+		if (player == null) return;
+		this._controller.stopPlayer(player, null);
+		if (this._controller.isPrimaryBungeeServer()) return;
+		this._controller.transferPlayerStatsToPrimaryServer(new EithonPlayer(player), true);
+	}
+
+	// Transfer player statistics to the new server, if we are the primary server.
+	@EventHandler
+	public void onEithonBungeeJoinEvent(EithonBungeeJoinEvent event) {
+		if (!this._controller.isPrimaryBungeeServer()) return;
+		this._controller.transferPlayerStatsToSlaveServer(event.getPlayer(), event.getThatServerName());
+	}
+
+	// Receive an event from another bungee server
+	@EventHandler
+	public void onEithonBungeeEvent(EithonBungeeEvent event) {
+		this._controller.handleEithonBungeeEvent(event);
 	}
 }

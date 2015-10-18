@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
-import net.eithon.library.json.IJsonDelta;
+import net.eithon.library.json.JsonObjectDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
@@ -17,7 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
-public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndName {
+public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implements IUuidAndName {
 	private static Logger eithonLogger;
 
 	// Saved variables
@@ -218,6 +218,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		this._lastConsecutiveDay = TimeMisc.toLocalDateTime(jsonObject.get("lastConsecutiveDay"));
 		return this;
 	}
+	
+	public static PlayerStatistics getFromJson(Object json) { return new PlayerStatistics().fromJson(json); }
 
 	@SuppressWarnings("unchecked")
 	private JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
@@ -311,6 +313,8 @@ public class PlayerStatistics implements IJsonDelta<PlayerStatistics>, IUuidAndN
 		}
 		return this._consecutiveDays; 
 	}
+	
+	public EithonPlayer getEithonPlayer() { return this._eithonPlayer; }
 
 	boolean lastConsecutiveDayWasTooLongAgo() {
 		return !lastConsecutiveDayWasToday() && !lastConsecutiveDayWasYesterday();
