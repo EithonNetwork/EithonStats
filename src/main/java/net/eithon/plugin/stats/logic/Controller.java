@@ -391,8 +391,8 @@ public class Controller implements IBlockMoverFollower {
 
 	public void handleEithonBungeeEvent(EithonBungeeEvent event) {
 		verbose("handleEithonBungeeEvent", "Enter; event.name=%s, event.data=%s",
-				event.getEventName(), event.getData().toJSONString());
-		if (!event.getEventName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
+				event.getName(), event.getData().toJSONString());
+		if (!event.getName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
 		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
 		verbose("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
 		PlayerStatistics statistics = getOrCreatePlayerTime(info.getStatistics().getEithonPlayer());

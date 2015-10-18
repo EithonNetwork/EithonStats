@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.12.1 (2015-10-18)
+
+* BUG: Used the wrong method.
+
 ### 1.12 (2015-10-18)
 
 * NEW: First try of support for BungeeChord
