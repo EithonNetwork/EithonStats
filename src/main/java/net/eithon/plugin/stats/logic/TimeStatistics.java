@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import net.eithon.library.json.IJson;
+import net.eithon.library.json.JsonObject;
 import net.eithon.library.time.TimeMisc;
 
 import org.json.simple.JSONObject;
 
-public class TimeStatistics implements IJson<TimeStatistics>{
+public class TimeStatistics extends JsonObject<TimeStatistics>{
 	// Saved variables
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
