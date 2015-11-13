@@ -4,6 +4,7 @@ import net.eithon.library.bungee.EithonBungeeEvent;
 import net.eithon.library.bungee.EithonBungeeJoinEvent;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.move.EithonPlayerMoveOneBlockEvent;
 import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.entity.Player;
@@ -26,6 +27,11 @@ public final class EventListener implements Listener {
 	@EventHandler
 	public void onPlayerJoinEvent(PlayerJoinEvent event) {
 		this._controller.startPlayer(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onPlayerJoinEvent(EithonPlayerMoveOneBlockEvent event) {
+		this._controller.playerMoved(event.getPlayer());
 	}
 
 	@EventHandler

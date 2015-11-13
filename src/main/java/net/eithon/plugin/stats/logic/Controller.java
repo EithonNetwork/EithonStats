@@ -13,19 +13,18 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.FileContent;
 import net.eithon.library.json.PlayerCollection;
-import net.eithon.library.move.IBlockMoverFollower;
-import net.eithon.library.move.MoveEventHandler;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
-public class Controller implements IBlockMoverFollower {
+public class Controller {
 	public static final String EITHON_STATS_BUNGEE_TRANSFER = "EithonStatsPlayerStatistics";
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
@@ -38,7 +37,6 @@ public class Controller implements IBlockMoverFollower {
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		PlayerStatistics.initialize(this._eithonLogger);
 		saveDeltaAndConsolidate(null);
-		MoveEventHandler.addBlockMover(this);
 		connectToStats(this._eithonPlugin);
 	}
 
@@ -52,16 +50,13 @@ public class Controller implements IBlockMoverFollower {
 		}
 	}
 
-	@Override
-	public void moveEventHandler(PlayerMoveEvent event) {
-		if (event.isCancelled()) return;
-		playerMoved(event.getPlayer());
-	}
-
-	public void playerMoved(Player player) {
-		PlayerStatistics time = getOrCreatePlayerTime(player);
-		time.updateAlive();
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s moved.", player.getName());
+	public void playerMoved(final Player player) {
+		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+		scheduler.runTaskAsynchronously(this._eithonPlugin, new Runnable() {
+			public void run() {
+				getOrCreatePlayerTime(player).updateAlive();
+			}
+		});
 	}
 
 	public void playerCommand(Player player) {
@@ -137,7 +132,7 @@ public class Controller implements IBlockMoverFollower {
 		time.sendPlayerStatistics(sender);
 	}
 
-	private PlayerStatistics getOrCreatePlayerTime(Player player) {
+	PlayerStatistics getOrCreatePlayerTime(Player player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time == null) {
 			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
@@ -270,11 +265,6 @@ public class Controller implements IBlockMoverFollower {
 					{
 						return factor*f1.getAfkTime().compareTo(f2.getAfkTime());
 					} });
-	}
-
-	@Override
-	public String getName() {
-		return this._eithonPlugin.getName();
 	}
 
 	public void addChatActivity(Player player) {

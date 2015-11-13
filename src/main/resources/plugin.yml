@@ -1,6 +1,6 @@
 name: EithonStats
 main: net.eithon.plugin.stats.Plugin
-version: 1.13
+version: 1.14
 author: vanbrayne
 description: Player statistics
 softdepend: [EithonCop]

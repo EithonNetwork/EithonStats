@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.14 (2015-11-13)
+
+* CHANGE: Optimization of PlayerMoveEvent
+
 ### 1.13 (2015-11-13)
 
 * NEW: Added sub commands to the /stats add command (time, consecutivedays, placed, broken)
