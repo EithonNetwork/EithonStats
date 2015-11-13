@@ -52,7 +52,27 @@ messages:
 
   #
   # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
-  PlayTimeTaken: Took %s play time from player %s, resulting in a total play time of %s.
+  PlacedBlocksAdded: Added %d placed blocks to player %s, resulting in a total of %d placed blocks.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  BrokenBlocksAdded: Added %d broken blocks to player %s, resulting in a total of %d broken blocks.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  PlayTimeRemoved: Removed %s play time from player %s, resulting in a total play time of %s.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  ConsecutiveDaysRemoved: Removed %d consecutive days from player %s, resulting in a total of %d consecutive days.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  PlacedBlocksRemoved: Removed %d placed blocks from player %s, resulting in a total of %d placed blocks.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  BrokenBlocksRemoved: Removed %d broken blocks from player %s, resulting in a total of %d broken blocks.
 
   #
   # Parameters: <player name> (%s)

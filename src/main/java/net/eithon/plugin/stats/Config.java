@@ -43,7 +43,10 @@ public class Config {
 		public static ConfigurableMessage consecutiveDaysAdded;
 		public static ConfigurableMessage placedBlocksAdded;
 		public static ConfigurableMessage brokenBlocksAdded;
-		public static ConfigurableMessage playTimeTaken;
+		public static ConfigurableMessage playTimeRemoved;
+		public static ConfigurableMessage consecutiveDaysRemoved;
+		public static ConfigurableMessage placedBlocksRemoved;
+		public static ConfigurableMessage brokenBlocksRemoved;
 		public static ConfigurableMessage playTimeReset;
 		public static ConfigurableMessage saved;
 		public static ConfigurableMessage statusOnline;
@@ -79,9 +82,18 @@ public class Config {
 			brokenBlocksAdded = config.getConfigurableMessage(
 					"messages.BrokenBlocksAdded", 3, 
 					"Added %d broken blocks to player %s, resulting in a total of %d broken blocks.");
-			playTimeTaken = config.getConfigurableMessage(
-					"messages.PlayTimeTaken", 3, 
-					"Took %s play time from player %s, resulting in a total play time of %s.");
+			playTimeRemoved = config.getConfigurableMessage(
+					"messages.PlayTimeRemoved", 3, 
+					"Removed %s play time from player %s, resulting in a total play time of %s.");
+			consecutiveDaysRemoved = config.getConfigurableMessage(
+					"messages.ConsecutiveDaysRemoved", 3, 
+					"Removed %d consecutive days from player %s, resulting in a total of %d consecutive days.");
+			placedBlocksRemoved = config.getConfigurableMessage(
+					"messages.PlacedBlocksRemoved", 3, 
+					"Removed %d placed blocks from player %s, resulting in a total of %d placed blocks.");
+			brokenBlocksRemoved = config.getConfigurableMessage(
+					"messages.BrokenBlocksRemoved", 3, 
+					"Removed %d broken blocks from player %s, resulting in a total of %d broken blocks.");
 			playTimeReset = config.getConfigurableMessage(
 					"messages.PlayTimeReset", 1, 
 					"Took away all play time from player %s.");
