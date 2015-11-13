@@ -158,7 +158,7 @@ public class CommandHandler implements ICommandHandler {
 
 	public boolean addBrokenBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
 		long brokenBlocks = commandParser.getArgumentInteger(0);
-		long totalBrokenBlocks = this._controller.addPlacedBlocks(commandParser.getSender(), eithonPlayer, brokenBlocks);
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(commandParser.getSender(), eithonPlayer, brokenBlocks);
 		Config.M.brokenBlocksAdded.sendMessage(
 				commandParser.getSender(),
 				brokenBlocks,
@@ -230,7 +230,7 @@ public class CommandHandler implements ICommandHandler {
 
 	public boolean removeBrokenBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
 		long brokenBlocks = commandParser.getArgumentInteger(0);
-		long totalBrokenBlocks = this._controller.addPlacedBlocks(commandParser.getSender(), eithonPlayer, -brokenBlocks);
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(commandParser.getSender(), eithonPlayer, -brokenBlocks);
 		Config.M.brokenBlocksRemoved.sendMessage(
 				commandParser.getSender(),
 				brokenBlocks,

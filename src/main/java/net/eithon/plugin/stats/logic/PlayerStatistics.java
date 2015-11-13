@@ -185,6 +185,9 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 	public long addToConsecutiveDays(long consecutiveDays) {
 		this._consecutiveDays += consecutiveDays;
 		if (this._consecutiveDays < 0) this._consecutiveDays = 0;
+		if (this._consecutiveDays > 0) {
+			this._lastConsecutiveDay = this._timeInfo.getToday();
+		}
 		return this._consecutiveDays;
 	}
 
