@@ -345,6 +345,30 @@ public class Controller implements IBlockMoverFollower {
 		return statistics.addToTotalPlayTime(playTimeInSeconds);
 	}
 
+	public long addConsecutiveDays(
+			CommandSender sender, 
+			EithonPlayer eithonPlayer,
+			long consecutiveDays) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		return statistics.addToConsecutiveDays(consecutiveDays);
+	}
+
+	public long addPlacedBlocks(
+			CommandSender sender, 
+			EithonPlayer eithonPlayer,
+			long blocksCreated) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		return statistics.addToBlocksCreated(blocksCreated);
+	}
+
+	public long addBrokenBlocks(
+			CommandSender sender, 
+			EithonPlayer eithonPlayer,
+			long blocksBroken) {
+		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		return statistics.addToBlocksBroken(blocksBroken);
+	}
+
 	public void resetPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer) {

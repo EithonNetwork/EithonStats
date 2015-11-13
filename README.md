@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.13 (2015-11-13)
+
+* NEW: Added sub commands to the /stats add command (time, consecutivedays, placed, broken)
+
 ### 1.12.3 (2015-10-18)
 
 * BUG: Disabled stats transfer due to BungeeChord problems.

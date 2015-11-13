@@ -48,6 +48,10 @@ messages:
 
   #
   # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
+  ConsecutiveDaysAdded: Added %d consecutive days to player %s, resulting in a total of %d consecutive days.
+
+  #
+  # Parameters: <play time> (%s) <player name> (%s) <total play time> (%s) 
   PlayTimeTaken: Took %s play time from player %s, resulting in a total play time of %s.
 
   #

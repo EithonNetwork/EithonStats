@@ -40,6 +40,9 @@ public class Config {
 		public static ConfigurableMessage playerStarted;
 		public static ConfigurableMessage playerStopped;
 		public static ConfigurableMessage playTimeAdded;
+		public static ConfigurableMessage consecutiveDaysAdded;
+		public static ConfigurableMessage placedBlocksAdded;
+		public static ConfigurableMessage brokenBlocksAdded;
 		public static ConfigurableMessage playTimeTaken;
 		public static ConfigurableMessage playTimeReset;
 		public static ConfigurableMessage saved;
@@ -67,6 +70,15 @@ public class Config {
 			playTimeAdded = config.getConfigurableMessage(
 					"messages.PlayTimeAdded", 3, 
 					"Added %s play time to player %s, resulting in a total play time of %s.");
+			consecutiveDaysAdded = config.getConfigurableMessage(
+					"messages.ConsecutiveDaysAdded", 3, 
+					"Added %d consecutive days to player %s, resulting in a total of %d consecutive days.");
+			placedBlocksAdded = config.getConfigurableMessage(
+					"messages.PlacedBlocksAdded", 3, 
+					"Added %d placed blocks to player %s, resulting in a total of %d placed blocks.");
+			brokenBlocksAdded = config.getConfigurableMessage(
+					"messages.BrokenBlocksAdded", 3, 
+					"Added %d broken blocks to player %s, resulting in a total of %d broken blocks.");
 			playTimeTaken = config.getConfigurableMessage(
 					"messages.PlayTimeTaken", 3, 
 					"Took %s play time from player %s, resulting in a total play time of %s.");
