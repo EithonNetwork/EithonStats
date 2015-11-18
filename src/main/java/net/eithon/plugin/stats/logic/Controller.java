@@ -51,12 +51,7 @@ public class Controller {
 	}
 
 	public void playerMoved(final Player player) {
-		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-		scheduler.runTaskAsynchronously(this._eithonPlugin, new Runnable() {
-			public void run() {
-				getOrCreatePlayerTime(player).updateAlive();
-			}
-		});
+		getOrCreatePlayerTime(player).updateAlive();
 	}
 
 	public void playerCommand(Player player) {

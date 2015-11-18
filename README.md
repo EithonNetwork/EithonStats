@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.14.1 (2015-11-18)
+
+* BUG: Alive detection after AFK derped
+
 ### 1.14 (2015-11-13)
 
 * CHANGE: Optimization of PlayerMoveEvent
