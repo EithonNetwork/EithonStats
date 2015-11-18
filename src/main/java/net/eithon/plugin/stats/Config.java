@@ -40,7 +40,13 @@ public class Config {
 		public static ConfigurableMessage playerStarted;
 		public static ConfigurableMessage playerStopped;
 		public static ConfigurableMessage playTimeAdded;
-		public static ConfigurableMessage playTimeTaken;
+		public static ConfigurableMessage consecutiveDaysAdded;
+		public static ConfigurableMessage placedBlocksAdded;
+		public static ConfigurableMessage brokenBlocksAdded;
+		public static ConfigurableMessage playTimeRemoved;
+		public static ConfigurableMessage consecutiveDaysRemoved;
+		public static ConfigurableMessage placedBlocksRemoved;
+		public static ConfigurableMessage brokenBlocksRemoved;
 		public static ConfigurableMessage playTimeReset;
 		public static ConfigurableMessage saved;
 		public static ConfigurableMessage statusOnline;
@@ -67,9 +73,27 @@ public class Config {
 			playTimeAdded = config.getConfigurableMessage(
 					"messages.PlayTimeAdded", 3, 
 					"Added %s play time to player %s, resulting in a total play time of %s.");
-			playTimeTaken = config.getConfigurableMessage(
-					"messages.PlayTimeTaken", 3, 
-					"Took %s play time from player %s, resulting in a total play time of %s.");
+			consecutiveDaysAdded = config.getConfigurableMessage(
+					"messages.ConsecutiveDaysAdded", 3, 
+					"Added %d consecutive days to player %s, resulting in a total of %d consecutive days.");
+			placedBlocksAdded = config.getConfigurableMessage(
+					"messages.PlacedBlocksAdded", 3, 
+					"Added %d placed blocks to player %s, resulting in a total of %d placed blocks.");
+			brokenBlocksAdded = config.getConfigurableMessage(
+					"messages.BrokenBlocksAdded", 3, 
+					"Added %d broken blocks to player %s, resulting in a total of %d broken blocks.");
+			playTimeRemoved = config.getConfigurableMessage(
+					"messages.PlayTimeRemoved", 3, 
+					"Removed %s play time from player %s, resulting in a total play time of %s.");
+			consecutiveDaysRemoved = config.getConfigurableMessage(
+					"messages.ConsecutiveDaysRemoved", 3, 
+					"Removed %d consecutive days from player %s, resulting in a total of %d consecutive days.");
+			placedBlocksRemoved = config.getConfigurableMessage(
+					"messages.PlacedBlocksRemoved", 3, 
+					"Removed %d placed blocks from player %s, resulting in a total of %d placed blocks.");
+			brokenBlocksRemoved = config.getConfigurableMessage(
+					"messages.BrokenBlocksRemoved", 3, 
+					"Removed %d broken blocks from player %s, resulting in a total of %d broken blocks.");
 			playTimeReset = config.getConfigurableMessage(
 					"messages.PlayTimeReset", 1, 
 					"Took away all play time from player %s.");

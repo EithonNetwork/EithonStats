@@ -4,6 +4,20 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.14.1 (2015-11-18)
+
+* BUG: Alive detection after AFK derped
+
+### 1.14 (2015-11-13)
+
+* CHANGE: Optimization of PlayerMoveEvent
+
+### 1.13 (2015-11-13)
+
+* NEW: Added sub commands to the /stats add command (time, consecutivedays, placed, broken)
+* NEW: Added sub commands to the /stats remove command (time, consecutivedays, placed, broken)
+* CHANGED: Renamed "/stats take" to "/stats remove"
+
 ### 1.12.3 (2015-10-18)
 
 * BUG: Disabled stats transfer due to BungeeChord problems.

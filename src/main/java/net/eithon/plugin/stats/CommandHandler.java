@@ -15,8 +15,8 @@ public class CommandHandler implements ICommandHandler {
 	private static final String PLAYER_COMMAND = "/stats player <player>";
 	private static final String START_COMMAND = "/stats start <player>";
 	private static final String STOP_COMMAND = "/stats stop <player>";
-	private static final String ADD_COMMAND = "/stats add <player> <HH:MM:SS>";
-	private static final String TAKE_COMMAND = "/stats take <player> <HH:MM:SS>";
+	private static final String ADD_COMMAND = "/stats add <player> [time <HH:MM:SS>] [consecutivedays <days>] [placed <blocks>] [broken <blocks>]";
+	private static final String TAKE_COMMAND = "/stats remove <player> [time <HH:MM:SS>] [consecutivedays <days>] [placed <blocks>] [broken <blocks>]";
 	private static final String RESET_COMMAND = "/stats reset <player>";
 	private static final String WHO_COMMAND = "/stats who";
 	private static final String AFK_COMMAND = "/stats afk [<description>]";
@@ -43,7 +43,7 @@ public class CommandHandler implements ICommandHandler {
 	public boolean onCommand(CommandParser commandParser) {
 		Player player = commandParser.getPlayerOrInformSender();
 		if (player == null) return true;
-		
+
 		this._controller.playerCommand(player);
 		String command = commandParser.getArgumentCommand();
 		if (command == null) {
@@ -52,8 +52,8 @@ public class CommandHandler implements ICommandHandler {
 			statusCommand(commandParser);
 		} else if (command.equalsIgnoreCase("add")) {
 			addCommand(commandParser);
-		} else if (command.equalsIgnoreCase("take")) {
-			takeCommand(commandParser);
+		} else if (command.equalsIgnoreCase("remove")) {
+			removeCommand(commandParser);
 		} else if (command.equalsIgnoreCase("reset")) {
 			resetCommand(commandParser);
 		} else if (command.equalsIgnoreCase("player")) {
@@ -91,40 +91,152 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
 		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
-		
+
 		this._controller.showStats(commandParser.getSender(), eithonPlayer);
 	}
 
 	void addCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.add")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3, 3)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(4)) return;
 
 		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
+		while (true) {
+			String command = commandParser.getArgumentCommand();
+			if (command == null) break;
+			boolean success = false;
+
+			if (command.equals("time")) {
+				success = addTime(commandParser, eithonPlayer);
+			} else if (command.equals("consecutivedays")) {
+				success = addConsecutiveDays(commandParser, eithonPlayer);
+			} else if (command.equals("placed")) {
+				success = addPlacedBlocks(commandParser, eithonPlayer);
+			} else if (command.equals("broken")) {
+				success = addBrokenBlocks(commandParser, eithonPlayer);
+			} 
+
+			if (!success) {
+				commandParser.showCommandSyntax();
+				break;
+			}
+		}
+	}
+
+	public boolean addTime(CommandParser commandParser, EithonPlayer eithonPlayer) {
 		long playTimeInSeconds = commandParser.getArgumentTimeAsSeconds(0);
-		
 		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), eithonPlayer, playTimeInSeconds);
 		Config.M.playTimeAdded.sendMessage(
 				commandParser.getSender(),
 				TimeMisc.secondsToString(playTimeInSeconds),
 				eithonPlayer.getName(), 
 				TimeMisc.secondsToString(totalPlayTimeInSeconds));
+		return true;
 	}
 
-	void takeCommand(CommandParser commandParser)
+	public boolean addConsecutiveDays(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long consecutiveDays = commandParser.getArgumentInteger(0);
+		long totalConsecutiveDays = this._controller.addConsecutiveDays(commandParser.getSender(), eithonPlayer, consecutiveDays);
+		Config.M.consecutiveDaysAdded.sendMessage(
+				commandParser.getSender(),
+				consecutiveDays,
+				eithonPlayer.getName(), 
+				totalConsecutiveDays);
+		return true;
+	}
+
+	public boolean addPlacedBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long placedBlocks = commandParser.getArgumentInteger(0);
+		long totalPlacedBlocks = this._controller.addPlacedBlocks(commandParser.getSender(), eithonPlayer, placedBlocks);
+		Config.M.placedBlocksAdded.sendMessage(
+				commandParser.getSender(),
+				placedBlocks,
+				eithonPlayer.getName(), 
+				totalPlacedBlocks);
+		return true;
+	}
+
+	public boolean addBrokenBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long brokenBlocks = commandParser.getArgumentInteger(0);
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(commandParser.getSender(), eithonPlayer, brokenBlocks);
+		Config.M.brokenBlocksAdded.sendMessage(
+				commandParser.getSender(),
+				brokenBlocks,
+				eithonPlayer.getName(), 
+				totalBrokenBlocks);
+		return true;
+	}
+
+	void removeCommand(CommandParser commandParser)
 	{
-		if (!commandParser.hasPermissionOrInformSender("stats.take")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3, 3)) return;
+		if (!commandParser.hasPermissionOrInformSender("stats.remove")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(4)) return;
 
 		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
+		while (true) {
+			String command = commandParser.getArgumentCommand();
+			if (command == null) break;
+			boolean success = false;
+
+			if (command.equals("time")) {
+				success = removeTime(commandParser, eithonPlayer);
+			} else if (command.equals("consecutivedays")) {
+				success = removeConsecutiveDays(commandParser, eithonPlayer);
+			} else if (command.equals("placed")) {
+				success = removePlacedBlocks(commandParser, eithonPlayer);
+			} else if (command.equals("broken")) {
+				success = removeBrokenBlocks(commandParser, eithonPlayer);
+			} 
+
+			if (!success) {
+				commandParser.showCommandSyntax();
+				break;
+			}
+		}
+	}
+
+	public boolean removeTime(CommandParser commandParser, EithonPlayer eithonPlayer) {
 		long playTimeInSeconds = commandParser.getArgumentTimeAsSeconds(0);
-		
 		long totalPlayTimeInSeconds = this._controller.addPlayTime(commandParser.getSender(), eithonPlayer, -playTimeInSeconds);
-		Config.M.playTimeTaken.sendMessage(
+		Config.M.playTimeRemoved.sendMessage(
 				commandParser.getSender(),
 				TimeMisc.secondsToString(playTimeInSeconds),
 				eithonPlayer.getName(), 
 				TimeMisc.secondsToString(totalPlayTimeInSeconds));
+		return true;
+	}
+
+	public boolean removeConsecutiveDays(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long consecutiveDays = commandParser.getArgumentInteger(0);
+		long totalConsecutiveDays = this._controller.addConsecutiveDays(commandParser.getSender(), eithonPlayer, -consecutiveDays);
+		Config.M.consecutiveDaysRemoved.sendMessage(
+				commandParser.getSender(),
+				consecutiveDays,
+				eithonPlayer.getName(), 
+				totalConsecutiveDays);
+		return true;
+	}
+
+	public boolean removePlacedBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long placedBlocks = commandParser.getArgumentInteger(0);
+		long totalPlacedBlocks = this._controller.addPlacedBlocks(commandParser.getSender(), eithonPlayer, -placedBlocks);
+		Config.M.placedBlocksRemoved.sendMessage(
+				commandParser.getSender(),
+				placedBlocks,
+				eithonPlayer.getName(), 
+				totalPlacedBlocks);
+		return true;
+	}
+
+	public boolean removeBrokenBlocks(CommandParser commandParser, EithonPlayer eithonPlayer) {
+		long brokenBlocks = commandParser.getArgumentInteger(0);
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(commandParser.getSender(), eithonPlayer, -brokenBlocks);
+		Config.M.brokenBlocksRemoved.sendMessage(
+				commandParser.getSender(),
+				brokenBlocks,
+				eithonPlayer.getName(), 
+				totalBrokenBlocks);
+		return true;
 	}
 
 	void resetCommand(CommandParser commandParser)
@@ -133,7 +245,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
 
 		EithonPlayer eithonPlayer = commandParser.getArgumentEithonPlayer(commandParser.getPlayer());
-		
+
 		this._controller.resetPlayTime(commandParser.getSender(), eithonPlayer);
 		Config.M.playTimeReset.sendMessage(
 				commandParser.getSender(),
@@ -146,7 +258,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
 		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
-		
+
 		this._controller.startPlayer(player);
 		Config.M.playerStarted.sendMessage(commandParser.getSender(), player.getName());
 	}
@@ -157,7 +269,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 2)) return;
 
 		Player player = commandParser.getArgumentPlayer(commandParser.getPlayer());
-		
+
 		this._controller.stopPlayer(player, Config.M.inactivityDetected.getMessage());
 		Config.M.playerStopped.sendMessage(commandParser.getSender(), player.getName());
 	}
@@ -167,7 +279,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1)) return;
 
 		String description = commandParser.getArgumentRest(Config.M.defaultAfkDescription.getMessage());
-		
+
 		this._controller.stopPlayer(commandParser.getPlayer(), description);
 	}
 
@@ -175,7 +287,7 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.save")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
-		
+
 		this._controller.saveDelta();
 		Config.M.saved.sendMessage(commandParser.getSender());
 	}
@@ -184,7 +296,7 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.who")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
-		
+
 		this._controller.who(commandParser.getSender());
 	}
 
@@ -192,12 +304,12 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.time")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
-		
+
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
-		
+
 		int maxItems = commandParser.getArgumentInteger(0);
-		
+
 		this._controller.showTimeStats(commandParser.getSender(), ascending, maxItems);
 	}
 
@@ -205,12 +317,12 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.blocks")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
-		
+
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
-		
+
 		int maxItems = commandParser.getArgumentInteger(0);
-		
+
 		this._controller.showBlocksStats(commandParser.getSender(), ascending, maxItems);
 	}
 
@@ -218,12 +330,12 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.chat")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
-		
+
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
-		
+
 		int maxItems = commandParser.getArgumentInteger(0);
-		
+
 		this._controller.showChatStats(commandParser.getSender(), ascending, maxItems);
 	}
 
@@ -231,14 +343,14 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 4)) return;
-		
+
 		int daysBack = commandParser.getArgumentInteger(7);
 
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
-		
+
 		int maxItems = commandParser.getArgumentInteger(0);
-		
+
 		this._controller.showDiffStats(commandParser.getSender(), daysBack, ascending, maxItems);
 	}
 
@@ -246,10 +358,10 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.diff")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(3,5)) return;
-		
+
 		EithonPlayer player = commandParser.getArgumentEithonPlayer(commandParser.getEithonPlayer());
 		int daysBack = commandParser.getArgumentInteger(7);
-		
+
 		this._controller.showDiffStats(commandParser.getSender(), player, daysBack);
 	}
 
@@ -257,12 +369,12 @@ public class CommandHandler implements ICommandHandler {
 	{
 		if (!commandParser.hasPermissionOrInformSender("stats.status")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 3)) return;
-		
+
 		String direction = commandParser.getArgumentStringAsLowercase("desc");
 		boolean ascending = direction.equalsIgnoreCase("asc");
-		
+
 		int maxItems = commandParser.getArgumentInteger(0);
-		
+
 		this._controller.showAfkStatus(commandParser.getSender(), ascending, maxItems);
 	}
 

@@ -182,6 +182,27 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		return this._timeInfo.addToTotalPlayTime(playTimeInSeconds);
 	}
 
+	public long addToConsecutiveDays(long consecutiveDays) {
+		this._consecutiveDays += consecutiveDays;
+		if (this._consecutiveDays < 0) this._consecutiveDays = 0;
+		if (this._consecutiveDays > 0) {
+			this._lastConsecutiveDay = this._timeInfo.getToday();
+		}
+		return this._consecutiveDays;
+	}
+
+	public long addToBlocksCreated(long blocksCreated) {
+		this._blocksCreated += blocksCreated;
+		if (this._blocksCreated < 0) this._blocksCreated = 0;
+		return this._blocksCreated;
+	}
+
+	public long addToBlocksBroken(long blocksBroken) {
+		this._blocksBroken += blocksBroken;
+		if (this._blocksBroken < 0) this._blocksBroken = 0;
+		return this._blocksBroken;
+	}
+
 	public void resetTotalPlayTime() {
 		this._timeInfo.resetTotalPlayTime();
 	}
