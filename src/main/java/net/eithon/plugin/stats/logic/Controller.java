@@ -18,11 +18,9 @@ import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 public class Controller {
 	public static final String EITHON_STATS_BUNGEE_TRANSFER = "EithonStatsPlayerStatistics";

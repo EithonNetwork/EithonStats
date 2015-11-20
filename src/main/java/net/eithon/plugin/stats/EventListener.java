@@ -30,7 +30,7 @@ public final class EventListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerJoinEvent(EithonPlayerMoveOneBlockEvent event) {
+	public void onEithonPlayerMoveOneBlockEvent(EithonPlayerMoveOneBlockEvent event) {
 		this._controller.playerMoved(event.getPlayer());
 	}
 
