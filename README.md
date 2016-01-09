@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.15 (2016-01-09)
+
+* NEW: API can return play time in seconds.
+
 ### 1.14.1 (2015-11-18)
 
 * BUG: Alive detection after AFK derped

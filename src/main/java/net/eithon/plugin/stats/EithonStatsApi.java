@@ -11,9 +11,13 @@ public class EithonStatsApi {
 	public void test() {}
 
 	public static long getPlaytimeHours(Player player) {
+		return getPlaytimeSeconds(player)/3600;
+	}
+
+	public static long getPlaytimeSeconds(Player player) {
 		PlayerStatistics playerStatistics = getPlayerStatistics(player);
 		if (playerStatistics == null) return 0;
-		return playerStatistics.getTotalTimeInSeconds()/3600;
+		return playerStatistics.getTotalTimeInSeconds();
 	}
 
 	static void initialize(Controller _controller) {
