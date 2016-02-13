@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 1.16 (2016-02-13)
+
+* NEW: Experimenting with transferring statistics between BungeeChord servers.
+
 ### 1.15 (2016-01-09)
 
 * NEW: API can return play time in seconds.

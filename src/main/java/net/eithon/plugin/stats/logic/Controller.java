@@ -17,6 +17,7 @@ import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
+import net.eithon.plugin.stats.Config;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -390,20 +391,20 @@ public class Controller {
 	}
 
 	public void transferPlayerStatsToPrimaryServer(EithonPlayer player, boolean move) {
-		verbose("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s", 
+		major("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s", 
 				player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
 		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
-		verbose("transferPlayerStatsToPrimaryServer", "primaryBungeeServerName=%s", primaryBungeeServerName);
+		major("transferPlayerStatsToPrimaryServer", "primaryBungeeServerName=%s", primaryBungeeServerName);
 		transferPlayerStats(primaryBungeeServerName, player, move);
 		verbose("transferPlayerStatsToPrimaryServer", "Leave");
 	}
 
 	private void transferPlayerStats(String targetServerName, EithonPlayer player, boolean move) {
-		verbose("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
+		major("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
 				targetServerName, player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
-		//PlayerStatistics statistics = getOrCreatePlayerTime(player);
-		//BungeeTransfer info = new BungeeTransfer(statistics, true);
-		//this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
+		PlayerStatistics statistics = getOrCreatePlayerTime(player);
+		BungeeTransfer info = new BungeeTransfer(statistics, true);
+		this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
 		verbose("transferPlayerStats", "Leave");
 	}
 
@@ -412,14 +413,20 @@ public class Controller {
 				event.getName(), event.getData().toJSONString());
 		if (!event.getName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
 		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
-		verbose("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
+		major("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
 		PlayerStatistics statistics = info.getStatistics();
-		setPlayerStatistics(statistics);
+		major("handleEithonBungeeEvent", "%s", Config.M.playerStats.getMessage(statistics.getNamedArguments()));
+		//setPlayerStatistics(statistics);
 		if (info.getMove()) {
 			verbose("handleEithonBungeeEvent", "Player %s statistics is started.", statistics.getName());
-			statistics.start();
+			//statistics.start();
 		}
 		verbose("handleEithonBungeeEvent", "Leave");
+	}
+
+	private void major(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "Controller.%s: %s", method, message);
 	}
 
 	private void verbose(String method, String format, Object... args) {
