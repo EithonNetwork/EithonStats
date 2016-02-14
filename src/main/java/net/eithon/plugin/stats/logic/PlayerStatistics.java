@@ -361,7 +361,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 
 	public Object getAfkDescription() { return this._afkDescription; }
 
-	private HashMap<String,String> getNamedArguments() {
+	HashMap<String,String> getNamedArguments() {
 		String status = "";
 		if (this._eithonPlayer.isOnline()) {
 			if (this._afkDescription == null) status = Config.M.statusOnline.getMessageWithColorCoding();
