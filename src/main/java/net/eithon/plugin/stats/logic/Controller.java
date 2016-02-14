@@ -1,18 +1,16 @@
 package net.eithon.plugin.stats.logic;
 
-import java.io.File;
-import java.time.LocalDate;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
-import net.eithon.library.bungee.EithonBungeeEvent;
-import net.eithon.library.core.CoreMisc;
+import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.json.FileContent;
-import net.eithon.library.json.PlayerCollection;
+import net.eithon.library.mysql.MySql;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
@@ -23,24 +21,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class Controller {
 	public static final String EITHON_STATS_BUNGEE_TRANSFER = "EithonStatsPlayerStatistics";
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
 	private Logger _eithonLogger;
 	private Plugin _eithonCopPlugin;
+	private Connection _connection;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = null;
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
+		MySql mySql = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
+				Config.V.databaseUsername, Config.V.databasePassword);
+		this._connection = mySql.getConnection();
 		PlayerStatistics.initialize(this._eithonLogger);
-		saveDeltaAndConsolidate(null);
-		connectToStats(this._eithonPlugin);
+		connectToEithonCop(this._eithonPlugin);
 	}
 
-	private void connectToStats(EithonPlugin eithonPlugin) {
-		this._eithonCopPlugin = PluginMisc.getPlugin("EithonStats");
+	private void connectToEithonCop(EithonPlugin eithonPlugin) {
+		this._eithonCopPlugin = PluginMisc.getPlugin("EithonCop");
 		if (this._eithonCopPlugin != null && this._eithonCopPlugin.isEnabled()) {
 			eithonPlugin.getEithonLogger().info("Succesfully hooked into the EithonCop plugin!");
 		} else {
@@ -57,46 +60,6 @@ public class Controller {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s invoked estats command.", player.getName());
-	}
-
-	private void saveDeltaAndConsolidate(File archiveFile) {
-		if (this._allPlayerTimes == null)  {
-			this._allPlayerTimes = new PlayerCollection<PlayerStatistics>(new PlayerStatistics(), this._eithonPlugin.getDataFile("playerTimeDeltas"));
-		} else  {
-			saveDelta();
-		}
-		consolidateDelta(archiveFile);
-	}
-
-	private void consolidateDelta(File archiveFile) {
-		if (!this.isPrimaryBungeeServer()) return;
-		synchronized(this._allPlayerTimes) {
-			this._allPlayerTimes.consolidateDelta(this._eithonPlugin, "PlayerStatistics", 1, archiveFile);
-		}
-	}
-
-	public void saveDelta() {
-		if (this.isPrimaryBungeeServer()) {
-			saveDeltaPrimary();
-		} else {
-			saveDeltaSlave();			
-		}
-	}
-	
-	private void saveDeltaPrimary() {
-		synchronized(this._allPlayerTimes) {
-			this._allPlayerTimes.saveDelta(this._eithonPlugin, "PlayerStatistics", 1);
-		}
-	}
-
-	private void saveDeltaSlave() {
-		synchronized(this._allPlayerTimes) {
-			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				if (playerStatistics.isActive()) {
-					transferPlayerStatsToPrimaryServer(playerStatistics.getEithonPlayer(), false);
-				}
-			}
-		}
 	}
 
 	public void startPlayer(Player player) {
@@ -131,25 +94,20 @@ public class Controller {
 		if (time == null) {
 			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
 					player.getName());
-			time = new PlayerStatistics(player);
+			try {
+				time = new PlayerStatistics(this._connection, player);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
 			this._allPlayerTimes.put(player, time);
 		}
 		return time;
 	}
 
 	private PlayerStatistics getOrCreatePlayerTime(EithonPlayer eithonPlayer) {
-		PlayerStatistics time = this._allPlayerTimes.get(eithonPlayer);
-		if (time == null) {
-			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
-					eithonPlayer.getName());
-			time = new PlayerStatistics(eithonPlayer);
-			this._allPlayerTimes.put(eithonPlayer, time);
-		}
-		return time;
-	}
-
-	private void setPlayerStatistics(PlayerStatistics statistics) {
-		this._allPlayerTimes.put(statistics.getEithonPlayer(), statistics);
+		return getOrCreatePlayerTime(eithonPlayer.getPlayer());
 	}
 
 	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
@@ -282,14 +240,10 @@ public class Controller {
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
 	}
 
-	public void archive() {
-		File targetFile = getArchiveFileForDayFromNow(1);
-		saveDeltaAndConsolidate(targetFile);
-	}
-
 	public PlayerCollection<PlayerStatistics> diffWithArchive(int daysBack) {
-		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>(new PlayerStatistics());
-		if (!isPrimaryBungeeServer()) return differences;
+		throw new NotImplementedException();
+		/*
+		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>();
 		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);		
 		for (PlayerStatistics now : this._allPlayerTimes) {
 			now.lap();
@@ -298,27 +252,7 @@ public class Controller {
 			differences.put(now.getUniqueId(), diff);
 		}
 		return differences;
-	}
-
-	private PlayerCollection<PlayerStatistics> getFromArchive(int daysBack)
-	{
-		File archive = getArchiveFileForDayFromNow(daysBack);
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE,
-				"Will try to read from file \"%s\".", archive.getAbsolutePath());
-		if (!archive.exists()) {
-			this._eithonLogger.warning("Archive file \"%s\" not found.", archive.getAbsolutePath());
-			return null;
-		}
-
-		FileContent fileContent = FileContent.loadFromFile(archive);
-		return new PlayerCollection<PlayerStatistics>(new PlayerStatistics()).fromJson(fileContent.getPayload());
-	}
-
-	private File getArchiveFileForDayFromNow(int daysBack) {
-		File targetFile = new File(
-				this._eithonPlugin.getDataFile("playerTimeArchive"), 
-				String.format("%s.json", LocalDate.now().minusDays(daysBack)));
-		return targetFile;
+		*/
 	}
 
 	public long addPlayTime(
@@ -375,62 +309,13 @@ public class Controller {
 		sender.sendMessage(String.format("AFK: %s", afkPlayers));
 	}
 
-	public boolean isPrimaryBungeeServer() {
-		return this._eithonPlugin.getApi().isPrimaryBungeeServer();
-	}
-
-	public boolean isPrimaryBungeeServer(String serverName) {
-		return this._eithonPlugin.getApi().isPrimaryBungeeServer(serverName);
-	}
-
-	public void transferPlayerStatsToSlaveServer(EithonPlayer player, String slaveServerName) {
-		verbose("transferPlayerStatsToSlaveServer", "Enter; slaveServerName=%s, player=%s", 
-				slaveServerName, player == null ? "NULL" : player.getName());
-		transferPlayerStats(slaveServerName, player, true);
-		verbose("transferPlayerStatsToSlaveServer", "Leave");
-	}
-
-	public void transferPlayerStatsToPrimaryServer(EithonPlayer player, boolean move) {
-		major("transferPlayerStatsToPrimaryServer", "Enter; player=%s, move=%s", 
-				player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
-		String primaryBungeeServerName = this._eithonPlugin.getApi().getPrimaryBungeeServerName();
-		major("transferPlayerStatsToPrimaryServer", "primaryBungeeServerName=%s", primaryBungeeServerName);
-		transferPlayerStats(primaryBungeeServerName, player, move);
-		verbose("transferPlayerStatsToPrimaryServer", "Leave");
-	}
-
-	private void transferPlayerStats(String targetServerName, EithonPlayer player, boolean move) {
-		major("transferPlayerStats", "Enter; targetServerName=%s, player=%s, move=%s", 
-				targetServerName, player == null ? "NULL" : player.getName(), move ? "TRUE" : "FALSE");
-		PlayerStatistics statistics = getOrCreatePlayerTime(player);
-		BungeeTransfer info = new BungeeTransfer(statistics, true);
-		this._eithonPlugin.getApi().bungeeSendDataToServer(targetServerName, EITHON_STATS_BUNGEE_TRANSFER, info, true);
-		verbose("transferPlayerStats", "Leave");
-	}
-
-	public void handleEithonBungeeEvent(EithonBungeeEvent event) {
-		verbose("handleEithonBungeeEvent", "Enter; event.name=%s, event.data=%s",
-				event.getName(), event.getData().toJSONString());
-		if (!event.getName().equals(EITHON_STATS_BUNGEE_TRANSFER)) return;
-		BungeeTransfer info = BungeeTransfer.getFromJson(event.getData());
-		major("handleEithonBungeeEvent", "Received statistics for player %s", info.getStatistics().getName());
-		PlayerStatistics statistics = info.getStatistics();
-		major("handleEithonBungeeEvent", "%s", Config.M.playerStats.getMessage(statistics.getNamedArguments()));
-		//setPlayerStatistics(statistics);
-		if (info.getMove()) {
-			verbose("handleEithonBungeeEvent", "Player %s statistics is started.", statistics.getName());
-			//statistics.start();
+	public void save() {
+		try {
+			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+				playerStatistics.toDb(this._connection, true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		verbose("handleEithonBungeeEvent", "Leave");
-	}
-
-	private void major(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "Controller.%s: %s", method, message);
-	}
-
-	private void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
 	}
 }

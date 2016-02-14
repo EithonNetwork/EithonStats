@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.0 (2016-02-??)
+
+* NEW: Changed from storing statistics in files to storing the statistics in a DB.
+
 ### 1.16 (2016-02-13)
 
 * NEW: Experimenting with transferring statistics between BungeeChord servers.

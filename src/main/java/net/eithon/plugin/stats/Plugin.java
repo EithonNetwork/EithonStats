@@ -5,6 +5,7 @@ import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.IRepeatable;
 import net.eithon.plugin.stats.logic.Controller;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.event.Listener;
 
 public final class Plugin extends EithonPlugin {
@@ -17,41 +18,42 @@ public final class Plugin extends EithonPlugin {
 		this._controller = new Controller(this);
 		CommandHandler commandHandler = new CommandHandler(this, this._controller);
 		Listener eventListener = new EventListener(this, this._controller);
-		repeatSave();
-		repeatArchive();
+		autoSave();
+		hourlySave();
 		super.activate(commandHandler, eventListener);
 		EithonStatsApi.initialize(this._controller);
 	}
 
 	@Override
 	public void onDisable() {
-		this._controller.saveDelta();
+		this._controller.save();
 		super.onDisable();
 		this._controller = null;
 	}
 
-	private void repeatSave() {
+	private void autoSave() {
 		final Plugin thisObject = this;
 		AlarmTrigger.get().repeat("Save player statistics", Config.V.secondsBetweenSave, 
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.saveDelta();
+				thisObject._controller.save();
 				return true;
 			}
 		});
 	}
 
-	private void repeatArchive() {
+	private void hourlySave() {
 		final Plugin thisObject = this;
-		AlarmTrigger.get().repeatEveryDay("Archive player statistics", Config.V.archiveAtTimeOfDay, 
+		AlarmTrigger.get().repeatEveryHour("Hourly player statistics", 0,
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.archive();
-				return true;
+				throw new NotImplementedException();
+				//thisObject._controller.hourlySave();
+				//return true;
 			}
 		});
 	}

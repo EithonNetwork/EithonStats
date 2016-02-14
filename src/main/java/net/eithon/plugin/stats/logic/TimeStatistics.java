@@ -1,15 +1,14 @@
 package net.eithon.plugin.stats.logic;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import net.eithon.library.json.JsonObject;
 import net.eithon.library.time.TimeMisc;
 
-import org.json.simple.JSONObject;
-
-public class TimeStatistics extends JsonObject<TimeStatistics>{
+public class TimeStatistics {
 	// Saved variables
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
@@ -126,44 +125,31 @@ public class TimeStatistics extends JsonObject<TimeStatistics>{
 	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
 	public Object getIntervals() { return this._intervals; }
 
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Object toJson() {
-		JSONObject json = new JSONObject();
-		json.put("firstStart", TimeMisc.fromLocalDateTime(this._firstStartTime));
-		json.put("lastStop", TimeMisc.fromLocalDateTime(this._lastStopTime));
-		json.put("totalPlayTimeInSeconds", this._totalPlayTimeInSeconds);
-		json.put("intervals", this._intervals);
-		json.put("longestIntervalInSeconds", this._longestIntervalInSeconds);
-		json.put("playTimeTodayInSeconds", this.getPlayTimeTodayInSeconds());
-		json.put("today", TimeMisc.fromLocalDateTime(this.getToday()));
-		return json;
-	}
-
-	@Override
-	public TimeStatistics fromJson(Object json) {
-		JSONObject jsonObject = (JSONObject) json;
-		if (jsonObject == null) return null;
-		this._firstStartTime = TimeMisc.toLocalDateTime(jsonObject.get("firstStart"));
-		this._lastStopTime = TimeMisc.toLocalDateTime(jsonObject.get("lastStop"));
-		this._totalPlayTimeInSeconds = (long)jsonObject.get("totalPlayTimeInSeconds");
-		this._intervals = (long)jsonObject.get("intervals");
-		this._longestIntervalInSeconds = (long)jsonObject.get("longestIntervalInSeconds");
-		final Object seconds = jsonObject.get("playTimeTodayInSeconds");
-		if (seconds == null) this._playTimeTodayInSeconds = 0;
-		else this._playTimeTodayInSeconds= (long)seconds;
-		this._today = TimeMisc.toLocalDateTime(jsonObject.get("today"));
+	public TimeStatistics fromDb(ResultSet resultSet) throws SQLException {
+		if (resultSet == null) return null;
+		this._firstStartTime = TimeMisc.toLocalDateTime(resultSet.getTimestamp("first_start"));
+		this._lastStopTime = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_stop"));
+		this._totalPlayTimeInSeconds = resultSet.getLong("play_time_in_seconds");
+		this._intervals = resultSet.getLong("intervals");
+		this._longestIntervalInSeconds = resultSet.getLong("longest_interval_in_seconds");
+		this._playTimeTodayInSeconds = resultSet.getLong("play_time_today_in_seconds");
+		this._today = TimeMisc.toLocalDateTime(resultSet.getTimestamp("today"));
 		return this;
 	}
 
-	@Override
-	public TimeStatistics factory() {
-		return new TimeStatistics();
+	public static TimeStatistics getFromDb(ResultSet resultSet) throws SQLException {
+		TimeStatistics info = new TimeStatistics();
+		return info.fromDb(resultSet);
 	}
 
-	public static TimeStatistics getFromJson(Object json) {
-		TimeStatistics info = new TimeStatistics();
-		return info.fromJson(json);
+	public String getDbUpdates() {
+		String updates = String.format("first_start_time='%s'", TimeMisc.toDbUtc(this._firstStartTime)) +
+				String.format(", last_stop_time='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
+				String.format(", today='%s'", TimeMisc.toDbUtc(this._today)) +
+				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
+				String.format(", intervals=%d", this._intervals) +
+				String.format(", longest_interval_in_seconds=%d", this._longestIntervalInSeconds) +
+				String.format(", play_time_today_in_seconds=%d", this._playTimeTodayInSeconds);
+		return updates;
 	}
 }

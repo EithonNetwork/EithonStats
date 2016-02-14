@@ -288,7 +288,7 @@ public class CommandHandler implements ICommandHandler {
 		if (!commandParser.hasPermissionOrInformSender("stats.save")) return;
 		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
 
-		this._controller.saveDelta();
+		this._controller.save();
 		Config.M.saved.sendMessage(commandParser.getSender());
 	}
 

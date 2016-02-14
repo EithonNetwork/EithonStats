@@ -1,12 +1,15 @@
 package net.eithon.plugin.stats.logic;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
-import net.eithon.library.json.JsonObjectDelta;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
@@ -15,9 +18,8 @@ import net.eithon.plugin.stats.Config;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.json.simple.JSONObject;
 
-public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implements IUuidAndName {
+public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
 
 	// Saved variables
@@ -37,22 +39,47 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
 
+	private long _dbId;
+
 	public static void initialize(Logger logger) {
 		eithonLogger = logger;
 	}
 
-	public PlayerStatistics(Player player)
+	public PlayerStatistics(Connection connection, Player player) throws SQLException
 	{
-		this(new EithonPlayer(player));
+		try {
+			String sql = String.format("SELECT * FROM accumulated WHERE player_id='%s'", player.getUniqueId());
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			if (resultSet != null) {
+				fromDb(resultSet);
+				return;
+			}
+		} catch (SQLException e) {
+			initialize();
+			this._eithonPlayer = new EithonPlayer(player);
+			insertNewPlayerStatistics(connection, player);
+			toDb(connection, false);
+		}
 	}
 
-	public PlayerStatistics(EithonPlayer eithonPlayer)
-	{
-		this();
-		this._eithonPlayer = eithonPlayer;
+	public PlayerStatistics() {
+		initialize();
 	}
 
-	PlayerStatistics() {
+	private void insertNewPlayerStatistics(Connection connection, Player player)
+			throws SQLException {
+		String sql = String.format("INSERT INTO `accumulated`" +
+				" (`player_id`, `player_name`) VALUES ('%s', '%s')",
+				this._eithonPlayer.getUniqueId().toString(), this._eithonPlayer.getName());
+		Statement statement = connection.createStatement();
+		statement.executeUpdate(sql);
+		ResultSet generatedKeys = statement.getGeneratedKeys();
+		generatedKeys.next();
+		this._dbId = generatedKeys.getLong(1);
+	}
+
+	private void initialize() {
 		this._blocksBroken = 0;
 		this._blocksCreated = 0;
 		this._chatActivities = 0;
@@ -221,63 +248,53 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
 
-	@Override
-	public PlayerStatistics factory() { return new PlayerStatistics(); }
-
-	@Override
-	public PlayerStatistics fromJson(Object json) {
-		JSONObject jsonObject = (JSONObject) json;
-		this._eithonPlayer = EithonPlayer.getFromJson(jsonObject.get("player"));
-		this._timeInfo = TimeStatistics.getFromJson(jsonObject.get("timeInfo"));
-		this._chatActivities = (long)jsonObject.get("chatActivities");
-		this._lastChatActivity = TimeMisc.toLocalDateTime(jsonObject.get("lastChatActivity"));
-		this._blocksCreated = (long)jsonObject.get("blocksCreated");
-		this._blocksBroken = (long)jsonObject.get("blocksBroken");
-		Object days = jsonObject.get("consecutiveDays");
-		if (days == null) this._consecutiveDays = 0;
-		else this._consecutiveDays = (long)days;
-		this._lastConsecutiveDay = TimeMisc.toLocalDateTime(jsonObject.get("lastConsecutiveDay"));
+	private PlayerStatistics fromDb(ResultSet resultSet) throws SQLException {
+		String playerIdAsString = resultSet.getString("player_id");
+		if (playerIdAsString == null) throw new IllegalArgumentException("Could not find player_id in resultSet.");
+		UUID playerId;
+		try {
+			playerId = UUID.fromString(playerIdAsString);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("player_id was not a UUID", e);
+		}
+		this._dbId = resultSet.getLong("id");
+		this._eithonPlayer = new EithonPlayer(playerId);
+		this._timeInfo = TimeStatistics.getFromDb(resultSet);
+		this._chatActivities = resultSet.getLong("chat_messages");
+		this._lastChatActivity = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_chat_message"));
+		this._blocksCreated = resultSet.getLong("blocks_created");
+		this._blocksBroken = resultSet.getLong("blocks_broken");
+		this._consecutiveDays = resultSet.getLong("consecutive_days");
+		this._lastConsecutiveDay = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_consecutive_day"));
 		return this;
 	}
-	
-	public static PlayerStatistics getFromJson(Object json) { return new PlayerStatistics().fromJson(json); }
 
-	@SuppressWarnings("unchecked")
-	private JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
-		if (!saveAll && !this._hasBeenUpdated) {
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
-			return null;
-		}
+	public void toDb(Connection connection, boolean doLap) throws SQLException {
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Enter for player %s", this.getName());
 
 		if (doLap) {
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s calls lap()", this.getName());
+			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Player %s calls lap()", this.getName());
 			lap();
 		}
-		JSONObject json = new JSONObject();
-		json.put("player", this._eithonPlayer.toJson());
-		json.put("timeInfo", this._timeInfo.toJson());
-		json.put("chatActivities", this._chatActivities);
-		json.put("lastChatActivity", TimeMisc.fromLocalDateTime(this._lastChatActivity));
-		json.put("blocksCreated", this._blocksCreated);
-		json.put("blocksBroken", this._blocksBroken);
-		json.put("consecutiveDays", this._consecutiveDays);
-		json.put("lastConsecutiveDay", TimeMisc.fromLocalDateTime(this._lastConsecutiveDay));
+
+		String updates = getDbUpdates();
+		String update = String.format("UPDATE accumulated SET %s WHERE id=%d", updates, this._dbId);
+		Statement statement = connection.createStatement();
+		statement.executeUpdate(update);
 		this._hasBeenUpdated = false;
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s result: %s", this.getName(), json.toString());
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
-		return json;
+		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Leave");
 	}
 
-	@Override
-	public JSONObject toJson() {
-		return toJsonDelta(true, true);
-	}
-
-	@Override
-	public Object toJsonDelta(boolean saveAll) {
-		return toJsonDelta(saveAll, true);
+	private String getDbUpdates() {
+		String updates = String.format("player_id='%s'", this._eithonPlayer.getUniqueId()) +
+				String.format(", player_name='%s'", this._eithonPlayer.getName()) +
+				String.format(", chat_messages=%d", this._chatActivities) +
+				String.format(", blocks_created=%d", this._blocksCreated) +
+				String.format(", blocks_broken=%d", this._blocksBroken) +
+				String.format(", consecutive_days=%d", this._consecutiveDays) +
+				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
+				String.format(", %s", this._timeInfo.getDbUpdates());
+		return updates;
 	}
 
 	public String getName() {
@@ -334,7 +351,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		}
 		return this._consecutiveDays; 
 	}
-	
+
 	public EithonPlayer getEithonPlayer() { return this._eithonPlayer; }
 
 	boolean lastConsecutiveDayWasTooLongAgo() {

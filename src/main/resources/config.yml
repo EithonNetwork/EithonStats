@@ -1,3 +1,16 @@
+eithon:
+  UseMarkUpForMessages: 1
+  UseWrappingForMessages: 1
+  
+  #
+  # Debug level
+  #  0 = NONE (no debug messages)
+  #  1 = MAJOR (only major messages)
+  #  2 = MINOR (also minor messages)
+  #  3 = VERBOSE (all messages)
+  #
+  DebugLevel: 1
+  
 #
 # The time span that a player may be inactive before we stop the play time timer.
 AllowedInactivityTimeSpan: 5m
@@ -15,18 +28,12 @@ ArchiveAtTimeOfDay: 00:00
 # The time span that a player needs to be active during a day to get another "consecutive day".
 TimeSpanPerDayForConsecutiveDays: 1h
 
-eithon:
-  UseMarkUpForMessages: 1
-  UseWrappingForMessages: 1
-  
-  #
-  # Debug level
-  #  0 = NONE (no debug messages)
-  #  1 = MAJOR (only major messages)
-  #  2 = MINOR (also minor messages)
-  #  3 = VERBOSE (all messages)
-  #
-  DebugLevel: 1
+database:
+	Name: eithon_stats
+	Hostname: mc.eithon.net
+	Port: 3306
+	Username: eithon_stats
+	Password: W9txKfyzAmyaGeWV
 
 messages:
 
