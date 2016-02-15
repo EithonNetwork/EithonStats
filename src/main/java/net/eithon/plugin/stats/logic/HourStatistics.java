@@ -6,13 +6,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
+import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
+import net.eithon.plugin.stats.Config;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class HourStatistics implements IUuidAndName {
@@ -47,6 +51,24 @@ public class HourStatistics implements IUuidAndName {
 
 		String sql = String.format("SELECT * FROM hourly WHERE player_id='%s' AND hour_utc='%s'",
 				player.getUniqueId(), TimeMisc.toDbUtc(this._hour));
+		Statement statement = connection.createStatement();
+		ResultSet resultSet = statement.executeQuery(sql);
+		resultSet.next();
+		if (resultSet != null) {
+			fromDb(resultSet);
+			return;
+		}
+	}
+
+	public HourStatistics(Connection connection, EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws SQLException
+	{
+		String sql = String.format("SELECT " + 
+				" SUM(blocks_created) AS blocks_created" +
+				" SUM(blocks_broken) AS blocks_broken" +
+				" SUM(chat_messages) AS chat_messages" +
+				" SUM(playtime_in_seconds) AS playtime_in_seconds" +
+				" FROM hourly WHERE player_id='%s' AND hour_utc>='%s' AND hour_utc <='%s'",
+				player.getUniqueId(), TimeMisc.toDbUtc(fromTime), TimeMisc.toDbUtc(toTime));
 		Statement statement = connection.createStatement();
 		ResultSet resultSet = statement.executeQuery(sql);
 		resultSet.next();
@@ -134,4 +156,21 @@ public class HourStatistics implements IUuidAndName {
 	public UUID getUniqueId() { 
 		return this._playerId;
 	}
+
+	public void sendDiffStats(CommandSender sender) {
+		Config.M.diffStats.sendMessage(sender, getNamedArguments());
+	}
+
+	private HashMap<String,String> getNamedArguments() {
+		HashMap<String,String> namedArguments = new HashMap<String, String>();
+		namedArguments.put("PLAYER_NAME", this._playerName);
+		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
+		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
+		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));
+		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatActivities));
+		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._playtimeInSeconds));
+		return namedArguments;
+	}
+
+	public long getPlayTimeInSeconds() { return this._playtimeInSeconds; }
 }

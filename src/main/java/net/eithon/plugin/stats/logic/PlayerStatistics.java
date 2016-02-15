@@ -294,10 +294,6 @@ public class PlayerStatistics implements IUuidAndName {
 		Config.M.timeStats.sendMessage(sender, getNamedArguments());
 	}
 
-	public void sendDiffStats(CommandSender sender) {
-		Config.M.diffStats.sendMessage(sender, getNamedArguments());
-	}
-
 	public void sendChatStats(CommandSender sender) {
 		Config.M.chatStats.sendMessage(sender, getNamedArguments());
 	}

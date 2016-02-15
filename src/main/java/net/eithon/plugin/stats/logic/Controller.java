@@ -2,6 +2,7 @@ package net.eithon.plugin.stats.logic;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -165,29 +166,47 @@ public class Controller {
 	}
 
 	public void showDiffStats(CommandSender sender, EithonPlayer player, int daysBack) {
-		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
-		PlayerStatistics statistics = diff.get(player);
-		if (statistics == null) return;
-		statistics.sendDiffStats(sender);
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime then = now.minusDays(daysBack);
+		HourStatistics diff;
+		try {
+			diff = new HourStatistics(this._connection, player, then, now);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+		diff.sendDiffStats(sender);
 		return;
 	}
 
 	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) {
-		for (PlayerStatistics time : sortDiffsByTotalTime(daysBack, ascending, maxItems)) {
-			if (time == null) this._eithonLogger.error("showDiffStats: Unexpected null");
-			time.sendDiffStats(sender);			
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime then = now.minusDays(daysBack);
+		PlayerCollection<HourStatistics> hourStatistics = new PlayerCollection<HourStatistics>();
+		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+			try {
+				EithonPlayer player = playerStatistics.getEithonPlayer();
+				HourStatistics diff = new HourStatistics(this._connection, player, then, now);
+				hourStatistics.put(player, diff);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+		for (HourStatistics diff : sortDiffsByTotalTime(hourStatistics, ascending, maxItems)) {
+			if (diff == null) this._eithonLogger.error("showDiffStats: Unexpected null");
+			diff.sendDiffStats(sender);			
 		}
 	}
 
-	private List<PlayerStatistics> sortDiffsByTotalTime(int daysBack, boolean ascending, int maxItems) {
+	private List<HourStatistics> sortDiffsByTotalTime(PlayerCollection<HourStatistics> hourStatistics, boolean ascending, int maxItems) {
 		int factor = ascending ? 1 : -1;
-		PlayerCollection<PlayerStatistics> diff = diffWithArchive(daysBack);
-		return diff.sort(
+		return hourStatistics.sort(
 				maxItems,
-				new Comparator<PlayerStatistics>(){
-					public int compare(PlayerStatistics f1, PlayerStatistics f2)
+				new Comparator<HourStatistics>(){
+					public int compare(HourStatistics f1, HourStatistics f2)
 					{
-						return factor*Long.valueOf(f1.getTotalTimeInSeconds()).compareTo(f2.getTotalTimeInSeconds());
+						return factor*Long.valueOf(f1.getPlayTimeInSeconds()).compareTo(f2.getPlayTimeInSeconds());
 					} });
 	}
 
@@ -239,22 +258,7 @@ public class Controller {
 		time.addBlocksBroken(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
 	}
-
-	public PlayerCollection<PlayerStatistics> diffWithArchive(int daysBack) {
-		throw new NotImplementedException();
-		/*
-		PlayerCollection<PlayerStatistics> differences = new PlayerCollection<PlayerStatistics>();
-		PlayerCollection<PlayerStatistics> archive = getFromArchive(daysBack);		
-		for (PlayerStatistics now : this._allPlayerTimes) {
-			now.lap();
-			PlayerStatistics then = (archive==null) ? null : archive.get(now.getUniqueId());
-			PlayerStatistics diff = PlayerStatistics.getDifference(now, then);
-			differences.put(now.getUniqueId(), diff);
-		}
-		return differences;
-		*/
-	}
-
+	
 	public long addPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
