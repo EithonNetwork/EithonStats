@@ -38,6 +38,7 @@ public class PlayerStatistics implements IUuidAndName {
 	private UUID _alarmId;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
+	private HourStatistics _lastHourValues;
 
 	private long _dbId;
 
@@ -51,23 +52,21 @@ public class PlayerStatistics implements IUuidAndName {
 			String sql = String.format("SELECT * FROM accumulated WHERE player_id='%s'", player.getUniqueId());
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
-			if (resultSet != null) {
-				fromDb(resultSet);
-				return;
-			}
+			if (resultSet.next()) fromDb(resultSet);
 		} catch (SQLException e) {
 			initialize();
 			this._eithonPlayer = new EithonPlayer(player);
-			insertNewPlayerStatistics(connection, player);
+			insertAccumulated(connection);
 			toDb(connection, false);
 		}
+		this._lastHourValues = new HourStatistics(this, LocalDateTime.now());
 	}
 
 	public PlayerStatistics() {
 		initialize();
 	}
 
-	private void insertNewPlayerStatistics(Connection connection, Player player)
+	private void insertAccumulated(Connection connection)
 			throws SQLException {
 		String sql = String.format("INSERT INTO `accumulated`" +
 				" (`player_id`, `player_name`) VALUES ('%s', '%s')",
@@ -126,27 +125,6 @@ public class PlayerStatistics implements IUuidAndName {
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
 		this._alarmId = null;
-	}
-
-	public static PlayerStatistics getDifference(PlayerStatistics now,
-			PlayerStatistics then) {
-		PlayerStatistics diff = new PlayerStatistics();
-		diff._afkDescription = now._afkDescription;
-		diff._blocksCreated = now._blocksCreated - ((then == null) ? 0 : then._blocksCreated);
-		diff._blocksBroken = now._blocksBroken - ((then == null) ? 0 : then._blocksBroken);
-		diff._chatActivities = now._chatActivities - ((then == null) ? 0 : then._chatActivities);
-		long thenConsecutiveDays = (then == null) ? 0 : then._consecutiveDays;
-		if (now._consecutiveDays > thenConsecutiveDays) {
-			diff._consecutiveDays = now._consecutiveDays - thenConsecutiveDays;
-		} else diff._consecutiveDays = now._consecutiveDays;
-		diff._eithonPlayer = now._eithonPlayer;
-		diff._hasBeenUpdated = now._hasBeenUpdated;
-		diff._lastAliveTime = now._lastAliveTime;
-		diff._lastChatActivity = now._lastChatActivity;
-		diff._lastConsecutiveDay = now._lastConsecutiveDay;
-		diff._startTime = now._startTime;
-		diff._timeInfo = TimeStatistics.getDifference(now._timeInfo, (then == null) ? null : then._timeInfo);
-		return diff;
 	}
 
 	private void start(LocalDateTime startTime) {
@@ -270,6 +248,7 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public void toDb(Connection connection, boolean doLap) throws SQLException {
+		if (!this._hasBeenUpdated) return;
 		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Enter for player %s", this.getName());
 
 		if (doLap) {
@@ -293,6 +272,7 @@ public class PlayerStatistics implements IUuidAndName {
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", consecutive_days=%d", this._consecutiveDays) +
 				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
+				String.format(", last_chat_message='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) +
 				String.format(", %s", this._timeInfo.getDbUpdates());
 		return updates;
 	}
@@ -403,5 +383,11 @@ public class PlayerStatistics implements IUuidAndName {
 		namedArguments.put("LAST_CONSECUTIVE_DAY", lastConsecutiveDay == null ? "-" : lastConsecutiveDay.toString());
 
 		return namedArguments;
+	}
+
+	public long getBlocksBroken() { return this._blocksBroken; }
+
+	public void hourlySave(Connection connection) throws SQLException {
+		new HourStatistics(connection, this._lastHourValues, this, LocalDateTime.now());
 	}
 }

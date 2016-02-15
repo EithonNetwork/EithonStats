@@ -51,9 +51,8 @@ public final class Plugin extends EithonPlugin {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				throw new NotImplementedException();
-				//thisObject._controller.hourlySave();
-				//return true;
+				thisObject._controller.hourlySave();
+				return true;
 			}
 		});
 	}

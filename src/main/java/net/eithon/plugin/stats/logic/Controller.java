@@ -318,4 +318,14 @@ public class Controller {
 			e.printStackTrace();
 		}
 	}
+
+	public void hourlySave() {
+		try {
+			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+				playerStatistics.hourlySave(this._connection);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
