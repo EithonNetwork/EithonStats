@@ -54,7 +54,7 @@ public class Accumulated {
 	}
 	
 	public static Accumulated create(final Connection connection, final UUID playerId, final String playerName) throws SQLException {
-		Accumulated row = new Accumulated(connection, playerId, playerName);
+		new Accumulated(connection, playerId, playerName);
 		return getByPlayerId(connection, playerId);
 	}
 	
@@ -181,15 +181,15 @@ public class Accumulated {
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", consecutive_days=%d", this._consecutiveDays) +
 				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
-				String.format(", last_chat_message='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) + 
-				String.format("player_id='%s'", this._playerId) +
+				String.format(", last_chat_message_utc='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) + 
+				String.format(", player_id='%s'", this._playerId) +
 				String.format(", player_name='%s'", this._playerName) +
 				String.format(", chat_messages=%d", this._chatActivities) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
-				String.format(", playtime_in_seconds=%d", this._totalPlayTimeInSeconds) +
-				String.format("first_start_time='%s'", TimeMisc.toDbUtc(this._firstStartTime)) +
-				String.format(", last_stop_time='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
+				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
+				String.format(", first_start_utc='%s'", TimeMisc.toDbUtc(this._firstStartTime)) +
+				String.format(", last_stop_utc='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
 				String.format(", today='%s'", TimeMisc.toDbUtc(this._today)) +
 				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
 				String.format(", intervals=%d", this._intervals) +
