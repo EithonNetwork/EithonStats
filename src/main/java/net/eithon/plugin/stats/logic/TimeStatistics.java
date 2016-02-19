@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import net.eithon.library.time.TimeMisc;
+import net.eithon.plugin.stats.db.Accumulated;
 
 public class TimeStatistics {
 	// Saved variables
@@ -123,7 +124,7 @@ public class TimeStatistics {
 		}
 	}
 	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
-	public Object getIntervals() { return this._intervals; }
+	public long getIntervals() { return this._intervals; }
 
 	public TimeStatistics fromDb(ResultSet resultSet) throws SQLException {
 		if (resultSet == null) return null;
@@ -151,5 +152,20 @@ public class TimeStatistics {
 				String.format(", longest_interval_in_seconds=%d", this._longestIntervalInSeconds) +
 				String.format(", play_time_today_in_seconds=%d", this._playTimeTodayInSeconds);
 		return updates;
+	}
+
+	public LocalDateTime getFirstStartTime() {return this._firstStartTime; }
+
+	public LocalDateTime getLastStopTime() { return this._lastStopTime; }
+
+	public void copyFromDbRecord(Accumulated dbRecord) {
+		this._firstStartTime = dbRecord.get_firstStartTime();
+		this._lastStopTime = dbRecord.get_lastStopTime();
+		this._totalPlayTimeInSeconds = dbRecord.get_totalPlayTimeInSeconds();
+		this._intervals = dbRecord.get_intervals();
+		this._longestIntervalInSeconds = dbRecord.get_longestIntervalInSeconds();
+		this._today = dbRecord.get_today();
+		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();
+		
 	}
 }

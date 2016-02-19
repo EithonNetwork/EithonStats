@@ -15,6 +15,7 @@ import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
+import net.eithon.plugin.stats.db.Accumulated;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,6 +23,8 @@ import org.bukkit.entity.Player;
 public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
 
+	private Accumulated _dbRecord;
+	
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
 	private long _blocksBroken;
@@ -40,8 +43,6 @@ public class PlayerStatistics implements IUuidAndName {
 	private String _afkDescription;
 	private HourStatistics _lastHourValues;
 
-	private long _dbId;
-
 	public static void initialize(Logger logger) {
 		eithonLogger = logger;
 	}
@@ -49,33 +50,30 @@ public class PlayerStatistics implements IUuidAndName {
 	public PlayerStatistics(Connection connection, Player player) throws SQLException
 	{
 		try {
-			String sql = String.format("SELECT * FROM accumulated WHERE player_id='%s'", player.getUniqueId());
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(sql);
-			if (resultSet.next()) fromDb(resultSet);
+			this._dbRecord = Accumulated.getByPlayerId(connection, player.getUniqueId());
+			copyFromDbRecord();
 		} catch (SQLException e) {
+			this._dbRecord = Accumulated.create(connection, player.getUniqueId(), player.getName());
 			initialize();
-			this._eithonPlayer = new EithonPlayer(player);
-			insertAccumulated(connection);
-			toDb(connection, false);
+			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 		}
-		this._lastHourValues = new HourStatistics(this, LocalDateTime.now());
+		//this._lastHourValues = new HourStatistics(this, this._dbRecord, LocalDateTime.now());
+	}
+
+	private void copyFromDbRecord() {
+		this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
+		this._blocksBroken = this._dbRecord.get_blocksBroken();
+		this._blocksCreated = this._dbRecord.get_blocksCreated();
+		this._chatActivities = this._dbRecord.get_chatActivities();
+		this._lastChatActivity = this._dbRecord.get_lastChatActivity();
+		this._consecutiveDays = this._dbRecord.get_consecutiveDays();
+		this._lastConsecutiveDay = this._dbRecord.get_lastConsecutiveDay();
+		this._timeInfo = new TimeStatistics();
+		this._timeInfo.copyFromDbRecord(this._dbRecord);
 	}
 
 	public PlayerStatistics() {
 		initialize();
-	}
-
-	private void insertAccumulated(Connection connection)
-			throws SQLException {
-		String sql = String.format("INSERT INTO `accumulated`" +
-				" (`player_id`, `player_name`) VALUES ('%s', '%s')",
-				this._eithonPlayer.getUniqueId().toString(), this._eithonPlayer.getName());
-		Statement statement = connection.createStatement();
-		statement.executeUpdate(sql);
-		ResultSet generatedKeys = statement.getGeneratedKeys();
-		generatedKeys.next();
-		this._dbId = generatedKeys.getLong(1);
 	}
 
 	private void initialize() {
@@ -226,55 +224,27 @@ public class PlayerStatistics implements IUuidAndName {
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
 
-	private PlayerStatistics fromDb(ResultSet resultSet) throws SQLException {
-		String playerIdAsString = resultSet.getString("player_id");
-		if (playerIdAsString == null) throw new IllegalArgumentException("Could not find player_id in resultSet.");
-		UUID playerId;
-		try {
-			playerId = UUID.fromString(playerIdAsString);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("player_id was not a UUID", e);
-		}
-		this._dbId = resultSet.getLong("id");
-		this._eithonPlayer = new EithonPlayer(playerId);
-		this._timeInfo = TimeStatistics.getFromDb(resultSet);
-		this._chatActivities = resultSet.getLong("chat_messages");
-		this._lastChatActivity = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_chat_message"));
-		this._blocksCreated = resultSet.getLong("blocks_created");
-		this._blocksBroken = resultSet.getLong("blocks_broken");
-		this._consecutiveDays = resultSet.getLong("consecutive_days");
-		this._lastConsecutiveDay = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_consecutive_day"));
-		return this;
-	}
-
-	public void toDb(Connection connection, boolean doLap) throws SQLException {
+	public void save(boolean doLap) throws SQLException {
 		if (!this._hasBeenUpdated) return;
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Enter for player %s", this.getName());
-
 		if (doLap) {
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Player %s calls lap()", this.getName());
 			lap();
 		}
-
-		String updates = getDbUpdates();
-		String update = String.format("UPDATE accumulated SET %s WHERE id=%d", updates, this._dbId);
-		Statement statement = connection.createStatement();
-		statement.executeUpdate(update);
+		this._dbRecord.update(
+				this._eithonPlayer.getName(),
+				this._timeInfo.getFirstStartTime(),
+				this._timeInfo.getLastStopTime(),
+				this._timeInfo.getTotalPlayTimeInSeconds(),
+				this._timeInfo.getIntervals(),
+				this._timeInfo.getLongestIntervalInSeconds(),
+				this._timeInfo.getPlayTimeTodayInSeconds(),
+				this._timeInfo.getToday(),
+				this._chatActivities,
+				this._lastChatActivity,
+				this._blocksCreated, 
+				this._blocksBroken, 
+				this._consecutiveDays, 
+				this._lastConsecutiveDay);
 		this._hasBeenUpdated = false;
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toDB: Leave");
-	}
-
-	private String getDbUpdates() {
-		String updates = String.format("player_id='%s'", this._eithonPlayer.getUniqueId()) +
-				String.format(", player_name='%s'", this._eithonPlayer.getName()) +
-				String.format(", chat_messages=%d", this._chatActivities) +
-				String.format(", blocks_created=%d", this._blocksCreated) +
-				String.format(", blocks_broken=%d", this._blocksBroken) +
-				String.format(", consecutive_days=%d", this._consecutiveDays) +
-				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
-				String.format(", last_chat_message='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) +
-				String.format(", %s", this._timeInfo.getDbUpdates());
-		return updates;
 	}
 
 	public String getName() {

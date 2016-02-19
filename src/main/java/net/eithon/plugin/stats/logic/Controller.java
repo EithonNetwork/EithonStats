@@ -316,7 +316,7 @@ public class Controller {
 	public void save() {
 		try {
 			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.toDb(this._connection, true);
+				playerStatistics.save(true);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
