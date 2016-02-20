@@ -162,7 +162,6 @@ public class TimeStatistics {
 		this._firstStartTime = dbRecord.get_firstStartTime();
 		this._lastStopTime = dbRecord.get_lastStopTime();
 		this._totalPlayTimeInSeconds = dbRecord.get_totalPlayTimeInSeconds();
-		this._intervals = dbRecord.get_intervals();
 		this._longestIntervalInSeconds = dbRecord.get_longestIntervalInSeconds();
 		this._today = dbRecord.get_today();
 		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();

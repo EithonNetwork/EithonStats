@@ -13,11 +13,10 @@ public class Accumulated {
 	private Connection _connection;
 	private long _dbId;
 	private UUID _playerId;
-	private String _playerName;
 	private LocalDateTime _firstStartTime;
 	private LocalDateTime _lastStopTime;
 	private long _totalPlayTimeInSeconds;
-	private long _intervals;
+	private long _joins;
 	private long _longestIntervalInSeconds;
 	private long _playTimeTodayInSeconds;
 	private LocalDateTime _today;
@@ -32,11 +31,11 @@ public class Accumulated {
 		this._connection = connection;
 	}
 	
-	private Accumulated(Connection connection, UUID playerId, String playerName) throws SQLException {
+	private Accumulated(Connection connection, UUID playerId) throws SQLException {
 		this(connection);
-		String sql = String.format("INSERT INTO `accumulated`" +
-				" (`player_id`, `player_name`) VALUES ('%s', '%s')",
-				playerId.toString(), playerName);
+		String sql = String.format("INSERT INTO accumulated" +
+				" (player_id) VALUES ('%s')",
+				playerId.toString());
 		Statement statement = connection.createStatement();
 		statement.executeUpdate(sql);
 		ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -53,23 +52,22 @@ public class Accumulated {
 		return accumulated.fromDb(resultSet );
 	}
 	
-	public static Accumulated create(final Connection connection, final UUID playerId, final String playerName) throws SQLException {
-		new Accumulated(connection, playerId, playerName);
+	public static Accumulated create(final Connection connection, final UUID playerId) throws SQLException {
+		new Accumulated(connection, playerId);
 		return getByPlayerId(connection, playerId);
 	}
 	
 	public void update(final String playerName, final LocalDateTime firstStartTime,
 			final LocalDateTime lastStopTime, final long totalPlayTimeInSeconds,
-			final long intervals, final long longestIntervalInSeconds,
+			final long joins, final long longestIntervalInSeconds,
 			final long playTimeTodayInSeconds, final LocalDateTime today,
 			final long chatActivities, final LocalDateTime lastChatActivity,
 			final long blocksCreated, final long blocksBroken, final long consecutiveDays,
 			final LocalDateTime lastConsecutiveDay) throws SQLException {
-		this._playerName = playerName;
 		this._firstStartTime = firstStartTime;
 		this._lastStopTime = lastStopTime;
 		this._totalPlayTimeInSeconds = totalPlayTimeInSeconds;
-		this._intervals = intervals;
+		this._joins = joins;
 		this._longestIntervalInSeconds = longestIntervalInSeconds;
 		this._playTimeTodayInSeconds = playTimeTodayInSeconds;
 		this._today = today;
@@ -90,10 +88,6 @@ public class Accumulated {
 		return this._playerId;
 	}
 
-	public String get_playerName() {
-		return this._playerName;
-	}
-
 	public LocalDateTime get_firstStartTime() {
 		return this._firstStartTime;
 	}
@@ -106,8 +100,8 @@ public class Accumulated {
 		return this._totalPlayTimeInSeconds;
 	}
 
-	public long get_intervals() {
-		return this._intervals;
+	public long get_joins() {
+		return this._joins;
 	}
 
 	public long get_longestIntervalInSeconds() {
@@ -149,11 +143,10 @@ public class Accumulated {
 	private Accumulated fromDb(final ResultSet resultSet) throws SQLException {
 		this._dbId = resultSet.getLong("id");
 		this._playerId = UUID.fromString(resultSet.getString("player_id"));
-		this._playerName = resultSet.getString("player_name");
 		this._firstStartTime = TimeMisc.toLocalDateTime(resultSet.getTimestamp("first_start_utc"));
 		this._lastStopTime = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_stop_utc"));
 		this._totalPlayTimeInSeconds = resultSet.getLong("play_time_in_seconds");
-		this._intervals = resultSet.getLong("intervals");
+		this._joins = resultSet.getLong("joins");
 		this._longestIntervalInSeconds = resultSet.getLong("longest_interval_in_seconds");
 		this._playTimeTodayInSeconds = resultSet.getLong("play_time_today_in_seconds");
 		this._today = TimeMisc.toLocalDateTime(resultSet.getTimestamp("today"));
@@ -175,7 +168,6 @@ public class Accumulated {
 
 	private String getDbUpdates() {
 		String updates = String.format("player_id='%s'", this._playerId.toString()) +
-				String.format(", player_name='%s'", this._playerName) +
 				String.format(", chat_messages=%d", this._chatActivities) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
@@ -183,7 +175,6 @@ public class Accumulated {
 				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
 				String.format(", last_chat_message_utc='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) + 
 				String.format(", player_id='%s'", this._playerId) +
-				String.format(", player_name='%s'", this._playerName) +
 				String.format(", chat_messages=%d", this._chatActivities) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
@@ -192,7 +183,7 @@ public class Accumulated {
 				String.format(", last_stop_utc='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
 				String.format(", today='%s'", TimeMisc.toDbUtc(this._today)) +
 				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
-				String.format(", intervals=%d", this._intervals) +
+				String.format(", joins=%d", this._joins) +
 				String.format(", longest_interval_in_seconds=%d", this._longestIntervalInSeconds) +
 				String.format(", play_time_today_in_seconds=%d", this._playTimeTodayInSeconds);
 		return updates;

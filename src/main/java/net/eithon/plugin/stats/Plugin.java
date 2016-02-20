@@ -19,7 +19,7 @@ public final class Plugin extends EithonPlugin {
 		CommandHandler commandHandler = new CommandHandler(this, this._controller);
 		Listener eventListener = new EventListener(this, this._controller);
 		autoSave();
-		hourlySave();
+		timespanSave();
 		super.activate(commandHandler, eventListener);
 		EithonStatsApi.initialize(this._controller);
 	}
@@ -44,14 +44,14 @@ public final class Plugin extends EithonPlugin {
 		});
 	}
 
-	private void hourlySave() {
+	private void timespanSave() {
 		final Plugin thisObject = this;
-		AlarmTrigger.get().repeatEveryHour("Hourly player statistics", 0,
+		AlarmTrigger.get().repeatEveryHour("TimeSpan player statistics", 0,
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.hourlySave();
+				thisObject._controller.timespanSave();
 				return true;
 			}
 		});

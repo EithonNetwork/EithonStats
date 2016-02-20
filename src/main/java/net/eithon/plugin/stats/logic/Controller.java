@@ -323,10 +323,10 @@ public class Controller {
 		}
 	}
 
-	public void hourlySave() {
+	public void timespanSave() {
 		try {
 			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.hourlySave(this._connection);
+				playerStatistics.timespanSave(this._connection);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

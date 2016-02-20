@@ -53,7 +53,7 @@ public class PlayerStatistics implements IUuidAndName {
 			this._dbRecord = Accumulated.getByPlayerId(connection, player.getUniqueId());
 			copyFromDbRecord();
 		} catch (SQLException e) {
-			this._dbRecord = Accumulated.create(connection, player.getUniqueId(), player.getName());
+			this._dbRecord = Accumulated.create(connection, player.getUniqueId());
 			initialize();
 			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 		}
@@ -353,7 +353,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public long getBlocksBroken() { return this._blocksBroken; }
 
-	public void hourlySave(Connection connection) throws SQLException {
+	public void timespanSave(Connection connection) throws SQLException {
 		new HourStatistics(connection, this._lastHourValues, this, LocalDateTime.now());
 	}
 }

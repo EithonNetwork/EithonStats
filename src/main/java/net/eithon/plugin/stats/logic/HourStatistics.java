@@ -15,7 +15,9 @@ import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
+import net.eithon.plugin.stats.db.TimeSpan;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -41,44 +43,21 @@ public class HourStatistics implements IUuidAndName {
 		this._blocksCreated = later._blocksCreated - earlier._blocksCreated;
 		this._chatActivities = later._chatActivities - earlier._chatActivities;
 		this._playtimeInSeconds = later._playtimeInSeconds - earlier._playtimeInSeconds;
-		insertHourly(connection, this._hour);
+		insertTimeSpan(connection, this._hour);
 		toDb(connection);
-	}
-
-	public HourStatistics(Connection connection, Player player, LocalDateTime time) throws SQLException
-	{
-		this._hour = time.truncatedTo(ChronoUnit.HOURS);
-
-		String sql = String.format("SELECT * FROM hourly WHERE player_id='%s' AND hour_utc='%s'",
-				player.getUniqueId(), TimeMisc.toDbUtc(this._hour));
-		Statement statement = connection.createStatement();
-		ResultSet resultSet = statement.executeQuery(sql);
-		resultSet.next();
-		if (resultSet != null) {
-			fromDb(resultSet);
-			return;
-		}
 	}
 
 	public HourStatistics(Connection connection, EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws SQLException
 	{
-		String sql = String.format("SELECT " + 
-				" SUM(blocks_created) AS blocks_created" +
-				" SUM(blocks_broken) AS blocks_broken" +
-				" SUM(chat_messages) AS chat_messages" +
-				" SUM(playtime_in_seconds) AS playtime_in_seconds" +
-				" FROM hourly WHERE player_id='%s' AND hour_utc>='%s' AND hour_utc <='%s'",
-				player.getUniqueId(), TimeMisc.toDbUtc(fromTime), TimeMisc.toDbUtc(toTime));
-		Statement statement = connection.createStatement();
-		ResultSet resultSet = statement.executeQuery(sql);
-		resultSet.next();
-		if (resultSet != null) {
-			fromDb(resultSet);
-			return;
-		}
+		TimeSpan timeSpan = TimeSpan.sumPlayer(connection, player.getUniqueId(), fromTime, toTime);
+		this._playerId = player.getUniqueId();
+		this._playerName = player.getName();
+		this._hour = fromTime.truncatedTo(ChronoUnit.HOURS);
+		fromDb(timeSpan);
+		return;
 	}
 
-	public HourStatistics(PlayerStatistics playerStatistics, LocalDateTime time)
+	private HourStatistics(PlayerStatistics playerStatistics, LocalDateTime time)
 	{
 		this._playerId = playerStatistics.getUniqueId();
 		this._playerName = playerStatistics.getName();
@@ -94,16 +73,11 @@ public class HourStatistics implements IUuidAndName {
 		initialize();
 	}
 
-	private void insertHourly(Connection connection, LocalDateTime hour)
+	private void insertTimeSpan(Connection connection, LocalDateTime hour)
 			throws SQLException {
-		String sql = String.format("INSERT INTO `accumulated`" +
-				" (`hour_utc`, `player_id`, `player_name`) VALUES ('%s', '%s', '%s')",
-				TimeMisc.toDbUtc(this._hour), this._playerId.toString(), this._playerName);
-		Statement statement = connection.createStatement();
-		statement.executeUpdate(sql);
-		ResultSet generatedKeys = statement.getGeneratedKeys();
-		generatedKeys.next();
-		this._dbId = generatedKeys.getLong(1);
+		TimeSpan timeSpan = TimeSpan.create(connection, this._playerId, hour, this._playtimeInSeconds, 
+				this._chatActivities, this._blocksCreated, this._blocksBroken);
+		this._dbId = timeSpan.get_dbId();
 	}
 
 	private void initialize() {
@@ -113,20 +87,14 @@ public class HourStatistics implements IUuidAndName {
 		this._playtimeInSeconds = 0;
 	}
 
-	private HourStatistics fromDb(ResultSet resultSet) throws SQLException {
-		String playerIdAsString = resultSet.getString("player_id");
-		if (playerIdAsString == null) throw new IllegalArgumentException("Could not find player_id in resultSet.");
-		try {
-			this._playerId = UUID.fromString(playerIdAsString);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("player_id was not a UUID", e);
-		}
-		this._playerName = resultSet.getString("playerName");
-		this._dbId = resultSet.getLong("id");
-		this._chatActivities = resultSet.getLong("chat_messages");
-		this._blocksCreated = resultSet.getLong("blocks_created");
-		this._blocksBroken = resultSet.getLong("blocks_broken");
-		this._playtimeInSeconds = resultSet.getLong("playtime_in_seconds");
+	private HourStatistics fromDb(TimeSpan timeSpan)  {
+		this._playerId = timeSpan.get_playerId();
+		this._playerName = Bukkit.getServer().getOfflinePlayer(this._playerId).getName();
+		this._dbId = timeSpan.get_dbId();
+		this._chatActivities = timeSpan.get_chatActivities();
+		this._blocksCreated = timeSpan.get_blocksCreated();
+		this._blocksBroken = timeSpan.get_blocksBroken();
+		this._playtimeInSeconds = timeSpan.get_playTimeInSeconds();
 		return this;
 	}
 
