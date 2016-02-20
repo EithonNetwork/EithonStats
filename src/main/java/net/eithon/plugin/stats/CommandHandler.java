@@ -54,11 +54,16 @@ public class CommandHandler {
 
 	public ICommandSyntax getCommandSyntax() { return this._commandSyntax;	}
 
+	private String getSenderName(EithonCommand command) {
+		return command.getSender().getName();
+	}
+
 	private ICommandSyntax setupPlayerCommand(ICommandSyntax commandSyntax, String commandName) throws CommandSyntaxException {
 		ICommandSyntax cmd = commandSyntax.parseCommandSyntax(commandName + " <player>");
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec));
+		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
+		.setDefaultGetter(ec -> getSenderName(ec));
 		return cmd;
 	}
 
@@ -150,7 +155,8 @@ public class CommandHandler {
 				.setCommandExecutor(eithonCommand -> playerDiffCommand(eithonCommand));
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec));
+		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
+		.setDefaultGetter(ec -> getSenderName(ec));
 	}
 
 	private void setupAfkCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
