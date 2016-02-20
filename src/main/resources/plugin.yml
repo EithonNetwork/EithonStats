@@ -8,13 +8,13 @@ depend: [EithonLibrary]
 commands:
   estats:
     description: Control jump pads
-    usage: /estats add | afk | blocks | chat | diff | player | remove | reset | save | status | start | stop | time | who
+    usage: /estats add | afk | blocks | chat | diff | for | remove | reset | save | status | start | stop | time | who
     permission-message: You don't have <permission>
 permissions:
-  stats.*:
+  estats.*:
     description: Gives access to all estats commands
     default: op
-    stats.player: true
+    stats.for: true
     stats.start: true
     stats.stop: true
     stats.afk: true
@@ -27,45 +27,45 @@ permissions:
     stats.remove: true
     stats.reset: true
     stats.who: true
-  stats.status:
+  estats.status:
     description: Access to /estats status command
     default: op
-  stats.player:
-    description: Access to /estats player command
+  estats.for:
+    description: Access to /estats for command
     default: op
-  stats.start:
+  estats.start:
     description: Access to /estats start command
     default: op
-  stats.stop:
+  estats.stop:
     description: Access to /estats stop command
     default: op
   stats.afk:
     description: Access to /estats afk command
     default: op
-  stats.save:
+  estats.save:
     description: Access to /estats save command
     default: op
-  stats.time:
+  estats.time:
     description: Access to /estats time command
     default: op
-  stats.blocks:
+  estats.blocks:
     description: Access to /estats blocks command
     default: op
-  stats.chat:
+  estats.chat:
     description: Access to /estats chat command
     default: op
-  stats.diff:
+  estats.diff:
     description: Access to /estats diff command
     default: op
-  stats.add:
+  estats.add:
     description: Access to /estats add command
     default: op
-  stats.remove:
+  estats.remove:
     description: Access to /estats remove command
     default: op
-  stats.reset:
+  estats.reset:
     description: Access to /estats reset command
     default: op
-  stats.who:
+  estats.who:
     description: Access to /estats who command
     default: op
