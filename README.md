@@ -4,7 +4,7 @@ Keep track of Player statistics
 
 ## Release history
 
-### 2.0 (2016-02-??)
+### 2.0 (2016-02-20)
 
 * NEW: Changed from storing statistics in files to storing the statistics in a DB.
 

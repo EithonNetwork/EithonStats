@@ -29,14 +29,24 @@ ArchiveAtTimeOfDay: 00:00
 TimeSpanPerDayForConsecutiveDays: 1h
 
 database:
-    Name: eithon_stats
+    Name: TST_eithon_stats
     Hostname: mc.eithon.net
     Port: 3306
-    Username: eithon_stats
-    Password: W9txKfyzAmyaGeWV
-	
+    Username: TST_eithon_stats
+    Password: rCmTrcKAZf53ZGqy
+
+# PRD
+#    Name: eithon_stats
+#    Username: eithon_stats
+#    Password: W9txKfyzAmyaGeWV
+
+# TST
+#    Name: TST_eithon_stats
 #    Username: TST_eithon_stats
 #    Password: rCmTrcKAZf53ZGqy
+
+# DEV
+#    Name: DEV_eithon_stats
 #    Username: DEV_eithon_stats
 #    Password: WrSqjVMEpst9aqnm
 
