@@ -76,6 +76,11 @@ public class Controller {
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
 	}
+	
+	public void removePlayer(Player player) {
+		stopPlayer(player, null);
+		this._allPlayerTimes.remove(player);
+	}
 
 	public PlayerStatistics getPlayerStatistics(Player player) {
 		return this._allPlayerTimes.get(player);

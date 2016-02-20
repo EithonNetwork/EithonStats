@@ -50,7 +50,10 @@ public class PlayerStatistics implements IUuidAndName {
 		this._dbRecord = Accumulated.getByPlayerId(_database, player.getUniqueId());
 		if (this._dbRecord == null) {
 			this._dbRecord = Accumulated.create(_database, player.getUniqueId());
+			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
 			initialize();
+		} else {
+			eithonLogger.debug(DebugPrintLevel.MAJOR, "Loaded player %s", getName());
 		}
 		copyFromDbRecord();
 		this._lastHourValues = new HourStatistics(this, LocalDateTime.now());
@@ -246,6 +249,7 @@ public class PlayerStatistics implements IUuidAndName {
 				this._blocksBroken, 
 				this._consecutiveDays, 
 				this._lastConsecutiveDay);
+		eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved player %s", getName());
 		this._hasBeenUpdated = false;
 	}
 
