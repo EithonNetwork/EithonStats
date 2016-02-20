@@ -117,12 +117,12 @@ messages:
   #
   #
   # Parameters: <Player> (%s), <Description> (%s)
-  ToAfkBroadcast: Player %s is AFK (%s)
+  ToAfkBroadcast: " [i]- [color=darkaqua]%s[/color] is AFK: %s"
   
   #
   #
   # Parameters: <Player> (%s)
-  FromAfkBroadcast: Player %s is back
+  FromAfkBroadcast: " [i]- [color=darkaqua]%s[/color] is back"
   
   #
   #
