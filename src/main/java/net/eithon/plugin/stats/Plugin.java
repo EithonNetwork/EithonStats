@@ -5,7 +5,6 @@ import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.IRepeatable;
 import net.eithon.plugin.stats.logic.Controller;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.event.Listener;
 
 public final class Plugin extends EithonPlugin {

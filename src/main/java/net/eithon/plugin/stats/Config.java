@@ -34,7 +34,7 @@ public class Config {
 			databaseHostname = config.getString("database.Hostname", null);
 			databasePort = config.getString("database.Port", null);
 			databaseName = config.getString("database.Name", null);
-			databaseUsername = config.getString("database.UserName", null);
+			databaseUsername = config.getString("database.Username", null);
 			databasePassword = config.getString("database.Password", null);
 		}
 

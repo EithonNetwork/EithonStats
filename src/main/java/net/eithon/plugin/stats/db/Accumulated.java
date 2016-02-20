@@ -1,16 +1,16 @@
 package net.eithon.plugin.stats.db;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
 
 public class Accumulated {
-	private Connection _connection;
+	private Database _database;
 	private long _dbId;
 	private UUID _playerId;
 	private LocalDateTime _firstStartTime;
@@ -27,34 +27,34 @@ public class Accumulated {
 	private long _consecutiveDays;
 	private LocalDateTime _lastConsecutiveDay;
 	
-	private Accumulated(Connection connection) {
-		this._connection = connection;
+	private Accumulated(final Database database) {
+		this._database = database;
 	}
 	
-	private Accumulated(Connection connection, UUID playerId) throws SQLException {
-		this(connection);
+	private Accumulated(final Database database, final UUID playerId) throws SQLException, ClassNotFoundException {
+		this(database);
 		String sql = String.format("INSERT INTO accumulated" +
 				" (player_id) VALUES ('%s')",
 				playerId.toString());
-		Statement statement = connection.createStatement();
-		statement.executeUpdate(sql);
+		Statement statement = this._database.getOrOpenConnection().createStatement();
+		statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 		ResultSet generatedKeys = statement.getGeneratedKeys();
 		generatedKeys.next();
 		this._dbId = generatedKeys.getLong(1);
 	}
 
-	public static Accumulated getByPlayerId(final Connection connection, final UUID playerId) throws SQLException {
-		Accumulated accumulated = new Accumulated(connection);
+	public static Accumulated getByPlayerId(final Database database, final UUID playerId) throws SQLException, ClassNotFoundException {
+		Accumulated accumulated = new Accumulated(database);
 		String sql = String.format("SELECT * FROM accumulated WHERE player_id='%s'", playerId.toString());
-		Statement statement = connection.createStatement();
+		Statement statement = accumulated._database.getOrOpenConnection().createStatement();
 		ResultSet resultSet = statement.executeQuery(sql);
 		if (!resultSet.next()) return null;
 		return accumulated.fromDb(resultSet );
 	}
 	
-	public static Accumulated create(final Connection connection, final UUID playerId) throws SQLException {
-		new Accumulated(connection, playerId);
-		return getByPlayerId(connection, playerId);
+	public static Accumulated create(final Database database, final UUID playerId) throws SQLException, ClassNotFoundException {
+		new Accumulated(database, playerId);
+		return getByPlayerId(database, playerId);
 	}
 	
 	public void update(final String playerName, final LocalDateTime firstStartTime,
@@ -63,7 +63,7 @@ public class Accumulated {
 			final long playTimeTodayInSeconds, final LocalDateTime today,
 			final long chatActivities, final LocalDateTime lastChatActivity,
 			final long blocksCreated, final long blocksBroken, final long consecutiveDays,
-			final LocalDateTime lastConsecutiveDay) throws SQLException {
+			final LocalDateTime lastConsecutiveDay) throws SQLException, ClassNotFoundException {
 		this._firstStartTime = firstStartTime;
 		this._lastStopTime = lastStopTime;
 		this._totalPlayTimeInSeconds = totalPlayTimeInSeconds;
@@ -159,10 +159,10 @@ public class Accumulated {
 		return this;
 	}
 
-	public void toDb() throws SQLException {
+	public void toDb() throws SQLException, ClassNotFoundException {
 		String updates = getDbUpdates();
 		String update = String.format("UPDATE accumulated SET %s WHERE id=%d", updates, this._dbId);
-		Statement statement = this._connection.createStatement();
+		Statement statement = this._database.getOrOpenConnection().createStatement();
 		statement.executeUpdate(update);
 	}
 
@@ -172,16 +172,16 @@ public class Accumulated {
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", consecutive_days=%d", this._consecutiveDays) +
-				String.format(", last_consecutive_day='%s'", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
-				String.format(", last_chat_message_utc='%s'", TimeMisc.toDbUtc(this._lastChatActivity)) + 
+				String.format(", last_consecutive_day=%s", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
+				String.format(", last_chat_message_utc=%s", TimeMisc.toDbUtc(this._lastChatActivity)) + 
 				String.format(", player_id='%s'", this._playerId) +
 				String.format(", chat_messages=%d", this._chatActivities) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
-				String.format(", first_start_utc='%s'", TimeMisc.toDbUtc(this._firstStartTime)) +
-				String.format(", last_stop_utc='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
-				String.format(", today='%s'", TimeMisc.toDbUtc(this._today)) +
+				String.format(", first_start_utc=%s", TimeMisc.toDbUtc(this._firstStartTime)) +
+				String.format(", last_stop_utc=%s", TimeMisc.toDbUtc(this._lastStopTime)) +
+				String.format(", today=%s", TimeMisc.toDbUtc(this._today)) +
 				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
 				String.format(", joins=%d", this._joins) +
 				String.format(", longest_interval_in_seconds=%d", this._longestIntervalInSeconds) +

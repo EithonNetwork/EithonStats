@@ -1,11 +1,11 @@
 package net.eithon.plugin.test;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import net.eithon.library.mysql.Database;
 import net.eithon.plugin.stats.db.TimeSpan;
 
 import org.junit.Assert;
@@ -16,21 +16,21 @@ public class TestDbTimeSpan {
 	
 	
 	@Test
-	public void testGetConnection() {
-		Connection connection = TestSupport.getConnectionAndTruncateTables();
-		Assert.assertNotNull(connection);
+	public void testGetDatabase() {
+		Database database = TestSupport.getDatabaseAndTruncateTables();
+		Assert.assertNotNull(database);
 	}
 
 	@Test
 	public void testCreate() {
-		Connection connection = TestSupport.getConnectionAndTruncateTables();
+		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		TimeSpan row = createRow(connection, playerId);
+		TimeSpan row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 		TimeSpan created = null;
 		try {
-			created = TimeSpan.getByPlayerIdHour(connection, row.get_playerId(), row.get_hour());
-		} catch (SQLException e) {
+			created = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+		} catch (SQLException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Assert.fail();
@@ -41,7 +41,7 @@ public class TestDbTimeSpan {
 		Assert.assertEquals(row.get_blocksBroken(), created.get_blocksBroken());
 	}
 
-	private TimeSpan createRow(Connection connection, UUID playerId) {
+	private TimeSpan createRow(Database database, UUID playerId) {
 		TimeSpan row = null;
 		long counter = 1;
 		LocalDateTime hour = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
@@ -51,10 +51,10 @@ public class TestDbTimeSpan {
 		long blocksCreated = counter++;
 		long blocksBroken = counter++;
 		try {
-			row = TimeSpan.create(connection, playerId, hour, 
+			row = TimeSpan.create(database, playerId, hour, 
 					totalPlayTimeInSeconds, 
 					chatActivities, blocksCreated, blocksBroken);
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}

@@ -1,11 +1,11 @@
 package net.eithon.plugin.test;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import net.eithon.library.mysql.Database;
 import net.eithon.plugin.stats.db.Accumulated;
 
 import org.junit.Assert;
@@ -17,23 +17,23 @@ public class TestDbAccumulated {
 	
 	@Test
 	public void testGetConnection() {
-		Connection connection = TestSupport.getConnectionAndTruncateTables();
-		Assert.assertNotNull(connection);
+		Database database = TestSupport.getDatabaseAndTruncateTables();
+		Assert.assertNotNull(database);
 	}
 
 	@Test
 	public void testCreate() {
-		Connection connection = TestSupport.getConnectionAndTruncateTables();
+		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		Accumulated row = createRow(connection, playerId);
+		Accumulated row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 	}
 
-	private Accumulated createRow(Connection connection, UUID playerId) {
+	private Accumulated createRow(Database database, UUID playerId) {
 		Accumulated row = null;
 		try {
-			row = Accumulated.create(connection, playerId);
-		} catch (SQLException e) {
+			row = Accumulated.create(database, playerId);
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
@@ -44,21 +44,21 @@ public class TestDbAccumulated {
 
 	@Test
 	public void testUpdate() {
-		Connection connection = TestSupport.getConnectionAndTruncateTables();
+		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		Accumulated row = createRow(connection, playerId);
+		Accumulated row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 		try {
-			update(connection, row);
-		} catch (SQLException e) {
+			update(database, row);
+		} catch (SQLException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Assert.fail();
 		}
 		Accumulated updated = null;
 		try {
-			updated = Accumulated.getByPlayerId(connection, row.get_playerId());
-		} catch (SQLException e) {
+			updated = Accumulated.getByPlayerId(database, row.get_playerId());
+		} catch (SQLException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Assert.fail();
@@ -78,8 +78,8 @@ public class TestDbAccumulated {
 		Assert.assertEquals(row.get_lastConsecutiveDay().truncatedTo(ChronoUnit.DAYS), updated.get_lastConsecutiveDay());
 	}
 
-	private void update(Connection connection, Accumulated row)
-			throws SQLException {
+	private void update(Database database, Accumulated row)
+			throws SQLException, ClassNotFoundException {
 		String playerName;
 		playerName = "new name";
 		LocalDateTime timeCounter = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);

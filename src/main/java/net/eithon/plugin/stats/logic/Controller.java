@@ -1,6 +1,5 @@
 package net.eithon.plugin.stats.logic;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.function.Predicate;
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.mysql.Database;
 import net.eithon.library.mysql.MySql;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
@@ -22,23 +22,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class Controller {
 	public static final String EITHON_STATS_BUNGEE_TRANSFER = "EithonStatsPlayerStatistics";
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
 	private Logger _eithonLogger;
 	private Plugin _eithonCopPlugin;
-	private Connection _connection;
+	private Database _database;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
-		this._allPlayerTimes = null;
+		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>();
 		this._eithonLogger = this._eithonPlugin.getEithonLogger();
-		MySql mySql = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
+		this._database = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
 				Config.V.databaseUsername, Config.V.databasePassword);
-		this._connection = mySql.getConnection();
 		PlayerStatistics.initialize(this._eithonLogger);
 		connectToEithonCop(this._eithonPlugin);
 	}
@@ -96,8 +93,8 @@ public class Controller {
 			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
 					player.getName());
 			try {
-				time = new PlayerStatistics(this._connection, player);
-			} catch (SQLException e) {
+				time = new PlayerStatistics(this._database, player);
+			} catch (SQLException | ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return null;
@@ -170,8 +167,8 @@ public class Controller {
 		LocalDateTime then = now.minusDays(daysBack);
 		HourStatistics diff;
 		try {
-			diff = new HourStatistics(this._connection, player, then, now);
-		} catch (SQLException e) {
+			diff = new HourStatistics(this._database, player, then, now);
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return;
 		}
@@ -186,9 +183,9 @@ public class Controller {
 		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
 			try {
 				EithonPlayer player = playerStatistics.getEithonPlayer();
-				HourStatistics diff = new HourStatistics(this._connection, player, then, now);
+				HourStatistics diff = new HourStatistics(this._database, player, then, now);
 				hourStatistics.put(player, diff);
-			} catch (SQLException e) {
+			} catch (SQLException | ClassNotFoundException e) {
 				e.printStackTrace();
 				return;
 			}
@@ -318,7 +315,7 @@ public class Controller {
 			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
 				playerStatistics.save(true);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
@@ -326,9 +323,9 @@ public class Controller {
 	public void timespanSave() {
 		try {
 			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.timespanSave(this._connection);
+				playerStatistics.timespanSave(this._database);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

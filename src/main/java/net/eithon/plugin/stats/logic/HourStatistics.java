@@ -1,7 +1,5 @@
 package net.eithon.plugin.stats.logic;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
@@ -11,6 +9,7 @@ import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
+import net.eithon.library.mysql.Database;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
@@ -19,7 +18,6 @@ import net.eithon.plugin.stats.db.TimeSpan;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class HourStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
@@ -34,7 +32,7 @@ public class HourStatistics implements IUuidAndName {
 	private LocalDateTime _hour;
 	private long _dbId;
 
-	public HourStatistics(Connection connection, HourStatistics earlier, PlayerStatistics now, LocalDateTime time) throws SQLException {
+	public HourStatistics(Database database, HourStatistics earlier, PlayerStatistics now, LocalDateTime time) throws SQLException, ClassNotFoundException {
 		HourStatistics later = new HourStatistics(now, time);
 		this._playerId = earlier._playerId;
 		this._playerName = earlier._playerName;
@@ -43,13 +41,13 @@ public class HourStatistics implements IUuidAndName {
 		this._blocksCreated = later._blocksCreated - earlier._blocksCreated;
 		this._chatActivities = later._chatActivities - earlier._chatActivities;
 		this._playtimeInSeconds = later._playtimeInSeconds - earlier._playtimeInSeconds;
-		insertTimeSpan(connection, this._hour);
-		toDb(connection);
+		insertTimeSpan(database, this._hour);
+		toDb(database);
 	}
 
-	public HourStatistics(Connection connection, EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws SQLException
+	public HourStatistics(Database database, EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws SQLException, ClassNotFoundException
 	{
-		TimeSpan timeSpan = TimeSpan.sumPlayer(connection, player.getUniqueId(), fromTime, toTime);
+		TimeSpan timeSpan = TimeSpan.sumPlayer(database, player.getUniqueId(), fromTime, toTime);
 		this._playerId = player.getUniqueId();
 		this._playerName = player.getName();
 		this._hour = fromTime.truncatedTo(ChronoUnit.HOURS);
@@ -57,7 +55,7 @@ public class HourStatistics implements IUuidAndName {
 		return;
 	}
 
-	private HourStatistics(PlayerStatistics playerStatistics, LocalDateTime time)
+	HourStatistics(PlayerStatistics playerStatistics, LocalDateTime time)
 	{
 		this._playerId = playerStatistics.getUniqueId();
 		this._playerName = playerStatistics.getName();
@@ -73,9 +71,9 @@ public class HourStatistics implements IUuidAndName {
 		initialize();
 	}
 
-	private void insertTimeSpan(Connection connection, LocalDateTime hour)
-			throws SQLException {
-		TimeSpan timeSpan = TimeSpan.create(connection, this._playerId, hour, this._playtimeInSeconds, 
+	private void insertTimeSpan(Database database, LocalDateTime hour)
+			throws SQLException, ClassNotFoundException {
+		TimeSpan timeSpan = TimeSpan.create(database, this._playerId, hour, this._playtimeInSeconds, 
 				this._chatActivities, this._blocksCreated, this._blocksBroken);
 		this._dbId = timeSpan.get_dbId();
 	}
@@ -98,11 +96,11 @@ public class HourStatistics implements IUuidAndName {
 		return this;
 	}
 
-	public void toDb(Connection connection) throws SQLException {
+	public void toDb(Database database) throws SQLException, ClassNotFoundException {
 		eithonLogger.debug(DebugPrintLevel.VERBOSE, "HourStatistics.toDB: Enter for player %s", this.getName());
 		String updates = getDbUpdates();
 		String update = String.format("UPDATE accumulated SET %s WHERE id=%d", updates, this._dbId);
-		Statement statement = connection.createStatement();
+		Statement statement = database.getOrOpenConnection().createStatement();
 		statement.executeUpdate(update);
 		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerSHourStatisticstatistics.toDB: Leave");
 	}

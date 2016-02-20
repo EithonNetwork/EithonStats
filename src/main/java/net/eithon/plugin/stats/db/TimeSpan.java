@@ -1,6 +1,5 @@
 package net.eithon.plugin.stats.db;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -8,10 +7,11 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
 
 public class TimeSpan {
-	private Connection _connection;
+	private Database _database;
 	private long _dbId;
 	private LocalDateTime _hour;
 	private UUID _playerId;
@@ -20,22 +20,22 @@ public class TimeSpan {
 	private long _blocksCreated;
 	private long _blocksBroken;
 
-	private TimeSpan(Connection connection) {
-		this._connection = connection;
+	private TimeSpan(final Database database) {
+		this._database = database;
 	}
 
-	private TimeSpan(Connection connection, UUID playerId, LocalDateTime hour) {
-		this(connection);
+	private TimeSpan(final Database database, final UUID playerId, final LocalDateTime hour) {
+		this(database);
 		this._playerId = playerId;
 		this._hour = hour.truncatedTo(ChronoUnit.HOURS);
 	}
 
-	public static TimeSpan getByPlayerIdHour(final Connection connection, final UUID playerId, LocalDateTime hour) throws SQLException {
+	public static TimeSpan getByPlayerIdHour(final Database database, final UUID playerId, LocalDateTime hour) throws SQLException, ClassNotFoundException {
 		hour = hour.truncatedTo(ChronoUnit.HOURS);
-		TimeSpan timespan = new TimeSpan(connection);
+		TimeSpan timespan = new TimeSpan(database);
 		String sql = String.format("SELECT * FROM timespan WHERE player_id='%s' AND hour_utc='%s'",
 				playerId.toString(), hour.toString());
-		Statement statement = connection.createStatement();
+		Statement statement = database.getOrOpenConnection().createStatement();
 		ResultSet resultSet = statement.executeQuery(sql);
 		if (!resultSet.next()) return null;
 		timespan.readMeta(resultSet);
@@ -43,9 +43,9 @@ public class TimeSpan {
 		return timespan;
 	}
 
-	public static TimeSpan sumPlayer(final Connection connection, final UUID playerId, 
-			LocalDateTime from, LocalDateTime to) throws SQLException {
-		TimeSpan timespan = new TimeSpan(connection);
+	public static TimeSpan sumPlayer(final Database database, final UUID playerId, 
+			LocalDateTime from, LocalDateTime to) throws SQLException, ClassNotFoundException {
+		TimeSpan timespan = new TimeSpan(database);
 		String sql = String.format("SELECT" +
 				"SUM(play_time_in_seconds) AS play_time_in_seconds" + 
 				", SUM(chat_messages) AS chat_messages, " +
@@ -54,7 +54,7 @@ public class TimeSpan {
 				", SUM(joins) AS joins, " +
 				" FROM timespan WHERE player_id='%s' AND hour_utc>='%s' AND hour_utc<='%s'",
 				playerId.toString(), from.toString(), to.toString());
-		Statement statement = connection.createStatement();
+		Statement statement = database.getOrOpenConnection().createStatement();
 		ResultSet resultSet = statement.executeQuery(sql);
 		if (!resultSet.next()) return null;
 		timespan._dbId = 0;
@@ -63,13 +63,13 @@ public class TimeSpan {
 		return timespan.readData(resultSet);
 	}
 
-	public static TimeSpan create(final Connection connection, 
+	public static TimeSpan create(final Database database, 
 			final UUID playerId,
 			final LocalDateTime hour,
 			final long totalPlayTimeInSeconds,
 			final long chatActivities,
-			final long blocksCreated, final long blocksBroken) throws SQLException {
-		TimeSpan timespan = new TimeSpan(connection, playerId, hour);
+			final long blocksCreated, final long blocksBroken) throws SQLException, ClassNotFoundException {
+		TimeSpan timespan = new TimeSpan(database, playerId, hour);
 		timespan._playTimeInSeconds = totalPlayTimeInSeconds;
 		timespan._chatActivities = chatActivities;
 		timespan._blocksCreated = blocksCreated;
@@ -106,7 +106,7 @@ public class TimeSpan {
 		return this._blocksBroken;
 	}
 
-	private void insert() throws SQLException {
+	private void insert() throws SQLException, ClassNotFoundException {
 		String sql = String.format("INSERT INTO timespan" +
 				" (" + 
 				"player_id, hour_utc" +
@@ -120,8 +120,8 @@ public class TimeSpan {
 				this._playerId.toString(), this._hour.toString(),
 				this._playTimeInSeconds, this._chatActivities, this._blocksCreated,
 				this._blocksBroken);
-		Statement statement = this._connection.createStatement();
-		statement.executeUpdate(sql);
+		Statement statement = this._database.getOrOpenConnection().createStatement();
+		statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 		ResultSet generatedKeys = statement.getGeneratedKeys();
 		generatedKeys.next();
 		this._dbId = generatedKeys.getLong(1);
