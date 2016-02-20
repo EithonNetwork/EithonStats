@@ -36,7 +36,7 @@ public class TestDbTimeSpan {
 			Assert.fail();
 		}
 		Assert.assertEquals(row.get_playTimeInSeconds(), created.get_playTimeInSeconds());
-		Assert.assertEquals(row.get_chatActivities(), created.get_chatActivities());
+		Assert.assertEquals(row.get_chatMessages(), created.get_chatMessages());
 		Assert.assertEquals(row.get_blocksCreated(), created.get_blocksCreated());
 		Assert.assertEquals(row.get_blocksBroken(), created.get_blocksBroken());
 	}

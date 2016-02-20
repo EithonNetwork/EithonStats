@@ -16,7 +16,7 @@ public class TimeSpan {
 	private LocalDateTime _hour;
 	private UUID _playerId;
 	private long _playTimeInSeconds;
-	private long _chatActivities;
+	private long _chatMessages;
 	private long _blocksCreated;
 	private long _blocksBroken;
 
@@ -67,11 +67,11 @@ public class TimeSpan {
 			final UUID playerId,
 			final LocalDateTime hour,
 			final long totalPlayTimeInSeconds,
-			final long chatActivities,
+			final long chatMessages,
 			final long blocksCreated, final long blocksBroken) throws SQLException, ClassNotFoundException {
 		TimeSpan timespan = new TimeSpan(database, playerId, hour);
 		timespan._playTimeInSeconds = totalPlayTimeInSeconds;
-		timespan._chatActivities = chatActivities;
+		timespan._chatMessages = chatMessages;
 		timespan._blocksCreated = blocksCreated;
 		timespan._blocksBroken = blocksBroken;
 		timespan.insert();
@@ -94,8 +94,8 @@ public class TimeSpan {
 		return this._playTimeInSeconds;
 	}
 
-	public long get_chatActivities() {
-		return this._chatActivities;
+	public long get_chatMessages() {
+		return this._chatMessages;
 	}
 
 	public long get_blocksCreated() {
@@ -118,7 +118,7 @@ public class TimeSpan {
 				", %d, %d" + 
 				")",
 				this._playerId.toString(), this._hour.toString(),
-				this._playTimeInSeconds, this._chatActivities, this._blocksCreated,
+				this._playTimeInSeconds, this._chatMessages, this._blocksCreated,
 				this._blocksBroken);
 		Statement statement = this._database.getOrOpenConnection().createStatement();
 		statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
@@ -136,7 +136,7 @@ public class TimeSpan {
 
 	private TimeSpan readData(final ResultSet resultSet) throws SQLException {
 		this._playTimeInSeconds = resultSet.getLong("play_time_in_seconds");
-		this._chatActivities = resultSet.getLong("chat_messages");
+		this._chatMessages = resultSet.getLong("chat_messages");
 		this._blocksCreated = resultSet.getLong("blocks_created");
 		this._blocksBroken = resultSet.getLong("blocks_broken");
 		return this;

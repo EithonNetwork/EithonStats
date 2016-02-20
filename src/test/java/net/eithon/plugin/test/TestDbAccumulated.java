@@ -70,8 +70,8 @@ public class TestDbAccumulated {
 		Assert.assertEquals(row.get_longestIntervalInSeconds(), updated.get_longestIntervalInSeconds());
 		Assert.assertEquals(row.get_playTimeTodayInSeconds(), updated.get_playTimeTodayInSeconds());
 		Assert.assertEquals(row.get_today().truncatedTo(ChronoUnit.DAYS), updated.get_today());
-		Assert.assertEquals(row.get_chatActivities(), updated.get_chatActivities());
-		Assert.assertEquals(row.get_lastChatActivity(), updated.get_lastChatActivity());
+		Assert.assertEquals(row.get_chatMessages(), updated.get_chatMessages());
+		Assert.assertEquals(row.get_lastChatMessage(), updated.get_lastChatMessage());
 		Assert.assertEquals(row.get_blocksCreated(), updated.get_blocksCreated());
 		Assert.assertEquals(row.get_blocksBroken(), updated.get_blocksBroken());
 		Assert.assertEquals(row.get_consecutiveDays(), updated.get_consecutiveDays());

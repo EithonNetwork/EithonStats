@@ -27,8 +27,8 @@ public class PlayerStatistics implements IUuidAndName {
 	private EithonPlayer _eithonPlayer;
 	private long _blocksBroken;
 	private long _blocksCreated;
-	private long _chatActivities;
-	private LocalDateTime _lastChatActivity;
+	private long _chatMessages;
+	private LocalDateTime _lastChatMessage;
 	private long _consecutiveDays;
 	private LocalDateTime _lastConsecutiveDay;
 	private TimeStatistics _timeInfo;
@@ -60,8 +60,8 @@ public class PlayerStatistics implements IUuidAndName {
 		this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 		this._blocksBroken = this._dbRecord.get_blocksBroken();
 		this._blocksCreated = this._dbRecord.get_blocksCreated();
-		this._chatActivities = this._dbRecord.get_chatActivities();
-		this._lastChatActivity = this._dbRecord.get_lastChatActivity();
+		this._chatMessages = this._dbRecord.get_chatMessages();
+		this._lastChatMessage = this._dbRecord.get_lastChatMessage();
 		this._consecutiveDays = this._dbRecord.get_consecutiveDays();
 		this._lastConsecutiveDay = this._dbRecord.get_lastConsecutiveDay();
 		this._timeInfo = new TimeStatistics();
@@ -75,8 +75,8 @@ public class PlayerStatistics implements IUuidAndName {
 	private void initialize() {
 		this._blocksBroken = 0;
 		this._blocksCreated = 0;
-		this._chatActivities = 0;
-		this._lastChatActivity = null;
+		this._chatMessages = 0;
+		this._lastChatMessage = null;
 		resetConsecutiveDays();
 		this._timeInfo = new TimeStatistics();
 		this._startTime = null;
@@ -219,8 +219,8 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public void addChatActivity() {
-		this._chatActivities++;
-		this._lastChatActivity = LocalDateTime.now(); 
+		this._chatMessages++;
+		this._lastChatMessage = LocalDateTime.now(); 
 	}
 
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
@@ -240,8 +240,8 @@ public class PlayerStatistics implements IUuidAndName {
 				this._timeInfo.getLongestIntervalInSeconds(),
 				this._timeInfo.getPlayTimeTodayInSeconds(),
 				this._timeInfo.getToday(),
-				this._chatActivities,
-				this._lastChatActivity,
+				this._chatMessages,
+				this._lastChatMessage,
 				this._blocksCreated, 
 				this._blocksBroken, 
 				this._consecutiveDays, 
@@ -320,7 +320,7 @@ public class PlayerStatistics implements IUuidAndName {
 		return TimeStatistics.isSameDay(day, this._lastConsecutiveDay);
 	}
 
-	public long getChats() { return this._chatActivities; }
+	public long getChatMessages() { return this._chatMessages; }
 
 	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
 
@@ -341,7 +341,7 @@ public class PlayerStatistics implements IUuidAndName {
 		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
 		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
 		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));
-		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatActivities));
+		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatMessages));
 		namedArguments.put("INTERVALS", String.format("%d", this._timeInfo.getIntervals()));
 		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()));
 		namedArguments.put("LONGEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()));

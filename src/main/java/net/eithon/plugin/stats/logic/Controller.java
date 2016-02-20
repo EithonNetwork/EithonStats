@@ -158,7 +158,7 @@ public class Controller {
 				new Comparator<PlayerStatistics>(){
 					public int compare(PlayerStatistics f1, PlayerStatistics f2)
 					{
-						return factor*Long.valueOf(f1.getChats()).compareTo(f2.getChats());
+						return factor*Long.valueOf(f1.getChatMessages()).compareTo(f2.getChatMessages());
 					} });
 	}
 

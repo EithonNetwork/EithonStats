@@ -62,7 +62,7 @@ public class HourStatistics implements IUuidAndName {
 		this._hour = time.truncatedTo(ChronoUnit.HOURS);
 		this._blocksBroken = playerStatistics.getBlocksBroken();
 		this._blocksCreated = playerStatistics.getBlocksCreated();
-		this._chatActivities = playerStatistics.getChats();
+		this._chatActivities = playerStatistics.getChatMessages();
 		this._playtimeInSeconds = playerStatistics.getTotalTimeInSeconds();
 		this._dbId = -1;
 	}
@@ -89,7 +89,7 @@ public class HourStatistics implements IUuidAndName {
 		this._playerId = timeSpan.get_playerId();
 		this._playerName = Bukkit.getServer().getOfflinePlayer(this._playerId).getName();
 		this._dbId = timeSpan.get_dbId();
-		this._chatActivities = timeSpan.get_chatActivities();
+		this._chatActivities = timeSpan.get_chatMessages();
 		this._blocksCreated = timeSpan.get_blocksCreated();
 		this._blocksBroken = timeSpan.get_blocksBroken();
 		this._playtimeInSeconds = timeSpan.get_playTimeInSeconds();

@@ -20,8 +20,8 @@ public class Accumulated {
 	private long _longestIntervalInSeconds;
 	private long _playTimeTodayInSeconds;
 	private LocalDateTime _today;
-	private long _chatActivities;
-	private LocalDateTime _lastChatActivity;
+	private long _chatMessages;
+	private LocalDateTime _lastChatMessage;
 	private long _blocksCreated;
 	private long _blocksBroken;
 	private long _consecutiveDays;
@@ -71,8 +71,8 @@ public class Accumulated {
 		this._longestIntervalInSeconds = longestIntervalInSeconds;
 		this._playTimeTodayInSeconds = playTimeTodayInSeconds;
 		this._today = today;
-		this._chatActivities = chatActivities;
-		this._lastChatActivity = lastChatActivity;
+		this._chatMessages = chatActivities;
+		this._lastChatMessage = lastChatActivity;
 		this._blocksCreated = blocksCreated;
 		this._blocksBroken = blocksBroken;
 		this._consecutiveDays = consecutiveDays;
@@ -116,12 +116,12 @@ public class Accumulated {
 		return this._today;
 	}
 
-	public long get_chatActivities() {
-		return this._chatActivities;
+	public long get_chatMessages() {
+		return this._chatMessages;
 	}
 
-	public LocalDateTime get_lastChatActivity() {
-		return this._lastChatActivity;
+	public LocalDateTime get_lastChatMessage() {
+		return this._lastChatMessage;
 	}
 
 	public long get_blocksCreated() {
@@ -150,8 +150,8 @@ public class Accumulated {
 		this._longestIntervalInSeconds = resultSet.getLong("longest_interval_in_seconds");
 		this._playTimeTodayInSeconds = resultSet.getLong("play_time_today_in_seconds");
 		this._today = TimeMisc.toLocalDateTime(resultSet.getTimestamp("today"));
-		this._chatActivities = resultSet.getLong("chat_messages");
-		this._lastChatActivity = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_chat_message_utc"));
+		this._chatMessages = resultSet.getLong("chat_messages");
+		this._lastChatMessage = TimeMisc.toLocalDateTime(resultSet.getTimestamp("last_chat_message_utc"));
 		this._blocksCreated = resultSet.getLong("blocks_created");
 		this._blocksBroken = resultSet.getLong("blocks_broken");
 		this._consecutiveDays = resultSet.getLong("consecutive_days");
@@ -168,14 +168,14 @@ public class Accumulated {
 
 	private String getDbUpdates() {
 		String updates = String.format("player_id='%s'", this._playerId.toString()) +
-				String.format(", chat_messages=%d", this._chatActivities) +
+				String.format(", chat_messages=%d", this._chatMessages) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", consecutive_days=%d", this._consecutiveDays) +
 				String.format(", last_consecutive_day=%s", TimeMisc.toDbUtc(this._lastConsecutiveDay)) +
-				String.format(", last_chat_message_utc=%s", TimeMisc.toDbUtc(this._lastChatActivity)) + 
+				String.format(", last_chat_message_utc=%s", TimeMisc.toDbUtc(this._lastChatMessage)) + 
 				String.format(", player_id='%s'", this._playerId) +
-				String.format(", chat_messages=%d", this._chatActivities) +
+				String.format(", chat_messages=%d", this._chatMessages) +
 				String.format(", blocks_created=%d", this._blocksCreated) +
 				String.format(", blocks_broken=%d", this._blocksBroken) +
 				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
