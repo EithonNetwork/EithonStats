@@ -21,14 +21,14 @@ public class PlayerStatisticsOld extends JsonObjectDelta<PlayerStatisticsOld> im
 	private static Logger eithonLogger;
 
 	// Saved variables
-	private EithonPlayer _eithonPlayer;
-	private long _blocksBroken;
-	private long _blocksCreated;
-	private long _chatActivities;
-	private LocalDateTime _lastChatActivity;
-	private long _consecutiveDays;
-	private LocalDateTime _lastConsecutiveDay;
-	private TimeStatisticsOld _timeInfo;
+	EithonPlayer _eithonPlayer;
+	long _blocksBroken;
+	 long _blocksCreated;
+	 long _chatActivities;
+	 LocalDateTime _lastChatActivity;
+	 long _consecutiveDays;
+	 LocalDateTime _lastConsecutiveDay;
+	 TimeStatisticsOld _timeInfo;
 
 	// Non-saved, internal variables
 	private LocalDateTime _startTime;

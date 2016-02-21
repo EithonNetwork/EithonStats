@@ -11,13 +11,13 @@ import org.json.simple.JSONObject;
 
 public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 	// Saved variables
-	private LocalDateTime _firstStartTime;
-	private LocalDateTime _lastStopTime;
-	private long _totalPlayTimeInSeconds;
-	private long _intervals;
-	private long _longestIntervalInSeconds;
-	private LocalDateTime _today;
-	private long _playTimeTodayInSeconds;
+	 LocalDateTime _firstStartTime;
+	 LocalDateTime _lastStopTime;
+	 long _totalPlayTimeInSeconds;
+	 long _intervals;
+	 long _longestIntervalInSeconds;
+	 LocalDateTime _today;
+	 long _playTimeTodayInSeconds;
 
 	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;

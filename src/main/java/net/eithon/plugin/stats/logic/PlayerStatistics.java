@@ -15,8 +15,8 @@ import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 import net.eithon.plugin.stats.db.Accumulated;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
@@ -45,7 +45,7 @@ public class PlayerStatistics implements IUuidAndName {
 		eithonLogger = logger;
 	}
 
-	public PlayerStatistics(Database _database, Player player) throws SQLException, ClassNotFoundException
+	public PlayerStatistics(Database _database, OfflinePlayer player) throws SQLException, ClassNotFoundException
 	{
 		this._dbRecord = Accumulated.getByPlayerId(_database, player.getUniqueId());
 		if (this._dbRecord == null) {
@@ -251,6 +251,22 @@ public class PlayerStatistics implements IUuidAndName {
 				this._lastConsecutiveDay);
 		eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved player %s", getName());
 		this._hasBeenUpdated = false;
+	}
+
+	public void update(PlayerStatisticsOld oldStatistics) {
+		this._chatMessages = oldStatistics._chatActivities;
+		this._lastChatMessage = oldStatistics._lastChatActivity;
+		this._blocksCreated = oldStatistics._blocksCreated;
+		this._blocksBroken = oldStatistics._blocksBroken;
+		this._consecutiveDays = oldStatistics._consecutiveDays;
+		this._lastConsecutiveDay = oldStatistics._lastConsecutiveDay;
+		this._timeInfo.update(oldStatistics._timeInfo);
+		try {
+			save(false);
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public String getName() {

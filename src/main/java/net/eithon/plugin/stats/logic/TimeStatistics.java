@@ -167,4 +167,14 @@ public class TimeStatistics {
 		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();
 		
 	}
+
+	public void update(TimeStatisticsOld old) {
+		this._firstStartTime = old._firstStartTime;
+		this._lastStopTime = old._lastStopTime;
+		this._totalPlayTimeInSeconds = old._totalPlayTimeInSeconds;
+		this._longestIntervalInSeconds = old._longestIntervalInSeconds;
+		this._today = old._today;
+		this._playTimeTodayInSeconds = old._playTimeTodayInSeconds;
+		
+	}
 }

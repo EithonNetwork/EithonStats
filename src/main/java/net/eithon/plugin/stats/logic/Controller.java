@@ -18,6 +18,7 @@ import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
 import net.eithon.plugin.stats.Config;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -38,6 +39,7 @@ public class Controller {
 				Config.V.databaseUsername, Config.V.databasePassword);
 		PlayerStatistics.initialize(this._eithonLogger);
 		connectToEithonCop(this._eithonPlugin);
+		new ControllerOld(eithonPlugin, this);
 	}
 
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {
@@ -92,7 +94,7 @@ public class Controller {
 		time.sendPlayerStatistics(sender);
 	}
 
-	PlayerStatistics getOrCreatePlayerTime(Player player) {
+	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time == null) {
 			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
