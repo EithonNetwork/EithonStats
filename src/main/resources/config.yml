@@ -1,3 +1,16 @@
+eithon:
+  UseMarkUpForMessages: 1
+  UseWrappingForMessages: 1
+  
+  #
+  # Debug level
+  #  0 = NONE (no debug messages)
+  #  1 = MAJOR (only major messages)
+  #  2 = MINOR (also minor messages)
+  #  3 = VERBOSE (all messages)
+  #
+  DebugLevel: 1
+  
 #
 # The time span that a player may be inactive before we stop the play time timer.
 AllowedInactivityTimeSpan: 5m
@@ -15,21 +28,30 @@ ArchiveAtTimeOfDay: 00:00
 # The time span that a player needs to be active during a day to get another "consecutive day".
 TimeSpanPerDayForConsecutiveDays: 1h
 
-eithon:
-  UseMarkUpForMessages: 1
-  UseWrappingForMessages: 1
-  
-  #
-  # Debug level
-  #  0 = NONE (no debug messages)
-  #  1 = MAJOR (only major messages)
-  #  2 = MINOR (also minor messages)
-  #  3 = VERBOSE (all messages)
-  #
-  DebugLevel: 1
+database:
+  Name: eithon_stats
+  Hostname: mc.eithon.net
+  Port: 3306
+  Username: eithon_stats
+  Password: W9txKfyzAmyaGeWV
+
+# PRD
+#  Name: eithon_stats
+#  Username: eithon_stats
+#  Password: W9txKfyzAmyaGeWV
+
+# TST
+#  Name: TST_eithon_stats
+#  Username: TST_eithon_stats
+#  Password: rCmTrcKAZf53ZGqy
+
+# DEV
+#  Name: DEV_eithon_stats
+#  Username: DEV_eithon_stats
+#  Password: WrSqjVMEpst9aqnm
 
 messages:
-
+  
   #
   # Parameters: -
   PlayerIdle: Idle
@@ -95,12 +117,12 @@ messages:
   #
   #
   # Parameters: <Player> (%s), <Description> (%s)
-  ToAfkBroadcast: Player %s is AFK (%s)
+  ToAfkBroadcast: " [i]- [color=darkaqua]%s[/color] is AFK: %s"
   
   #
   #
   # Parameters: <Player> (%s)
-  FromAfkBroadcast: Player %s is back
+  FromAfkBroadcast: " [i]- [color=darkaqua]%s[/color] is back"
   
   #
   #

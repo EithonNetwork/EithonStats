@@ -20,12 +20,22 @@ public class Config {
 		public static long secondsBetweenSave;
 		public static LocalTime archiveAtTimeOfDay;
 		public static long secondsPerDayForConsecutiveDays;
+		public static String databaseHostname;
+		public static String databasePort;
+		public static String databaseName;
+		public static String databaseUsername;
+		public static String databasePassword;
 		
 		static void load(Configuration config) {
 			allowedInactivityInSeconds = config.getSeconds("AllowedInactivityTimeSpan", "5m");
 			secondsBetweenSave = config.getSeconds("TimeSpanBetweenSave", "5m");
 			archiveAtTimeOfDay = config.getLocalTime("ArchiveAtTimeOfDay", LocalTime.of(0, 0));
 			secondsPerDayForConsecutiveDays = config.getSeconds("TimeSpanPerDayForConsecutiveDays", "1h");
+			databaseHostname = config.getString("database.Hostname", null);
+			databasePort = config.getString("database.Port", null);
+			databaseName = config.getString("database.Name", null);
+			databaseUsername = config.getString("database.Username", null);
+			databasePassword = config.getString("database.Password", null);
 		}
 
 	}

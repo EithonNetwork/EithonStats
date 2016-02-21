@@ -1,31 +1,34 @@
 package net.eithon.plugin.stats.logic;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
-import net.eithon.library.json.JsonObjectDelta;
+import net.eithon.library.mysql.Database;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
+import net.eithon.plugin.stats.db.Accumulated;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.json.simple.JSONObject;
 
-public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implements IUuidAndName {
+public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
+
+	private Accumulated _dbRecord;
 
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
 	private long _blocksBroken;
 	private long _blocksCreated;
-	private long _chatActivities;
-	private LocalDateTime _lastChatActivity;
+	private long _chatMessages;
+	private LocalDateTime _lastChatMessage;
 	private long _consecutiveDays;
 	private LocalDateTime _lastConsecutiveDay;
 	private TimeStatistics _timeInfo;
@@ -36,29 +39,50 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 	private UUID _alarmId;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
+	private HourStatistics _lastHourValues;
 
 	public static void initialize(Logger logger) {
 		eithonLogger = logger;
 	}
 
-	public PlayerStatistics(Player player)
+	public PlayerStatistics(Database _database, OfflinePlayer player) throws SQLException, ClassNotFoundException
 	{
-		this(new EithonPlayer(player));
+		this._dbRecord = Accumulated.getByPlayerId(_database, player.getUniqueId());
+		if (this._dbRecord == null) {
+			this._dbRecord = Accumulated.create(_database, player.getUniqueId());
+			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
+			initialize();
+			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
+		} else {
+			eithonLogger.debug(DebugPrintLevel.MAJOR, "Loaded player %s", getName());
+		}
+		copyFromDbRecord();
+		this._lastHourValues = new HourStatistics(this, LocalDateTime.now());
 	}
 
-	public PlayerStatistics(EithonPlayer eithonPlayer)
-	{
-		this();
-		this._eithonPlayer = eithonPlayer;
+	private void copyFromDbRecord() {
+		this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
+		this._blocksBroken = this._dbRecord.get_blocksBroken();
+		this._blocksCreated = this._dbRecord.get_blocksCreated();
+		this._chatMessages = this._dbRecord.get_chatMessages();
+		this._lastChatMessage = this._dbRecord.get_lastChatMessage();
+		this._consecutiveDays = this._dbRecord.get_consecutiveDays();
+		this._lastConsecutiveDay = this._dbRecord.get_lastConsecutiveDay();
+		this._timeInfo = new TimeStatistics();
+		this._timeInfo.copyFromDbRecord(this._dbRecord);
 	}
 
-	PlayerStatistics() {
+	public PlayerStatistics() {
+		initialize();
+	}
+
+	private void initialize() {
 		this._blocksBroken = 0;
 		this._blocksCreated = 0;
-		this._chatActivities = 0;
-		this._lastChatActivity = null;
-		resetConsecutiveDays();
+		this._chatMessages = 0;
+		this._lastChatMessage = null;
 		this._timeInfo = new TimeStatistics();
+		resetConsecutiveDays();
 		this._startTime = null;
 		this._hasBeenUpdated = false;
 		this._afkDescription = null;
@@ -67,7 +91,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 
 	void resetConsecutiveDays() {
 		this._consecutiveDays = 0;
-		this._lastConsecutiveDay = null;
+		this._lastConsecutiveDay = this._timeInfo.getToday();
 	}
 
 	private void resetAlarm() {
@@ -99,27 +123,6 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
 		this._alarmId = null;
-	}
-
-	public static PlayerStatistics getDifference(PlayerStatistics now,
-			PlayerStatistics then) {
-		PlayerStatistics diff = new PlayerStatistics();
-		diff._afkDescription = now._afkDescription;
-		diff._blocksCreated = now._blocksCreated - ((then == null) ? 0 : then._blocksCreated);
-		diff._blocksBroken = now._blocksBroken - ((then == null) ? 0 : then._blocksBroken);
-		diff._chatActivities = now._chatActivities - ((then == null) ? 0 : then._chatActivities);
-		long thenConsecutiveDays = (then == null) ? 0 : then._consecutiveDays;
-		if (now._consecutiveDays > thenConsecutiveDays) {
-			diff._consecutiveDays = now._consecutiveDays - thenConsecutiveDays;
-		} else diff._consecutiveDays = now._consecutiveDays;
-		diff._eithonPlayer = now._eithonPlayer;
-		diff._hasBeenUpdated = now._hasBeenUpdated;
-		diff._lastAliveTime = now._lastAliveTime;
-		diff._lastChatActivity = now._lastChatActivity;
-		diff._lastConsecutiveDay = now._lastConsecutiveDay;
-		diff._startTime = now._startTime;
-		diff._timeInfo = TimeStatistics.getDifference(now._timeInfo, (then == null) ? null : then._timeInfo);
-		return diff;
 	}
 
 	private void start(LocalDateTime startTime) {
@@ -174,7 +177,13 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
 		if (isAfk()) {
 			Config.M.toAfkBroadcast.broadcastMessageToAllServers(getName(), description);
-		}	
+		}
+		try {
+			save(false);
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return stopTime;
 	}
 
@@ -214,70 +223,35 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 	}
 
 	public void addChatActivity() {
-		this._chatActivities++;
-		this._lastChatActivity = LocalDateTime.now(); 
+		this._chatMessages++;
+		this._lastChatMessage = LocalDateTime.now(); 
 	}
 
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
 
-	@Override
-	public PlayerStatistics factory() { return new PlayerStatistics(); }
-
-	@Override
-	public PlayerStatistics fromJson(Object json) {
-		JSONObject jsonObject = (JSONObject) json;
-		this._eithonPlayer = EithonPlayer.getFromJson(jsonObject.get("player"));
-		this._timeInfo = TimeStatistics.getFromJson(jsonObject.get("timeInfo"));
-		this._chatActivities = (long)jsonObject.get("chatActivities");
-		this._lastChatActivity = TimeMisc.toLocalDateTime(jsonObject.get("lastChatActivity"));
-		this._blocksCreated = (long)jsonObject.get("blocksCreated");
-		this._blocksBroken = (long)jsonObject.get("blocksBroken");
-		Object days = jsonObject.get("consecutiveDays");
-		if (days == null) this._consecutiveDays = 0;
-		else this._consecutiveDays = (long)days;
-		this._lastConsecutiveDay = TimeMisc.toLocalDateTime(jsonObject.get("lastConsecutiveDay"));
-		return this;
-	}
-	
-	public static PlayerStatistics getFromJson(Object json) { return new PlayerStatistics().fromJson(json); }
-
-	@SuppressWarnings("unchecked")
-	private JSONObject toJsonDelta(boolean saveAll, boolean doLap) {
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Enter for player %s", this.getName());
-		if (!saveAll && !this._hasBeenUpdated) {
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s has not been updated", this.getName());
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
-			return null;
-		}
-
+	public void save(boolean doLap) throws SQLException, ClassNotFoundException {
+		if (!this._hasBeenUpdated) return;
 		if (doLap) {
-			eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s calls lap()", this.getName());
 			lap();
 		}
-		JSONObject json = new JSONObject();
-		json.put("player", this._eithonPlayer.toJson());
-		json.put("timeInfo", this._timeInfo.toJson());
-		json.put("chatActivities", this._chatActivities);
-		json.put("lastChatActivity", TimeMisc.fromLocalDateTime(this._lastChatActivity));
-		json.put("blocksCreated", this._blocksCreated);
-		json.put("blocksBroken", this._blocksBroken);
-		json.put("consecutiveDays", this._consecutiveDays);
-		json.put("lastConsecutiveDay", TimeMisc.fromLocalDateTime(this._lastConsecutiveDay));
+		this._dbRecord.update(
+				this._eithonPlayer.getName(),
+				this._timeInfo.getFirstStartTime(),
+				this._timeInfo.getLastStopTime(),
+				this._timeInfo.getTotalPlayTimeInSeconds(),
+				this._timeInfo.getIntervals(),
+				this._timeInfo.getLongestIntervalInSeconds(),
+				this._timeInfo.getPlayTimeTodayInSeconds(),
+				this._timeInfo.getToday(),
+				this._chatMessages,
+				this._lastChatMessage,
+				this._blocksCreated, 
+				this._blocksBroken, 
+				this._consecutiveDays, 
+				this._lastConsecutiveDay);
+		eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved player %s", getName());
 		this._hasBeenUpdated = false;
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Player %s result: %s", this.getName(), json.toString());
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerStatistics.toJsonDelta: Leave");
-		return json;
-	}
-
-	@Override
-	public JSONObject toJson() {
-		return toJsonDelta(true, true);
-	}
-
-	@Override
-	public Object toJsonDelta(boolean saveAll) {
-		return toJsonDelta(saveAll, true);
 	}
 
 	public String getName() {
@@ -295,10 +269,6 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 
 	public void sendTimeStats(CommandSender sender) {
 		Config.M.timeStats.sendMessage(sender, getNamedArguments());
-	}
-
-	public void sendDiffStats(CommandSender sender) {
-		Config.M.diffStats.sendMessage(sender, getNamedArguments());
 	}
 
 	public void sendChatStats(CommandSender sender) {
@@ -334,7 +304,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		}
 		return this._consecutiveDays; 
 	}
-	
+
 	public EithonPlayer getEithonPlayer() { return this._eithonPlayer; }
 
 	boolean lastConsecutiveDayWasTooLongAgo() {
@@ -355,7 +325,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		return TimeStatistics.isSameDay(day, this._lastConsecutiveDay);
 	}
 
-	public long getChats() { return this._chatActivities; }
+	public long getChatMessages() { return this._chatMessages; }
 
 	public LocalDateTime getAfkTime() { return this._lastAliveTime; }
 
@@ -376,7 +346,7 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		namedArguments.put("BLOCKS_BROKEN", String.format("%d", this._blocksBroken));
 		namedArguments.put("BLOCKS_CREATED", String.format("%d", this._blocksCreated));
 		namedArguments.put("BLOCKS_CREATED_OR_BROKEN", String.format("%d", this._blocksCreated + this._blocksBroken));
-		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatActivities));
+		namedArguments.put("CHAT_ACTIVITIES", String.format("%d", this._chatMessages));
 		namedArguments.put("INTERVALS", String.format("%d", this._timeInfo.getIntervals()));
 		namedArguments.put("TOTAL_PLAY_TIME", TimeMisc.secondsToString(this._timeInfo.getTotalPlayTimeInSeconds()));
 		namedArguments.put("LONGEST_INTERVAL", TimeMisc.secondsToString(this._timeInfo.getLongestIntervalInSeconds()));
@@ -386,5 +356,11 @@ public class PlayerStatistics extends JsonObjectDelta<PlayerStatistics> implemen
 		namedArguments.put("LAST_CONSECUTIVE_DAY", lastConsecutiveDay == null ? "-" : lastConsecutiveDay.toString());
 
 		return namedArguments;
+	}
+
+	public long getBlocksBroken() { return this._blocksBroken; }
+
+	public void timespanSave(Database database) throws SQLException, ClassNotFoundException {
+		new HourStatistics(database, this._lastHourValues, this, LocalDateTime.now());
 	}
 }

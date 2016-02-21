@@ -4,6 +4,16 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1 (2016-02-21)
+
+* CHANGE: Removed code for reading statistics from file
+
+### 2.0 (2016-02-20)
+
+* CHANGE: Now uses the new Command pattern.
+* NEW: Changed from storing statistics in files to storing the statistics in a DB.
+* BUG: Player play time was not updated to the latest if the player himself was issuing the "/estats for" command.
+
 ### 1.16 (2016-02-13)
 
 * NEW: Experimenting with transferring statistics between BungeeChord servers.

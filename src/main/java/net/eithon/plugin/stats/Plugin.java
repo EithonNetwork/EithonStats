@@ -17,40 +17,40 @@ public final class Plugin extends EithonPlugin {
 		this._controller = new Controller(this);
 		CommandHandler commandHandler = new CommandHandler(this, this._controller);
 		Listener eventListener = new EventListener(this, this._controller);
-		repeatSave();
-		repeatArchive();
-		super.activate(commandHandler, eventListener);
+		autoSave();
+		timespanSave();
+		super.activate(commandHandler.getCommandSyntax(), eventListener);
 		EithonStatsApi.initialize(this._controller);
 	}
 
 	@Override
 	public void onDisable() {
-		this._controller.saveDelta();
+		this._controller.save();
 		super.onDisable();
 		this._controller = null;
 	}
 
-	private void repeatSave() {
+	private void autoSave() {
 		final Plugin thisObject = this;
 		AlarmTrigger.get().repeat("Save player statistics", Config.V.secondsBetweenSave, 
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.saveDelta();
+				thisObject._controller.save();
 				return true;
 			}
 		});
 	}
 
-	private void repeatArchive() {
+	private void timespanSave() {
 		final Plugin thisObject = this;
-		AlarmTrigger.get().repeatEveryDay("Archive player statistics", Config.V.archiveAtTimeOfDay, 
+		AlarmTrigger.get().repeatEveryHour("TimeSpan player statistics", 0,
 				new IRepeatable() {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.archive();
+				thisObject._controller.timespanSave();
 				return true;
 			}
 		});
