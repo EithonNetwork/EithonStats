@@ -60,7 +60,7 @@ public class CommandHandler {
 		ICommandSyntax cmd = commandSyntax.parseCommandSyntax(commandName + " <player>");
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
+		.setMandatoryValues(ec -> EithonCommandUtilities.getOfflinePlayerNames(ec))
 		.setDefaultGetter(ec -> getSenderName(ec));
 		return cmd;
 	}

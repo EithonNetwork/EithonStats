@@ -10,8 +10,6 @@ import java.util.UUID;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.mysql.Database;
-import net.eithon.library.plugin.Logger;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 import net.eithon.plugin.stats.db.TimeSpan;
@@ -20,7 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 public class HourStatistics implements IUuidAndName {
-	private static Logger eithonLogger;
 
 	// Saved variables
 	private UUID _playerId;
@@ -97,12 +94,10 @@ public class HourStatistics implements IUuidAndName {
 	}
 
 	public void toDb(Database database) throws SQLException, ClassNotFoundException {
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "HourStatistics.toDB: Enter for player %s", this.getName());
 		String updates = getDbUpdates();
 		String update = String.format("UPDATE accumulated SET %s WHERE id=%d", updates, this._dbId);
 		Statement statement = database.getOrOpenConnection().createStatement();
 		statement.executeUpdate(update);
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "PlayerSHourStatisticstatistics.toDB: Leave");
 	}
 
 	private String getDbUpdates() {

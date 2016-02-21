@@ -123,7 +123,7 @@ public class Controller {
 	}
 
 	private PlayerStatistics getOrCreatePlayerTime(EithonPlayer eithonPlayer) {
-		return getOrCreatePlayerTime(eithonPlayer.getPlayer());
+		return getOrCreatePlayerTime(eithonPlayer.getOfflinePlayer());
 	}
 
 	public void showTimeStats(CommandSender sender, boolean ascending, int maxItems) {
