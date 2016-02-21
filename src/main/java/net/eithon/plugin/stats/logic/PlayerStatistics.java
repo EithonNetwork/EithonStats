@@ -50,8 +50,9 @@ public class PlayerStatistics implements IUuidAndName {
 		this._dbRecord = Accumulated.getByPlayerId(_database, player.getUniqueId());
 		if (this._dbRecord == null) {
 			this._dbRecord = Accumulated.create(_database, player.getUniqueId());
-			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
+			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 			initialize();
+			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
 		} else {
 			eithonLogger.debug(DebugPrintLevel.MAJOR, "Loaded player %s", getName());
 		}
@@ -80,8 +81,8 @@ public class PlayerStatistics implements IUuidAndName {
 		this._blocksCreated = 0;
 		this._chatMessages = 0;
 		this._lastChatMessage = null;
-		resetConsecutiveDays();
 		this._timeInfo = new TimeStatistics();
+		resetConsecutiveDays();
 		this._startTime = null;
 		this._hasBeenUpdated = false;
 		this._afkDescription = null;
@@ -261,6 +262,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._consecutiveDays = oldStatistics._consecutiveDays;
 		this._lastConsecutiveDay = oldStatistics._lastConsecutiveDay;
 		this._timeInfo.update(oldStatistics._timeInfo);
+		this._hasBeenUpdated = true;
 		try {
 			save(false);
 		} catch (ClassNotFoundException | SQLException e) {

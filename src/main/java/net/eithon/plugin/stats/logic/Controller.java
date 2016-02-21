@@ -90,8 +90,19 @@ public class Controller {
 
 	public void showStats(CommandSender sender, EithonPlayer eithonPlayer) {
 		PlayerStatistics time = getOrCreatePlayerTime(eithonPlayer);
+		upateAliveIfSenderIsPlayer(sender, eithonPlayer, time);
 		time.lap();
 		time.sendPlayerStatistics(sender);
+	}
+
+	private void upateAliveIfSenderIsPlayer(CommandSender sender,
+			EithonPlayer eithonPlayer, PlayerStatistics time) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			if (player.getUniqueId() == eithonPlayer.getUniqueId()) {
+				time.updateAlive();
+			}
+		}
 	}
 
 	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) {

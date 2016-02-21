@@ -8,6 +8,7 @@ Keep track of Player statistics
 
 * CHANGE: Now uses the new Command pattern.
 * NEW: Changed from storing statistics in files to storing the statistics in a DB.
+* BUG: Player play time was not updated to the latest if the player himself was issuing the "/estats for" command.
 
 ### 1.16 (2016-02-13)
 

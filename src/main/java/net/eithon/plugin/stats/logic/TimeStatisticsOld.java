@@ -21,32 +21,15 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 
 	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;
-	private LocalDateTime _previousStartTime;
 	private LocalDateTime _previousStopTime;
 
-	public TimeStatisticsOld()
+	TimeStatisticsOld()
 	{
-		this._previousStartTime = null;
 		this._previousIntervalInSeconds = 0;
 		resetTotalPlayTime();
 	}
 
-	public static TimeStatisticsOld getDifference(TimeStatisticsOld now, TimeStatisticsOld then) {
-		TimeStatisticsOld diff = new TimeStatisticsOld();
-		diff._firstStartTime = now._firstStartTime;
-		diff._intervals = now._intervals - ((then == null) ? 0 : then._intervals);
-		diff._lastStopTime = now._lastStopTime;
-		diff._longestIntervalInSeconds = now._longestIntervalInSeconds;
-		diff._previousIntervalInSeconds = now._previousIntervalInSeconds;
-		diff._previousStartTime = now._previousStartTime;
-		diff._previousStopTime = now._previousStopTime;
-		diff._today = now.getToday();
-		diff._playTimeTodayInSeconds = now.getPlayTimeTodayInSeconds();
-		diff._totalPlayTimeInSeconds = now._totalPlayTimeInSeconds - ((then == null) ? 0 : then._totalPlayTimeInSeconds);
-		return diff;
-	}
-
-	public void addInterval(LocalDateTime start, LocalDateTime stop) {
+	void addInterval(LocalDateTime start, LocalDateTime stop) {
 		long useLastInterval = 0;
 		if ((this._previousStopTime != null) && (this._previousStopTime.isEqual(start))) {
 			useLastInterval = this._previousIntervalInSeconds;
@@ -73,13 +56,7 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 		return stop.toEpochSecond(ZoneOffset.UTC) - start.toEpochSecond(ZoneOffset.UTC);
 	}
 
-	public long addToTotalPlayTime(long playTimeInSeconds) {
-		this._totalPlayTimeInSeconds += playTimeInSeconds;
-		if (this._totalPlayTimeInSeconds < 0) resetTotalPlayTime();
-		return this._totalPlayTimeInSeconds;
-	}
-
-	public void resetTotalPlayTime() {
+	private void resetTotalPlayTime() {
 		this._firstStartTime = null;
 		this._totalPlayTimeInSeconds = 0;
 		this._intervals = 0;
@@ -95,7 +72,6 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 	}
 
 	private void rememberStartTime(LocalDateTime start) {
-		this._previousStartTime = start;
 		if ((this._firstStartTime == null) || (this._firstStartTime.isAfter(start))) this._firstStartTime = start;
 	}
 
@@ -104,14 +80,10 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 		if ((this._lastStopTime == null) || (this._lastStopTime.isBefore(stop))) this._lastStopTime = stop;
 	}
 
-	public LocalDateTime getPreviousStartTime() { return this._previousStartTime; }
 	LocalDateTime getToday() { 		
 		resetIfNewDay();
 		return this._today; 
 	}
-	public LocalDateTime getPreviousStopTime() { return this._previousStopTime; }
-	public long getPreviousIntervalInSeconds() { return this._previousIntervalInSeconds; }
-	public long getTotalPlayTimeInSeconds() { return this._totalPlayTimeInSeconds; }
 	long getPlayTimeTodayInSeconds() { 
 		resetIfNewDay();
 		return this._playTimeTodayInSeconds;
@@ -123,8 +95,7 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 			this._playTimeTodayInSeconds = 0;
 		}
 	}
-	public long getLongestIntervalInSeconds() { return this._longestIntervalInSeconds; }
-	public Object getIntervals() { return this._intervals; }
+	Object getIntervals() { return this._intervals; }
 
 
 	@SuppressWarnings("unchecked")
@@ -162,7 +133,7 @@ public class TimeStatisticsOld extends JsonObject<TimeStatisticsOld>{
 		return new TimeStatisticsOld();
 	}
 
-	public static TimeStatisticsOld getFromJson(Object json) {
+	static TimeStatisticsOld getFromJson(Object json) {
 		TimeStatisticsOld info = new TimeStatisticsOld();
 		return info.fromJson(json);
 	}
