@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1 (2016-02-21)
+
+* CHANGE: Removed code for reading statistics from file
+
 ### 2.0 (2016-02-20)
 
 * CHANGE: Now uses the new Command pattern.

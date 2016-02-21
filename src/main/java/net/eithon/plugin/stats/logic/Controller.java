@@ -39,7 +39,6 @@ public class Controller {
 				Config.V.databaseUsername, Config.V.databasePassword);
 		PlayerStatistics.initialize(this._eithonLogger);
 		connectToEithonCop(this._eithonPlugin);
-		new ControllerOld(eithonPlugin, this);
 	}
 
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {

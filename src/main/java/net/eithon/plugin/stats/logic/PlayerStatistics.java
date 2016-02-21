@@ -254,23 +254,6 @@ public class PlayerStatistics implements IUuidAndName {
 		this._hasBeenUpdated = false;
 	}
 
-	public void update(PlayerStatisticsOld oldStatistics) {
-		this._chatMessages = oldStatistics._chatActivities;
-		this._lastChatMessage = oldStatistics._lastChatActivity;
-		this._blocksCreated = oldStatistics._blocksCreated;
-		this._blocksBroken = oldStatistics._blocksBroken;
-		this._consecutiveDays = oldStatistics._consecutiveDays;
-		this._lastConsecutiveDay = oldStatistics._lastConsecutiveDay;
-		this._timeInfo.update(oldStatistics._timeInfo);
-		this._hasBeenUpdated = true;
-		try {
-			save(false);
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	public String getName() {
 		if (this._eithonPlayer == null) return null;
 		return this._eithonPlayer.getName(); }
