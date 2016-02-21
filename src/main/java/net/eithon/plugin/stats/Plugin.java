@@ -19,7 +19,7 @@ public final class Plugin extends EithonPlugin {
 		Listener eventListener = new EventListener(this, this._controller);
 		autoSave();
 		timespanSave();
-		super.activate(commandHandler, eventListener);
+		super.activate(commandHandler.getCommandSyntax(), eventListener);
 		EithonStatsApi.initialize(this._controller);
 	}
 

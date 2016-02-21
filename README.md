@@ -6,6 +6,7 @@ Keep track of Player statistics
 
 ### 2.0 (2016-02-20)
 
+* CHANGE: Now uses the new Command pattern.
 * NEW: Changed from storing statistics in files to storing the statistics in a DB.
 
 ### 1.16 (2016-02-13)
