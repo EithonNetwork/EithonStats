@@ -13,8 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandHandler {
-	private static final String AFK_COMMAND = "/stats afk [<description>]";
-
 	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
 	private ICommandSyntax _commandSyntax;
