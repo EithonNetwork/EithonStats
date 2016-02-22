@@ -47,11 +47,10 @@ public class TimeSpan {
 			LocalDateTime from, LocalDateTime to) throws SQLException, ClassNotFoundException {
 		TimeSpan timespan = new TimeSpan(database);
 		String sql = String.format("SELECT" +
-				"SUM(play_time_in_seconds) AS play_time_in_seconds" + 
-				", SUM(chat_messages) AS chat_messages, " +
-				", SUM(blocks_created) AS blocks_created, " +
-				", SUM(blocks_broken) AS blocks_broken, " +
-				", SUM(joins) AS joins, " +
+				" SUM(play_time_in_seconds) AS play_time_in_seconds" + 
+				", SUM(chat_messages) AS chat_messages " +
+				", SUM(blocks_created) AS blocks_created " +
+				", SUM(blocks_broken) AS blocks_broken " +
 				" FROM timespan WHERE player_id='%s' AND hour_utc>='%s' AND hour_utc<='%s'",
 				playerId.toString(), from.toString(), to.toString());
 		Statement statement = database.getOrOpenConnection().createStatement();
@@ -63,6 +62,23 @@ public class TimeSpan {
 		return timespan.readData(resultSet);
 	}
 
+	public void update(
+			final long totalPlayTimeInSeconds,
+			final long chatMessages,
+			final long blocksCreated, 
+			final long blocksBroken) throws SQLException, ClassNotFoundException {
+		updateLocalData(totalPlayTimeInSeconds, chatMessages, blocksCreated, blocksBroken);
+		String sql = String.format("UPDATE timespan SET" +
+				" play_time_in_seconds = %d" + 
+				", chat_messages = %d" + 
+				", blocks_created = %d" + 
+				", blocks_broken = %d" +
+				" WHERE id=%d",
+				totalPlayTimeInSeconds, chatMessages, blocksCreated, blocksBroken, this._dbId);
+		Statement statement = this._database.getOrOpenConnection().createStatement();
+		statement.executeUpdate(sql);
+	}
+
 	public static TimeSpan create(final Database database, 
 			final UUID playerId,
 			final LocalDateTime hour,
@@ -70,12 +86,18 @@ public class TimeSpan {
 			final long chatMessages,
 			final long blocksCreated, final long blocksBroken) throws SQLException, ClassNotFoundException {
 		TimeSpan timespan = new TimeSpan(database, playerId, hour);
-		timespan._playTimeInSeconds = totalPlayTimeInSeconds;
-		timespan._chatMessages = chatMessages;
-		timespan._blocksCreated = blocksCreated;
-		timespan._blocksBroken = blocksBroken;
+		timespan.updateLocalData(totalPlayTimeInSeconds, chatMessages, blocksCreated, blocksBroken);
 		timespan.insert();
 		return timespan;
+	}
+
+	private void updateLocalData(final long totalPlayTimeInSeconds,
+			final long chatMessages, final long blocksCreated,
+			final long blocksBroken) {
+		this._playTimeInSeconds = totalPlayTimeInSeconds;
+		this._chatMessages = chatMessages;
+		this._blocksCreated = blocksCreated;
+		this._blocksBroken = blocksBroken;
 	}
 
 	public long get_dbId() {

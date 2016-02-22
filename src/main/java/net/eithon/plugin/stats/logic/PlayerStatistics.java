@@ -27,7 +27,7 @@ public class PlayerStatistics implements IUuidAndName {
 	private EithonPlayer _eithonPlayer;
 	private long _blocksBroken;
 	private long _blocksCreated;
-	private long _chatMessages;
+	private long _chatMessages;	
 	private LocalDateTime _lastChatMessage;
 	private long _consecutiveDays;
 	private LocalDateTime _lastConsecutiveDay;
@@ -39,17 +39,18 @@ public class PlayerStatistics implements IUuidAndName {
 	private UUID _alarmId;
 	private boolean _hasBeenUpdated;
 	private String _afkDescription;
-	private HourStatistics _lastHourValues;
+	private HourStatistics _lastHourAccumulated;
+
 
 	public static void initialize(Logger logger) {
 		eithonLogger = logger;
 	}
 
-	public PlayerStatistics(Database _database, OfflinePlayer player) throws SQLException, ClassNotFoundException
+	public PlayerStatistics(Database database, OfflinePlayer player) throws SQLException, ClassNotFoundException
 	{
-		this._dbRecord = Accumulated.getByPlayerId(_database, player.getUniqueId());
+		this._dbRecord = Accumulated.getByPlayerId(database, player.getUniqueId());
 		if (this._dbRecord == null) {
-			this._dbRecord = Accumulated.create(_database, player.getUniqueId());
+			this._dbRecord = Accumulated.create(database, player.getUniqueId());
 			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 			initialize();
 			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
@@ -57,7 +58,7 @@ public class PlayerStatistics implements IUuidAndName {
 			eithonLogger.debug(DebugPrintLevel.MAJOR, "Loaded player %s", getName());
 		}
 		copyFromDbRecord();
-		this._lastHourValues = new HourStatistics(this, LocalDateTime.now());
+		this._lastHourAccumulated = new HourStatistics(database, this, LocalDateTime.now());
 	}
 
 	private void copyFromDbRecord() {
@@ -122,6 +123,11 @@ public class PlayerStatistics implements IUuidAndName {
 		if (isAfk()) return;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
+		try {
+			save(false);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 		this._alarmId = null;
 	}
 
@@ -178,12 +184,6 @@ public class PlayerStatistics implements IUuidAndName {
 		if (isAfk()) {
 			Config.M.toAfkBroadcast.broadcastMessageToAllServers(getName(), description);
 		}
-		try {
-			save(false);
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return stopTime;
 	}
 
@@ -229,7 +229,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
-
+	
 	public void save(boolean doLap) throws SQLException, ClassNotFoundException {
 		if (!this._hasBeenUpdated) return;
 		if (doLap) {
@@ -250,6 +250,7 @@ public class PlayerStatistics implements IUuidAndName {
 				this._blocksBroken, 
 				this._consecutiveDays, 
 				this._lastConsecutiveDay);
+		saveTimeSpan();
 		eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved player %s", getName());
 		this._hasBeenUpdated = false;
 	}
@@ -360,7 +361,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public long getBlocksBroken() { return this._blocksBroken; }
 
-	public void timespanSave(Database database) throws SQLException, ClassNotFoundException {
-		new HourStatistics(database, this._lastHourValues, this, LocalDateTime.now());
+	public void saveTimeSpan() throws SQLException, ClassNotFoundException {
+		this._lastHourAccumulated = HourStatistics.save(this._dbRecord.getDatabase(), this._lastHourAccumulated, this);
 	}
 }

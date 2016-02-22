@@ -74,6 +74,11 @@ public class Controller {
 			description = EithonCopApi.censorMessage(player, description);
 		}
 		time.stop(description);
+		try {
+			time.save(false);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
 	}
@@ -87,11 +92,13 @@ public class Controller {
 		return this._allPlayerTimes.get(player);
 	}
 
-	public void showStats(CommandSender sender, EithonPlayer eithonPlayer) {
-		PlayerStatistics time = getOrCreatePlayerTime(eithonPlayer);
+	public boolean showStats(CommandSender sender, EithonPlayer eithonPlayer) {
+		PlayerStatistics time = getStatisticsOrInformSender(sender, eithonPlayer);
+		if (time == null) return false;
 		upateAliveIfSenderIsPlayer(sender, eithonPlayer, time);
 		time.lap();
 		time.sendPlayerStatistics(sender);
+		return true;
 	}
 
 	private void upateAliveIfSenderIsPlayer(CommandSender sender,
@@ -102,6 +109,16 @@ public class Controller {
 				time.updateAlive();
 			}
 		}
+	}
+
+	private PlayerStatistics getStatisticsOrInformSender(CommandSender sender,
+			EithonPlayer eithonPlayer) {
+		PlayerStatistics time = this._allPlayerTimes.get(eithonPlayer);
+		if (time == null) {
+			sender.sendMessage(String.format("No stats recorded for player %s", eithonPlayer.getName()));
+			return null;
+		}
+		return time;
 	}
 
 	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) {
@@ -305,11 +322,13 @@ public class Controller {
 		return statistics.addToBlocksBroken(blocksBroken);
 	}
 
-	public void resetPlayTime(
+	public boolean resetPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer) {
-		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
+		PlayerStatistics statistics = getStatisticsOrInformSender(sender, eithonPlayer);
+		if (statistics == null) return false;
 		statistics.resetTotalPlayTime();
+		return true;
 	}
 
 	public void who(CommandSender sender) {
@@ -340,7 +359,7 @@ public class Controller {
 	public void timespanSave() {
 		try {
 			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.timespanSave(this._database);
+				playerStatistics.saveTimeSpan();
 			}
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();

@@ -4,6 +4,13 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1.1 (2016-02-22)
+
+* BUG: TimeSpan was not updated if the player left before the whole hour had passed.
+* BUG: TimeSpan was not updated. SQL error.
+* BUG: TimeSpan did not allow more than one record per player id. (Fixed in MySQL)
+* BUG: Commands should be more relaxed on player names. Know about on-line players, accept any.
+
 ### 2.1 (2016-02-21)
 
 * CHANGE: Removed code for reading statistics from file

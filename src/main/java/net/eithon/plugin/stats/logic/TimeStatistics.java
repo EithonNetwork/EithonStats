@@ -143,17 +143,6 @@ public class TimeStatistics {
 		return info.fromDb(resultSet);
 	}
 
-	public String getDbUpdates() {
-		String updates = String.format("first_start_time='%s'", TimeMisc.toDbUtc(this._firstStartTime)) +
-				String.format(", last_stop_time='%s'", TimeMisc.toDbUtc(this._lastStopTime)) +
-				String.format(", today='%s'", TimeMisc.toDbUtc(this._today)) +
-				String.format(", play_time_in_seconds=%d", this._totalPlayTimeInSeconds) +
-				String.format(", intervals=%d", this._intervals) +
-				String.format(", longest_interval_in_seconds=%d", this._longestIntervalInSeconds) +
-				String.format(", play_time_today_in_seconds=%d", this._playTimeTodayInSeconds);
-		return updates;
-	}
-
 	public LocalDateTime getFirstStartTime() {return this._firstStartTime; }
 
 	public LocalDateTime getLastStopTime() { return this._lastStopTime; }
@@ -175,6 +164,5 @@ public class TimeStatistics {
 		this._longestIntervalInSeconds = old._longestIntervalInSeconds;
 		this._today = old._today;
 		this._playTimeTodayInSeconds = old._playTimeTodayInSeconds;
-		
 	}
 }

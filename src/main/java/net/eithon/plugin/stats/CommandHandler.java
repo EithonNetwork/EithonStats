@@ -13,12 +13,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandHandler {
-	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
 	private ICommandSyntax _commandSyntax;
 
 	public CommandHandler(EithonPlugin eithonPlugin, Controller controller) {
-		this._eithonPlugin = eithonPlugin;
 		this._controller = controller;
 
 		ICommandSyntax commandSyntax = EithonCommand.createRootCommand("estats");
@@ -60,7 +58,7 @@ public class CommandHandler {
 		ICommandSyntax cmd = commandSyntax.parseCommandSyntax(commandName + " <player>");
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOfflinePlayerNames(ec))
+		.setExampleValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
 		.setDefaultGetter(ec -> getSenderName(ec));
 		return cmd;
 	}
@@ -93,7 +91,7 @@ public class CommandHandler {
 				" <broken : INTEGER {_0_,...}>");
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec));
+		.setExampleValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec));
 		return cmd;
 	}
 
@@ -153,7 +151,7 @@ public class CommandHandler {
 				.setCommandExecutor(eithonCommand -> playerDiffCommand(eithonCommand));
 		cmd
 		.getParameterSyntax("player")
-		.setMandatoryValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
+		.setExampleValues(ec -> EithonCommandUtilities.getOnlinePlayerNames(ec))
 		.setDefaultGetter(ec -> getSenderName(ec));
 	}
 
@@ -287,7 +285,7 @@ public class CommandHandler {
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 
-		this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer);
+		if (!this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer)) return;
 		Config.M.playTimeReset.sendMessage(
 				eithonCommand.getSender(),
 				eithonPlayer.getName());

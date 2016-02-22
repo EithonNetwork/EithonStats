@@ -41,6 +41,46 @@ public class TestDbTimeSpan {
 		Assert.assertEquals(row.get_blocksBroken(), created.get_blocksBroken());
 	}
 
+	@Test
+	public void testUpdate() {
+		Database database = TestSupport.getDatabaseAndTruncateTables();
+		UUID playerId = UUID.randomUUID();
+		TimeSpan row = createRow(database, playerId);
+		Assert.assertNotNull(row);
+		TimeSpan created = null;
+		try {
+			created = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		long totalPlayTimeInSeconds = created.get_playTimeInSeconds()+11;
+		long chatMessages = created.get_chatMessages()+21;
+		long blocksCreated = created.get_blocksCreated()+31;
+		long blocksBroken = created.get_blocksBroken()+41;
+		try {
+			created.update(
+					totalPlayTimeInSeconds, 
+					chatMessages,
+					blocksCreated,
+					blocksBroken);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		TimeSpan updated = null;
+		try {
+			updated = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertEquals(totalPlayTimeInSeconds, updated.get_playTimeInSeconds());
+		Assert.assertEquals(chatMessages, updated.get_chatMessages());
+		Assert.assertEquals(blocksCreated, updated.get_blocksCreated());
+		Assert.assertEquals(blocksBroken, updated.get_blocksBroken());
+	}
+
 	private TimeSpan createRow(Database database, UUID playerId) {
 		TimeSpan row = null;
 		long counter = 1;

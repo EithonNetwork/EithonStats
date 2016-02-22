@@ -79,66 +79,23 @@ public class Accumulated {
 		this._lastConsecutiveDay = lastConsecutiveDay;
 		toDb();
 	}
-	
-	public long get_dbId() {
-		return this._dbId;
-	}
 
-	public UUID get_playerId() {
-		return this._playerId;
-	}
-
-	public LocalDateTime get_firstStartTime() {
-		return this._firstStartTime;
-	}
-
-	public LocalDateTime get_lastStopTime() {
-		return this._lastStopTime;
-	}
-
-	public long get_totalPlayTimeInSeconds() {
-		return this._totalPlayTimeInSeconds;
-	}
-
-	public long get_joins() {
-		return this._joins;
-	}
-
-	public long get_longestIntervalInSeconds() {
-		return this._longestIntervalInSeconds;
-	}
-
-	public long get_playTimeTodayInSeconds() {
-		return this._playTimeTodayInSeconds;
-	}
-
-	public LocalDateTime get_today() {
-		return this._today;
-	}
-
-	public long get_chatMessages() {
-		return this._chatMessages;
-	}
-
-	public LocalDateTime get_lastChatMessage() {
-		return this._lastChatMessage;
-	}
-
-	public long get_blocksCreated() {
-		return this._blocksCreated;
-	}
-
-	public long get_blocksBroken() {
-		return this._blocksBroken;
-	}
-
-	public long get_consecutiveDays() {
-		return this._consecutiveDays;
-	}
-
-	public LocalDateTime get_lastConsecutiveDay() {
-		return this._lastConsecutiveDay;
-	}
+	public Database getDatabase() { return this._database; }
+	public long get_dbId() { return this._dbId; }
+	public UUID get_playerId() { return this._playerId; }
+	public LocalDateTime get_firstStartTime() { return this._firstStartTime; }
+	public LocalDateTime get_lastStopTime() { return this._lastStopTime; }
+	public long get_totalPlayTimeInSeconds() { return this._totalPlayTimeInSeconds; }
+	public long get_joins() { return this._joins; }
+	public long get_longestIntervalInSeconds() { return this._longestIntervalInSeconds; }
+	public long get_playTimeTodayInSeconds() { return this._playTimeTodayInSeconds; }
+	public LocalDateTime get_today() { return this._today; }
+	public long get_chatMessages() { return this._chatMessages; }
+	public LocalDateTime get_lastChatMessage() { return this._lastChatMessage; }
+	public long get_blocksCreated() { return this._blocksCreated; }
+	public long get_blocksBroken() { return this._blocksBroken; }
+	public long get_consecutiveDays() { return this._consecutiveDays; }
+	public LocalDateTime get_lastConsecutiveDay() { return this._lastConsecutiveDay; }
 
 	private Accumulated fromDb(final ResultSet resultSet) throws SQLException {
 		this._dbId = resultSet.getLong("id");
