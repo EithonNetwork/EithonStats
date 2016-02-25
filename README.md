@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1.2 (2016-02-25)
+
+* BUG: Calculation error due to copy-paste of code.
+
 ### 2.1.1 (2016-02-22)
 
 * BUG: TimeSpan was not updated if the player left before the whole hour had passed.
