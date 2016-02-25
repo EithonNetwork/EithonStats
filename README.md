@@ -7,6 +7,7 @@ Keep track of Player statistics
 ### 2.1.2 (2016-02-25)
 
 * BUG: Calculation error due to copy-paste of code.
+* BUG: Now has a try-catch to ensure that we always remove players that are leaving the server.
 
 ### 2.1.1 (2016-02-22)
 

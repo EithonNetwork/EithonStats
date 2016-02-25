@@ -82,10 +82,14 @@ public class Controller {
 		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
 				player.getName());
 	}
-	
+
 	public void removePlayer(Player player) {
-		stopPlayer(player, null);
-		this._allPlayerTimes.remove(player);
+		try {
+			stopPlayer(player, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			this._allPlayerTimes.remove(player);
+		}
 	}
 
 	public PlayerStatistics getPlayerStatistics(Player player) {
@@ -289,7 +293,7 @@ public class Controller {
 		time.addBlocksBroken(blocks);
 		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
 	}
-	
+
 	public long addPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
