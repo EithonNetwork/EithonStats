@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1.3 (2016-02-26)
+
+* BUG: Still didn't remove players that are leaving the server.
+
 ### 2.1.2 (2016-02-25)
 
 * BUG: Calculation error due to copy-paste of code.

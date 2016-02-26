@@ -88,8 +88,8 @@ public class Controller {
 			stopPlayer(player, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			this._allPlayerTimes.remove(player);
 		}
+		this._allPlayerTimes.remove(player);
 	}
 
 	public PlayerStatistics getPlayerStatistics(Player player) {

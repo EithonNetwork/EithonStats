@@ -49,7 +49,6 @@ public final class EventListener implements Listener {
 		this._controller.addBlocksCreated(event.getPlayer(), 1);
 	}
 
-	// Transfer player statistics to the primary server
 	@EventHandler
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
