@@ -53,6 +53,6 @@ public final class EventListener implements Listener {
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		if (player == null) return;
-		this._controller.removePlayer(player);
+		this._controller.removePlayer(null, player);
 	}
 }

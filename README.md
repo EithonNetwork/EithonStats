@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1.4 (2016-03-05)
+
+* BUG: Could not get statistics for offline players.
+
 ### 2.1.3 (2016-02-26)
 
 * BUG: Still didn't remove players that are leaving the server.

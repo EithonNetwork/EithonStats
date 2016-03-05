@@ -46,22 +46,33 @@ public class PlayerStatistics implements IUuidAndName {
 		eithonLogger = logger;
 	}
 
-	public PlayerStatistics(Database database, OfflinePlayer player) throws SQLException, ClassNotFoundException
-	{
-		this._dbRecord = Accumulated.getByPlayerId(database, player.getUniqueId());
-		if (this._dbRecord == null) {
-			this._dbRecord = Accumulated.create(database, player.getUniqueId());
-			this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
-			initialize();
-			eithonLogger.debug(DebugPrintLevel.MAJOR, "Created player %s", getName());
-		} else {
-			eithonLogger.debug(DebugPrintLevel.MAJOR, "Loaded player %s", getName());
-		}
-		copyFromDbRecord();
-		this._lastHourAccumulated = new HourStatistics(database, this, LocalDateTime.now());
+	public static PlayerStatistics get(Database database, OfflinePlayer player)  {
+		Accumulated record = null;
+		record = getByPlayerId(database, player, record);
+		if (record == null) return null;
+		return new PlayerStatistics(database, record);
 	}
 
-	private void copyFromDbRecord() {
+	public static PlayerStatistics getOrCreate(Database database, OfflinePlayer player) {
+		PlayerStatistics statistics = get(database, player);
+		if (statistics !=null) return statistics;
+
+		Accumulated record = null;
+		record = create(database, player, record);
+		if (record == null) return null;
+		return new PlayerStatistics(database, record);
+	}
+
+	private PlayerStatistics(Database database, Accumulated record) {
+		// Non database
+		this._consecutiveDays = 0;
+		this._startTime = null;
+		this._hasBeenUpdated = false;
+		this._afkDescription = null;
+		this._lastAliveTime = LocalDateTime.now();
+		// From database
+		this._dbRecord = record;
+		this._timeInfo = new TimeStatistics(this._dbRecord);
 		this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
 		this._blocksBroken = this._dbRecord.get_blocksBroken();
 		this._blocksCreated = this._dbRecord.get_blocksCreated();
@@ -69,25 +80,30 @@ public class PlayerStatistics implements IUuidAndName {
 		this._lastChatMessage = this._dbRecord.get_lastChatMessage();
 		this._consecutiveDays = this._dbRecord.get_consecutiveDays();
 		this._lastConsecutiveDay = this._dbRecord.get_lastConsecutiveDay();
-		this._timeInfo = new TimeStatistics();
-		this._timeInfo.copyFromDbRecord(this._dbRecord);
+		if (this._lastConsecutiveDay == null) {
+			this._lastConsecutiveDay = this._timeInfo.getToday();
+		}
+		this._lastHourAccumulated = new HourStatistics(database, this, LocalDateTime.now());	
 	}
 
-	public PlayerStatistics() {
-		initialize();
+	private static Accumulated getByPlayerId(Database database,
+			OfflinePlayer player, Accumulated record) {
+		try {
+			record = Accumulated.getByPlayerId(database, player.getUniqueId());
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return record;
 	}
 
-	private void initialize() {
-		this._blocksBroken = 0;
-		this._blocksCreated = 0;
-		this._chatMessages = 0;
-		this._lastChatMessage = null;
-		this._timeInfo = new TimeStatistics();
-		resetConsecutiveDays();
-		this._startTime = null;
-		this._hasBeenUpdated = false;
-		this._afkDescription = null;
-		this._lastAliveTime = LocalDateTime.now();
+	private static Accumulated create(Database database, OfflinePlayer player,
+			Accumulated record) {
+		try {
+			record = Accumulated.create(database, player.getUniqueId());
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return record;
 	}
 
 	void resetConsecutiveDays() {
@@ -229,7 +245,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
-	
+
 	public void save(boolean doLap) throws SQLException, ClassNotFoundException {
 		if (!this._hasBeenUpdated) return;
 		if (doLap) {

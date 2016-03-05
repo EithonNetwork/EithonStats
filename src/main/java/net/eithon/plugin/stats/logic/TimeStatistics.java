@@ -31,6 +31,15 @@ public class TimeStatistics {
 		resetTotalPlayTime();
 	}
 
+	TimeStatistics(Accumulated dbRecord) {
+		this._firstStartTime = dbRecord.get_firstStartTime();
+		this._lastStopTime = dbRecord.get_lastStopTime();
+		this._totalPlayTimeInSeconds = dbRecord.get_totalPlayTimeInSeconds();
+		this._longestIntervalInSeconds = dbRecord.get_longestIntervalInSeconds();
+		this._today = dbRecord.get_today();
+		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();
+	}
+
 	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) {
 		TimeStatistics diff = new TimeStatistics();
 		diff._firstStartTime = now._firstStartTime;
@@ -146,16 +155,6 @@ public class TimeStatistics {
 	public LocalDateTime getFirstStartTime() {return this._firstStartTime; }
 
 	public LocalDateTime getLastStopTime() { return this._lastStopTime; }
-
-	public void copyFromDbRecord(Accumulated dbRecord) {
-		this._firstStartTime = dbRecord.get_firstStartTime();
-		this._lastStopTime = dbRecord.get_lastStopTime();
-		this._totalPlayTimeInSeconds = dbRecord.get_totalPlayTimeInSeconds();
-		this._longestIntervalInSeconds = dbRecord.get_longestIntervalInSeconds();
-		this._today = dbRecord.get_today();
-		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();
-		
-	}
 
 	public void update(TimeStatisticsOld old) {
 		this._firstStartTime = old._firstStartTime;

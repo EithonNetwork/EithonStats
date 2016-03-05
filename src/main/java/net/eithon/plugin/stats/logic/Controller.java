@@ -68,8 +68,8 @@ public class Controller {
 				player.getName(), this._allPlayerTimes.size());
 	}
 
-	public void stopPlayer(Player player, String description) {
-		PlayerStatistics time = getOrCreatePlayerTime(player);
+	public void stopPlayer(CommandSender sender, Player player, String description) {
+		PlayerStatistics time = getStatisticsOrInformSender(sender, player);
 		if ((this._eithonCopPlugin != null && (description != null))) {
 			description = EithonCopApi.censorMessage(player, description);
 		}
@@ -83,21 +83,17 @@ public class Controller {
 				player.getName());
 	}
 
-	public void removePlayer(Player player) {
+	public void removePlayer(CommandSender sender, Player player) {
 		try {
-			stopPlayer(player, null);
+			stopPlayer(sender, player, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		this._allPlayerTimes.remove(player);
 	}
 
-	public PlayerStatistics getPlayerStatistics(Player player) {
-		return this._allPlayerTimes.get(player);
-	}
-
 	public boolean showStats(CommandSender sender, EithonPlayer eithonPlayer) {
-		PlayerStatistics time = getStatisticsOrInformSender(sender, eithonPlayer);
+		PlayerStatistics time = getStatisticsOrInformSender(sender, eithonPlayer.getOfflinePlayer());
 		if (time == null) return false;
 		upateAliveIfSenderIsPlayer(sender, eithonPlayer, time);
 		time.lap();
@@ -115,30 +111,31 @@ public class Controller {
 		}
 	}
 
-	private PlayerStatistics getStatisticsOrInformSender(CommandSender sender,
-			EithonPlayer eithonPlayer) {
-		PlayerStatistics time = this._allPlayerTimes.get(eithonPlayer);
-		if (time == null) {
-			sender.sendMessage(String.format("No stats recorded for player %s", eithonPlayer.getName()));
-			return null;
+	public PlayerStatistics getPlayerStatistics(Player player) {
+		return this._allPlayerTimes.get(player);
+	}
+
+	private PlayerStatistics getStatisticsOrInformSender(CommandSender sender, OfflinePlayer player) {
+		PlayerStatistics time = this._allPlayerTimes.get(player);
+		if (time != null) return time;
+
+		time = PlayerStatistics.get(this._database, player);
+		if (time != null) return time;
+		if (sender != null) {
+			sender.sendMessage(String.format("No stats recorded for player %s", player.getName()));
 		}
-		return time;
+		return null;
 	}
 
 	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
-		if (time == null) {
-			this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
-					player.getName());
-			try {
-				time = new PlayerStatistics(this._database, player);
-			} catch (SQLException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-			this._allPlayerTimes.put(player, time);
-		}
+		if (time != null) return time;
+
+		time = PlayerStatistics.getOrCreate(this._database, player);
+		if (time == null) return null;
+		this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
+				player.getName());
+		this._allPlayerTimes.put(player, time);
 		return time;
 	}
 
@@ -329,7 +326,7 @@ public class Controller {
 	public boolean resetPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer) {
-		PlayerStatistics statistics = getStatisticsOrInformSender(sender, eithonPlayer);
+		PlayerStatistics statistics = getStatisticsOrInformSender(sender, eithonPlayer.getOfflinePlayer());
 		if (statistics == null) return false;
 		statistics.resetTotalPlayTime();
 		return true;
