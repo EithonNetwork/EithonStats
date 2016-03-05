@@ -34,7 +34,7 @@ public class HourStatistics implements IUuidAndName {
 		LocalDateTime laterHour = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		UUID playerId = earlier._playerId;
 		LocalDateTime earlierHour = earlier._hour;
-		long blocksBroken = now.getBlocksBroken()- earlier._blocksCreated;
+		long blocksBroken = now.getBlocksBroken()- earlier._blocksBroken;
 		long blocksCreated = now.getBlocksCreated() - earlier._blocksCreated;
 		long chatActivities = now.getChatMessages() - earlier._chatActivities;
 		long playtimeInSeconds = now.getTotalTimeInSeconds() - earlier._playtimeInSeconds;

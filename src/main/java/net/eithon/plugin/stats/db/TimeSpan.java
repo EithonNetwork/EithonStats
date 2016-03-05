@@ -74,7 +74,7 @@ public class TimeSpan {
 				", blocks_created = %d" + 
 				", blocks_broken = %d" +
 				" WHERE id=%d",
-				totalPlayTimeInSeconds, chatMessages, blocksCreated, blocksBroken, this._dbId);
+				this._playTimeInSeconds, this._chatMessages, this._blocksCreated, this._blocksBroken, this._dbId);
 		Statement statement = this._database.getOrOpenConnection().createStatement();
 		statement.executeUpdate(sql);
 	}
@@ -91,13 +91,18 @@ public class TimeSpan {
 		return timespan;
 	}
 
-	private void updateLocalData(final long totalPlayTimeInSeconds,
-			final long chatMessages, final long blocksCreated,
-			final long blocksBroken) {
-		this._playTimeInSeconds = totalPlayTimeInSeconds;
-		this._chatMessages = chatMessages;
-		this._blocksCreated = blocksCreated;
-		this._blocksBroken = blocksBroken;
+	private void updateLocalData(long totalPlayTimeInSeconds,
+			long chatMessages, long blocksCreated,
+			long blocksBroken) {
+		this._playTimeInSeconds = positiveOrZero(totalPlayTimeInSeconds);
+		this._chatMessages = positiveOrZero(chatMessages);
+		this._blocksCreated = positiveOrZero(blocksCreated);
+		this._blocksBroken = positiveOrZero(blocksBroken);
+	}
+
+	private long positiveOrZero(long number) {
+		if (number >= 0) return number;
+		return 0;
 	}
 
 	public long get_dbId() {

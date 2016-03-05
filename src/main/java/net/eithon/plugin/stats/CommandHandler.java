@@ -303,7 +303,8 @@ public class CommandHandler {
 	{
 		Player player = eithonCommand.getArgument("player").asPlayer();
 
-		this._controller.stopPlayer(player, Config.M.inactivityDetected.getMessage());
+		CommandSender sender = eithonCommand.getSender();
+		this._controller.stopPlayer(sender, player, Config.M.inactivityDetected.getMessage());
 		Config.M.playerStopped.sendMessage(eithonCommand.getSender(), player.getName());
 	}
 
@@ -311,7 +312,8 @@ public class CommandHandler {
 		String description = eithonCommand.getArgument("description").asString();
 		if ((description == null) || description.isEmpty()) description = Config.M.defaultAfkDescription.getMessage();
 
-		this._controller.stopPlayer(eithonCommand.getPlayer(), description);
+		CommandSender sender = eithonCommand.getSender();
+		this._controller.stopPlayer(sender, eithonCommand.getPlayer(), description);
 	}
 
 	void saveCommand(EithonCommand eithonCommand)

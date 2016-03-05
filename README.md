@@ -4,6 +4,19 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.1.4 (2016-03-05)
+
+* BUG: Could not get statistics for offline players.
+
+### 2.1.3 (2016-02-26)
+
+* BUG: Still didn't remove players that are leaving the server.
+
+### 2.1.2 (2016-02-25)
+
+* BUG: Calculation error due to copy-paste of code.
+* BUG: Now has a try-catch to ensure that we always remove players that are leaving the server.
+
 ### 2.1.1 (2016-02-22)
 
 * BUG: TimeSpan was not updated if the player left before the whole hour had passed.
