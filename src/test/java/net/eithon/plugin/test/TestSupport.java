@@ -11,7 +11,7 @@ import org.junit.Assert;
 
 public class TestSupport {
 	public static Database getDatabaseAndTruncateTables() {
-		MySql mySql = new MySql("mc.eithon.net", "3306", "DEV_eithon_stats", "DEV_eithon_stats", "WrSqjVMEpst9aqnm");
+		MySql mySql = new MySql("rookgaard.eithon.net", "3307", "DEV_e_stats", "DEV_e_stats", "6ItvYwjawVAPlo3d");
 		try {
 			Connection connection = mySql.getOrOpenConnection();
 			Statement statement = connection.createStatement();
