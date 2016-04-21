@@ -91,7 +91,6 @@ public class TestDbAccumulated {
 		long totalPlayTimeInSeconds = counter++;
 		long intervals = counter++;
 		long longestIntervalInSeconds = counter++;
-		long playTimeTodayInSeconds = counter++;
 		LocalDateTime today = timeCounter;
 		timeCounter = timeCounter.plusDays(1);
 		long chatActivities = counter++;
@@ -103,7 +102,7 @@ public class TestDbAccumulated {
 		LocalDateTime lastConsecutiveDay = timeCounter;
 		timeCounter = timeCounter.plusDays(1);
 		row.update(playerName, firstStartTime , lastStopTime , totalPlayTimeInSeconds , intervals , longestIntervalInSeconds,
-				playTimeTodayInSeconds = counter++, today, chatActivities, lastChatActivity, blocksCreated, blocksBroken, 
+				counter++, today, chatActivities, lastChatActivity, blocksCreated, blocksBroken, 
 				consecutiveDays, lastConsecutiveDay);
 	}
 
