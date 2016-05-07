@@ -36,14 +36,14 @@ database:
   Password: 94SnHAGP3RV0mESN
 
 # TST
+#  Name: TST_e_stats
 #  Hostname: rookgard.eithon.net
-#  Name: TST_eithon_stats
 #  Username: TST_e_plugin
 #  Password: bWfRHZsAy42RdFBJ
 
 # DEV
+#  Name: DEV_e_stats
 #  Hostname: rookgard.eithon.net
-#  Name: DEV_eithon_stats
 #  Username: DEV_e_plugin
 #  Password: J5FE9EFCD1GX8tjg
 
