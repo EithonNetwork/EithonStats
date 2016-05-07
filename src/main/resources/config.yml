@@ -30,25 +30,22 @@ TimeSpanPerDayForConsecutiveDays: 1h
 
 database:
   Name: eithon_stats
-  Hostname: mc.eithon.net
+  Hostname: localhost
   Port: 3306
-  Username: eithon_stats
-  Password: W9txKfyzAmyaGeWV
-
-# PRD
-#  Name: eithon_stats
-#  Username: eithon_stats
-#  Password: W9txKfyzAmyaGeWV
+  Username: eithon_plugin
+  Password: 94SnHAGP3RV0mESN
 
 # TST
+#  Hostname: rookgard.eithon.net
 #  Name: TST_eithon_stats
-#  Username: TST_eithon_stats
-#  Password: rCmTrcKAZf53ZGqy
+#  Username: TST_e_plugin
+#  Password: bWfRHZsAy42RdFBJ
 
 # DEV
+#  Hostname: rookgard.eithon.net
 #  Name: DEV_eithon_stats
-#  Username: DEV_eithon_stats
-#  Password: WrSqjVMEpst9aqnm
+#  Username: DEV_e_plugin
+#  Password: J5FE9EFCD1GX8tjg
 
 messages:
   
