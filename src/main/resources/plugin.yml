@@ -3,7 +3,7 @@ main: net.eithon.plugin.stats.Plugin
 version: ${project.version}
 author: vanbrayne
 description: Player statistics
-softdepend: [EithonCop]
+softdepend: [EithonCop, EithonBungee]
 depend: [EithonLibrary]
 commands:
   estats:

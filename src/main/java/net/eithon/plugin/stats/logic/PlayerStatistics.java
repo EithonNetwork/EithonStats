@@ -8,10 +8,12 @@ import java.util.UUID;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.mysql.Database;
+import net.eithon.library.plugin.ConfigurableMessage;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
+import net.eithon.plugin.bungee.EithonBungeeApi;
 import net.eithon.plugin.stats.Config;
 import net.eithon.plugin.stats.db.Accumulated;
 
@@ -20,6 +22,7 @@ import org.bukkit.command.CommandSender;
 
 public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
+	private static EithonBungeeApi eithonBungeeApi;
 
 	private Accumulated _dbRecord;
 
@@ -42,8 +45,9 @@ public class PlayerStatistics implements IUuidAndName {
 	private HourStatistics _lastHourAccumulated;
 
 
-	public static void initialize(Logger logger) {
+	public static void initialize(Logger logger, EithonBungeeApi bungeeApi) {
 		eithonLogger = logger;
+		eithonBungeeApi = bungeeApi;
 	}
 
 	public static PlayerStatistics get(Database database, OfflinePlayer player)  {
@@ -164,12 +168,20 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public void updateAlive() {
-		if (isAfk()) Config.M.fromAfkBroadcast.broadcastMessageToAllServers(getName());
+		if (isAfk()) broadcastMessage(Config.M.fromAfkBroadcast, getName());
 		LocalDateTime now = LocalDateTime.now();
 		this._lastAliveTime = now;
 		resetAlarm();
 		if (this._startTime == null) start(this._lastAliveTime);
 		this._hasBeenUpdated = true;
+	}
+
+	private static void broadcastMessage(ConfigurableMessage configurableMessage, Object... args) {
+		if (eithonBungeeApi == null) {
+			configurableMessage.broadcastMessage(args);
+		} else {
+		 eithonBungeeApi.broadcastMessage(configurableMessage, args);
+		}
 	}
 
 	public LocalDateTime stop(String description) {
@@ -197,9 +209,7 @@ public class PlayerStatistics implements IUuidAndName {
 		}
 		this._startTime = null;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
-		if (isAfk()) {
-			Config.M.toAfkBroadcast.broadcastMessageToAllServers(getName(), description);
-		}
+		if (isAfk()) broadcastMessage(Config.M.toAfkBroadcast, getName(), description);
 		return stopTime;
 	}
 
