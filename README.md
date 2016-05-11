@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.2 (2016-05-10)
+
+* CHANGE: Moved all Bungee related code from EithonLibrary to BungeePlugin.
+
 ### 2.1.4 (2016-03-05)
 
 * BUG: Could not get statistics for offline players.
