@@ -180,7 +180,7 @@ public class PlayerStatistics implements IUuidAndName {
 		if (eithonBungeeApi == null) {
 			configurableMessage.broadcastMessage(args);
 		} else {
-		 eithonBungeeApi.broadcastMessage(configurableMessage, args);
+			eithonBungeeApi.broadcastMessage(configurableMessage, args);
 		}
 	}
 
