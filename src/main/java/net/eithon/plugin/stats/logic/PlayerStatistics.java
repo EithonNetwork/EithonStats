@@ -153,6 +153,9 @@ public class PlayerStatistics implements IUuidAndName {
 
 	private void start(LocalDateTime startTime) {
 		if (startTime == null) {
+			if (!lastConsecutiveDayWasToday()) {
+				
+			}
 			startTime = LocalDateTime.now();
 			resetAlarm();
 		}
@@ -333,6 +336,12 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public EithonPlayer getEithonPlayer() { return this._eithonPlayer; }
+
+	public boolean isFirstIntervalToday() {
+		final LocalDateTime lastStopTime = this._timeInfo.getLastStopTime();
+		if (lastStopTime == null) return true;
+		return !TimeStatistics.isSameDay(lastStopTime, this._timeInfo.getToday());
+	}
 
 	boolean lastConsecutiveDayWasTooLongAgo() {
 		return !lastConsecutiveDayWasToday() && !lastConsecutiveDayWasYesterday();

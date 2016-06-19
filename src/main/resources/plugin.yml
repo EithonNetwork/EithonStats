@@ -1,5 +1,5 @@
 name: EithonStats
-main: net.eithon.plugin.stats.Plugin
+main: net.eithon.plugin.stats.EithonStatsPlugin
 version: ${project.version}
 author: vanbrayne
 description: Player statistics

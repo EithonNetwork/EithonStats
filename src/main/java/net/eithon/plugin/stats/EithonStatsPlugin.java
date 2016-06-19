@@ -7,7 +7,7 @@ import net.eithon.plugin.stats.logic.Controller;
 
 import org.bukkit.event.Listener;
 
-public final class Plugin extends EithonPlugin {
+public final class EithonStatsPlugin extends EithonPlugin {
 	Controller _controller;
 
 	@Override
@@ -31,7 +31,7 @@ public final class Plugin extends EithonPlugin {
 	}
 
 	private void autoSave() {
-		final Plugin thisObject = this;
+		final EithonStatsPlugin thisObject = this;
 		AlarmTrigger.get().repeat("Save player statistics", Config.V.secondsBetweenSave, 
 				new IRepeatable() {
 			@Override
@@ -44,7 +44,7 @@ public final class Plugin extends EithonPlugin {
 	}
 
 	private void timespanSave() {
-		final Plugin thisObject = this;
+		final EithonStatsPlugin thisObject = this;
 		AlarmTrigger.get().repeatEveryHour("TimeSpan player statistics", 0,
 				new IRepeatable() {
 			@Override

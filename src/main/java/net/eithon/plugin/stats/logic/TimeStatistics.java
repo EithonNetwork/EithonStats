@@ -114,6 +114,7 @@ public class TimeStatistics {
 	}
 
 	public LocalDateTime getPreviousStartTime() { return this._previousStartTime; }
+	
 	LocalDateTime getToday() { 		
 		resetIfNewDay();
 		return this._today; 
