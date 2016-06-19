@@ -7,6 +7,7 @@ Keep track of Player statistics
 ### 2.3 (2016-06-19)
 
 * NEW: The API can now tell if a player is on his/her first interval for this day.
+* CHANGE: Removed dependency to EithonBungee.
 
 ### 2.2 (2016-05-10)
 
