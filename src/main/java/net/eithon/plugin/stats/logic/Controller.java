@@ -15,8 +15,6 @@ import net.eithon.library.mysql.MySql;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
-import net.eithon.plugin.bungee.EithonBungeeApi;
-import net.eithon.plugin.bungee.EithonBungeePlugin;
 import net.eithon.plugin.cop.EithonCopApi;
 import net.eithon.plugin.stats.Config;
 
@@ -32,7 +30,6 @@ public class Controller {
 	private Logger _eithonLogger;
 	private Plugin _eithonCopPlugin;
 	private Database _database;
-	private EithonBungeePlugin _eithonBungeePlugin;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
@@ -41,9 +38,7 @@ public class Controller {
 		this._database = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
 				Config.V.databaseUsername, Config.V.databasePassword);
 		connectToEithonCop(this._eithonPlugin);
-		this._eithonBungeePlugin = connectToEithonBungee(this._eithonPlugin);
-		PlayerStatistics.initialize(this._eithonLogger,
-				this._eithonBungeePlugin == null ? null : this._eithonBungeePlugin.getApi());
+		PlayerStatistics.initialize(this._eithonLogger);
 	}
 
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {
@@ -54,25 +49,6 @@ public class Controller {
 			this._eithonCopPlugin = null;
 			eithonPlugin.getEithonLogger().warning("EithonStats can't censor AFK messages without the EithonCop plugin.");			
 		}
-	}
-
-	private EithonBungeePlugin connectToEithonBungee(EithonPlugin eithonPlugin) {
-		Plugin plugin = PluginMisc.getPlugin("EithonBungee");
-		if (plugin != null 
-				&& plugin.isEnabled()
-				&& (plugin instanceof EithonBungeePlugin)) {
-			eithonPlugin.getEithonLogger().info("Succesfully hooked into the EithonBungee plugin!");
-			return (EithonBungeePlugin) plugin;
-		} else {
-			eithonPlugin.getEithonLogger().warning("EithonStats can't broadcast messages without the EithonBungee plugin.");	
-			return null;
-		}
-	}
-	
-	public EithonBungeeApi getEithonBungeeApi() {
-		if (this._eithonBungeePlugin == null) return null;
-		if (!(this._eithonBungeePlugin instanceof EithonBungeePlugin)) return null;
-		return ((EithonBungeePlugin)this._eithonBungeePlugin).getApi();
 	}
 
 	public void playerMoved(final Player player) {

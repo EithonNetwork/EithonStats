@@ -8,12 +8,10 @@ import java.util.UUID;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.mysql.Database;
-import net.eithon.library.plugin.ConfigurableMessage;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
-import net.eithon.plugin.bungee.EithonBungeeApi;
 import net.eithon.plugin.stats.Config;
 import net.eithon.plugin.stats.db.Accumulated;
 
@@ -22,8 +20,6 @@ import org.bukkit.command.CommandSender;
 
 public class PlayerStatistics implements IUuidAndName {
 	private static Logger eithonLogger;
-	private static EithonBungeeApi eithonBungeeApi;
-
 	private Accumulated _dbRecord;
 
 	// Saved variables
@@ -45,9 +41,8 @@ public class PlayerStatistics implements IUuidAndName {
 	private HourStatistics _lastHourAccumulated;
 
 
-	public static void initialize(Logger logger, EithonBungeeApi bungeeApi) {
+	public static void initialize(Logger logger) {
 		eithonLogger = logger;
-		eithonBungeeApi = bungeeApi;
 	}
 
 	public static PlayerStatistics get(Database database, OfflinePlayer player)  {
@@ -153,6 +148,9 @@ public class PlayerStatistics implements IUuidAndName {
 
 	private void start(LocalDateTime startTime) {
 		if (startTime == null) {
+			if (!lastConsecutiveDayWasToday()) {
+
+			}
 			startTime = LocalDateTime.now();
 			resetAlarm();
 		}
@@ -168,20 +166,12 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public void updateAlive() {
-		if (isAfk()) broadcastMessage(Config.M.fromAfkBroadcast, getName());
+		if (isAfk()) Config.M.fromAfkBroadcast.broadcastToAllServers(getName());
 		LocalDateTime now = LocalDateTime.now();
 		this._lastAliveTime = now;
 		resetAlarm();
 		if (this._startTime == null) start(this._lastAliveTime);
 		this._hasBeenUpdated = true;
-	}
-
-	private static void broadcastMessage(ConfigurableMessage configurableMessage, Object... args) {
-		if (eithonBungeeApi == null) {
-			configurableMessage.broadcastMessage(args);
-		} else {
-			eithonBungeeApi.broadcastMessage(configurableMessage, args);
-		}
 	}
 
 	public LocalDateTime stop(String description) {
@@ -209,7 +199,7 @@ public class PlayerStatistics implements IUuidAndName {
 		}
 		this._startTime = null;
 		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
-		if (isAfk()) broadcastMessage(Config.M.toAfkBroadcast, getName(), description);
+		if (isAfk()) Config.M.toAfkBroadcast.broadcastToAllServers(getName(), description);
 		return stopTime;
 	}
 
@@ -333,6 +323,12 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public EithonPlayer getEithonPlayer() { return this._eithonPlayer; }
+
+	public boolean isFirstIntervalToday() {
+		final LocalDateTime lastStopTime = this._timeInfo.getLastStopTime();
+		if (lastStopTime == null) return true;
+		return !TimeStatistics.isSameDay(lastStopTime, this._timeInfo.getToday());
+	}
 
 	boolean lastConsecutiveDayWasTooLongAgo() {
 		return !lastConsecutiveDayWasToday() && !lastConsecutiveDayWasYesterday();

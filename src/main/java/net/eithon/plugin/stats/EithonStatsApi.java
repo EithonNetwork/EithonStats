@@ -34,6 +34,12 @@ public class EithonStatsApi {
 		if (controller == null) return null;
 		return controller.getPlayerStatistics(player);
 	}
+
+	public static boolean isFirstIntervalToday(Player player) {
+		PlayerStatistics playerStatistics = getPlayerStatistics(player);
+		if (playerStatistics == null) return false;
+		return playerStatistics.isFirstIntervalToday();
+	}
 	
 	
 }
