@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.4 (2016-06-30)
+
+* CHANGE: Minecraft 1.10
+
 ### 2.3 (2016-06-19)
 
 * NEW: The API can now tell if a player is on his/her first interval for this day.
