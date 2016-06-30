@@ -7,9 +7,8 @@ import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.extensions.EithonPlayer;
+import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
-import net.eithon.library.plugin.Logger;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
@@ -19,7 +18,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 public class PlayerStatistics implements IUuidAndName {
-	private static Logger eithonLogger;
+	private static EithonPlugin eithonPlugin;
 	private Accumulated _dbRecord;
 
 	// Saved variables
@@ -41,8 +40,8 @@ public class PlayerStatistics implements IUuidAndName {
 	private HourStatistics _lastHourAccumulated;
 
 
-	public static void initialize(Logger logger) {
-		eithonLogger = logger;
+	public static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
 	}
 
 	public static PlayerStatistics get(Database database, OfflinePlayer player)  {
@@ -111,14 +110,14 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	private void resetAlarm() {
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "Reset alarm for player %s", getName());
+		verbose("resetAlarm", "Enter, Player %s", getName());
 		AlarmTrigger alarmTrigger = AlarmTrigger.get();
 		if (alarmTrigger.resetAlarm(this._alarmId, Config.V.allowedInactivityInSeconds)) return;
 		this._alarmId = setAlarm();	
 	}
 
 	private UUID setAlarm() {
-		eithonLogger.debug(DebugPrintLevel.VERBOSE, "Setting alarm for player %s in %d seconds",
+		verbose("setAlarm", "Setting alarm for player %s in %d seconds",
 				getName(), Config.V.allowedInactivityInSeconds);
 		return AlarmTrigger.get()
 				.setAlarm(String.format("%s is idle", getName()),
@@ -136,7 +135,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	protected void setAsIdle() {
 		if (isAfk()) return;
-		eithonLogger.debug(DebugPrintLevel.MINOR, "Player %s is idle", getName());
+		eithonPlugin.dbgMinor("Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
 		try {
 			save(false);
@@ -158,7 +157,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._hasBeenUpdated = true;
 		this._afkDescription = null;
 		this._lastAliveTime = this._startTime;
-		eithonLogger.debug(DebugPrintLevel.MINOR, "Start: %s", startTime.toString());
+		eithonPlugin.dbgMinor("Start: %s", startTime.toString());
 	}
 
 	public void start() {
@@ -184,21 +183,21 @@ public class PlayerStatistics implements IUuidAndName {
 			if (!lastConsecutiveDayWasToday()) {
 				if (!lastConsecutiveDayWasYesterday()) {
 					if (this._consecutiveDays > 0) {
-						eithonLogger.debug(DebugPrintLevel.MAJOR, "Player %s was last logged in %s (today is %s), lost %d consecutive days", 
+						eithonPlugin.dbgMajor("Player %s was last logged in %s (today is %s), lost %d consecutive days", 
 								this._eithonPlayer.getName(), this._lastConsecutiveDay.toString(), today.toString(), this._consecutiveDays);
 					}
 					this._consecutiveDays = 0;
 				}
 				this._lastConsecutiveDay = today;
 				this._consecutiveDays++;
-				eithonLogger.debug(DebugPrintLevel.MAJOR, "Player %s now has %d consecutive days", 
+				eithonPlugin.dbgMajor("Player %s now has %d consecutive days", 
 						this._eithonPlayer.getName(), this._consecutiveDays);
 				ConsecutiveDaysEvent e = new ConsecutiveDaysEvent(this._eithonPlayer.getPlayer(), this._consecutiveDays);
 				this._eithonPlayer.getServer().getPluginManager().callEvent(e);
 			}
 		}
 		this._startTime = null;
-		eithonLogger.debug(DebugPrintLevel.MINOR, "Stop: %s %s (%s)", getName(), stopTime.toString(), description);
+		eithonPlugin.dbgMinor("Stop: %s %s (%s)", getName(), stopTime.toString(), description);
 		if (isAfk()) Config.M.toAfkBroadcast.broadcastToAllServers(getName(), description);
 		return stopTime;
 	}
@@ -267,7 +266,7 @@ public class PlayerStatistics implements IUuidAndName {
 				this._consecutiveDays, 
 				this._lastConsecutiveDay);
 		saveTimeSpan();
-		eithonLogger.debug(DebugPrintLevel.MAJOR, "Saved player %s", getName());
+		eithonPlugin.dbgMajor("Saved player %s", getName());
 		this._hasBeenUpdated = false;
 	}
 
@@ -385,5 +384,10 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public void saveTimeSpan() throws SQLException, ClassNotFoundException {
 		this._lastHourAccumulated = HourStatistics.save(this._dbRecord.getDatabase(), this._lastHourAccumulated, this);
+	}
+	
+	private static void verbose(String method, String format, Object... args)
+	{
+		eithonPlugin.dbgVerbose("PlayerStatistics", method, format, args);
 	}
 }
