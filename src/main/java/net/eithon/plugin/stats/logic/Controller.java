@@ -44,10 +44,10 @@ public class Controller {
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {
 		this._eithonCopPlugin = PluginMisc.getPlugin("EithonCop");
 		if (this._eithonCopPlugin != null && this._eithonCopPlugin.isEnabled()) {
-			eithonPlugin.getEithonLogger().info("Succesfully hooked into the EithonCop plugin!");
+			eithonPlugin.logInfo("Succesfully hooked into the EithonCop plugin!");
 		} else {
 			this._eithonCopPlugin = null;
-			eithonPlugin.getEithonLogger().warning("EithonStats can't censor AFK messages without the EithonCop plugin.");			
+			eithonPlugin.logWarn("EithonStats can't censor AFK messages without the EithonCop plugin.");			
 		}
 	}
 
