@@ -12,8 +12,6 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
 import net.eithon.library.mysql.MySql;
-import net.eithon.library.plugin.Logger;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
 import net.eithon.plugin.stats.Config;
@@ -27,18 +25,16 @@ public class Controller {
 	public static final String EITHON_STATS_BUNGEE_TRANSFER = "EithonStatsPlayerStatistics";
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
-	private Logger _eithonLogger;
 	private Plugin _eithonCopPlugin;
 	private Database _database;
 
 	public Controller(EithonPlugin eithonPlugin){
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>();
-		this._eithonLogger = this._eithonPlugin.getEithonLogger();
 		this._database = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
 				Config.V.databaseUsername, Config.V.databasePassword);
 		connectToEithonCop(this._eithonPlugin);
-		PlayerStatistics.initialize(this._eithonLogger);
+		PlayerStatistics.initialize(this._eithonPlugin);
 	}
 
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {
@@ -58,13 +54,13 @@ public class Controller {
 	public void playerCommand(Player player) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s invoked estats command.", player.getName());
+		verbose("playerCommand", "Player %s invoked estats command.", player.getName());
 	}
 
 	public void startPlayer(Player player) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.start();
-		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Started player %s.", 
+		this._eithonPlugin.dbgMinor("Started player %s.", 
 				player.getName(), this._allPlayerTimes.size());
 	}
 
@@ -79,7 +75,7 @@ public class Controller {
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
-		this._eithonLogger.debug(DebugPrintLevel.MINOR, "Stopped player %s.",
+		this._eithonPlugin.dbgMinor("Stopped player %s.",
 				player.getName());
 	}
 
@@ -133,7 +129,7 @@ public class Controller {
 
 		time = PlayerStatistics.getOrCreate(this._database, player);
 		if (time == null) return null;
-		this._eithonLogger.debug(DebugPrintLevel.MINOR, "New player statistics for player %s.",
+		this._eithonPlugin.dbgMinor("New player statistics for player %s.",
 				player.getName());
 		this._allPlayerTimes.put(player, time);
 		return time;
@@ -226,7 +222,7 @@ public class Controller {
 			}
 		}
 		for (HourStatistics diff : sortDiffsByTotalTime(hourStatistics, ascending, maxItems)) {
-			if (diff == null) this._eithonLogger.error("showDiffStats: Unexpected null");
+			if (diff == null) this._eithonPlugin.logError("showDiffStats: Unexpected null");
 			diff.sendDiffStats(sender);			
 		}
 	}
@@ -274,21 +270,21 @@ public class Controller {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addChatActivity();
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s chatted.", player.getName());
+		verbose("addChatActivity", "Player %s chatted.", player.getName());
 	}
 
 	public void addBlocksCreated(Player player, long blocks) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addBlocksCreated(blocks);
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s created a block.", player.getName());
+		verbose("addBlocksCreated", "Player %s created a block.", player.getName());
 	}
 
 	public void addBlocksBroken(Player player, long blocks) {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addBlocksBroken(blocks);
-		this._eithonLogger.debug(DebugPrintLevel.VERBOSE, "Player %s broke a block.", player.getName());
+		verbose("addBlocksBroken", "Player %s broke a block.", player.getName());
 	}
 
 	public long addPlayTime(
@@ -365,5 +361,10 @@ public class Controller {
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void verbose(String method, String format, Object... args)
+	{
+		this._eithonPlugin.dbgVerbose("Controller", method, format, args);
 	}
 }
