@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import net.eithon.library.core.PlayerCollection;
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
-import net.eithon.library.mysql.MySql;
 import net.eithon.library.plugin.PluginMisc;
 import net.eithon.plugin.cop.EithonCopApi;
 import net.eithon.plugin.stats.Config;
@@ -26,15 +27,13 @@ public class Controller {
 	private PlayerCollection<PlayerStatistics> _allPlayerTimes;
 	private EithonPlugin _eithonPlugin;
 	private Plugin _eithonCopPlugin;
-	private Database _database;
-
-	public Controller(EithonPlugin eithonPlugin){
+	
+	public Controller(EithonPlugin eithonPlugin) throws FatalException{
 		this._eithonPlugin = eithonPlugin;
 		this._allPlayerTimes = new PlayerCollection<PlayerStatistics>();
-		this._database = new MySql(Config.V.databaseHostname, Config.V.databasePort, Config.V.databaseName,
-				Config.V.databaseUsername, Config.V.databasePassword);
+		Database database = new Database(Config.V.databaseUrl, Config.V.databaseUsername, Config.V.databasePassword);
 		connectToEithonCop(this._eithonPlugin);
-		PlayerStatistics.initialize(this._eithonPlugin);
+		PlayerStatistics.initialize(this._eithonPlugin, database);
 	}
 
 	private void connectToEithonCop(EithonPlugin eithonPlugin) {
@@ -47,34 +46,30 @@ public class Controller {
 		}
 	}
 
-	public void playerMoved(final Player player) {
+	public void playerMoved(final Player player) throws FatalException, TryAgainException {
 		getOrCreatePlayerTime(player).updateAlive();
 	}
 
-	public void playerCommand(Player player) {
+	public void playerCommand(Player player) throws FatalException, TryAgainException {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		verbose("playerCommand", "Player %s invoked estats command.", player.getName());
 	}
 
-	public void startPlayer(Player player) {
+	public void startPlayer(Player player) throws FatalException, TryAgainException {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.start();
 		this._eithonPlugin.dbgMinor("Started player %s.", 
 				player.getName(), this._allPlayerTimes.size());
 	}
 
-	public void stopPlayer(CommandSender sender, Player player, String description) {
+	public void stopPlayer(CommandSender sender, Player player, String description) throws FatalException, TryAgainException {
 		PlayerStatistics time = getStatisticsOrInformSender(sender, player);
 		if ((this._eithonCopPlugin != null && (description != null))) {
 			description = EithonCopApi.censorMessage(player, description);
 		}
 		time.stop(description);
-		try {
-			time.save(false);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
+		time.save(false);
 		this._eithonPlugin.dbgMinor("Stopped player %s.",
 				player.getName());
 	}
@@ -88,7 +83,7 @@ public class Controller {
 		this._allPlayerTimes.remove(player);
 	}
 
-	public boolean showStats(CommandSender sender, EithonPlayer eithonPlayer) {
+	public boolean showStats(CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
 		PlayerStatistics time = getStatisticsOrInformSender(sender, eithonPlayer.getOfflinePlayer());
 		if (time == null) return false;
 		upateAliveIfSenderIsPlayer(sender, eithonPlayer, time);
@@ -111,11 +106,11 @@ public class Controller {
 		return this._allPlayerTimes.get(player);
 	}
 
-	private PlayerStatistics getStatisticsOrInformSender(CommandSender sender, OfflinePlayer player) {
+	private PlayerStatistics getStatisticsOrInformSender(CommandSender sender, OfflinePlayer player) throws FatalException, TryAgainException {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time != null) return time;
 
-		time = PlayerStatistics.get(this._database, player);
+		time = PlayerStatistics.get(player);
 		if (time != null) return time;
 		if (sender != null) {
 			sender.sendMessage(String.format("No stats recorded for player %s", player.getName()));
@@ -123,11 +118,11 @@ public class Controller {
 		return null;
 	}
 
-	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) {
+	PlayerStatistics getOrCreatePlayerTime(OfflinePlayer player) throws FatalException, TryAgainException {
 		PlayerStatistics time = this._allPlayerTimes.get(player);
 		if (time != null) return time;
 
-		time = PlayerStatistics.getOrCreate(this._database, player);
+		time = PlayerStatistics.getOrCreate(player);
 		if (time == null) return null;
 		this._eithonPlugin.dbgMinor("New player statistics for player %s.",
 				player.getName());
@@ -135,7 +130,7 @@ public class Controller {
 		return time;
 	}
 
-	private PlayerStatistics getOrCreatePlayerTime(EithonPlayer eithonPlayer) {
+	private PlayerStatistics getOrCreatePlayerTime(EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
 		return getOrCreatePlayerTime(eithonPlayer.getOfflinePlayer());
 	}
 
@@ -198,7 +193,7 @@ public class Controller {
 		LocalDateTime then = now.minusDays(daysBack);
 		HourStatistics diff;
 		try {
-			diff = new HourStatistics(this._database, player, then, now);
+			diff = new HourStatistics(player, then, now);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			return;
@@ -214,7 +209,7 @@ public class Controller {
 		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
 			try {
 				EithonPlayer player = playerStatistics.getEithonPlayer();
-				HourStatistics diff = new HourStatistics(this._database, player, then, now);
+				HourStatistics diff = new HourStatistics(player, then, now);
 				hourStatistics.put(player, diff);
 			} catch (SQLException | ClassNotFoundException e) {
 				e.printStackTrace();
@@ -266,31 +261,31 @@ public class Controller {
 					} });
 	}
 
-	public void addChatActivity(Player player) {
+	public void addChatActivity(Player player) throws FatalException, TryAgainException {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addChatActivity();
 		verbose("addChatActivity", "Player %s chatted.", player.getName());
 	}
 
-	public void addBlocksCreated(Player player, long blocks) {
+	public void addBlocksCreated(Player player, long blocks) throws FatalException, TryAgainException {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addBlocksCreated(blocks);
 		verbose("addBlocksCreated", "Player %s created a block.", player.getName());
 	}
 
-	public void addBlocksBroken(Player player, long blocks) {
+	public void addBlocksBroken(Player player, long blocks) throws FatalException, TryAgainException {
 		PlayerStatistics time = getOrCreatePlayerTime(player);
 		time.updateAlive();
 		time.addBlocksBroken(blocks);
 		verbose("addBlocksBroken", "Player %s broke a block.", player.getName());
 	}
 
-	public long addPlayTime(
+	public Long addPlayTime(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
-			long playTimeInSeconds) {
+			long playTimeInSeconds) throws FatalException, TryAgainException {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToTotalPlayTime(playTimeInSeconds);
 	}
@@ -298,7 +293,7 @@ public class Controller {
 	public long addConsecutiveDays(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
-			long consecutiveDays) {
+			long consecutiveDays) throws FatalException, TryAgainException {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToConsecutiveDays(consecutiveDays);
 	}
@@ -306,7 +301,7 @@ public class Controller {
 	public long addPlacedBlocks(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
-			long blocksCreated) {
+			long blocksCreated) throws FatalException, TryAgainException {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToBlocksCreated(blocksCreated);
 	}
@@ -314,14 +309,14 @@ public class Controller {
 	public long addBrokenBlocks(
 			CommandSender sender, 
 			EithonPlayer eithonPlayer,
-			long blocksBroken) {
+			long blocksBroken) throws FatalException, TryAgainException {
 		PlayerStatistics statistics = getOrCreatePlayerTime(eithonPlayer);
 		return statistics.addToBlocksBroken(blocksBroken);
 	}
 
 	public boolean resetPlayTime(
 			CommandSender sender, 
-			EithonPlayer eithonPlayer) {
+			EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
 		PlayerStatistics statistics = getStatisticsOrInformSender(sender, eithonPlayer.getOfflinePlayer());
 		if (statistics == null) return false;
 		statistics.resetTotalPlayTime();
@@ -343,23 +338,15 @@ public class Controller {
 		sender.sendMessage(String.format("AFK: %s", afkPlayers));
 	}
 
-	public void save() {
-		try {
-			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.save(true);
-			}
-		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
+	public void save() throws FatalException, TryAgainException {
+		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+			playerStatistics.save(true);
 		}
 	}
 
-	public void timespanSave() {
-		try {
-			for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-				playerStatistics.saveTimeSpan();
-			}
-		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
+	public void timespanSave() throws FatalException, TryAgainException {
+		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
+			playerStatistics.saveTimeSpan();
 		}
 	}
 	

@@ -8,6 +8,7 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.logic.Controller;
+import net.eithon.plugin.stats.logic.TryHandler;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -70,17 +71,17 @@ public class CommandHandler {
 
 	private void setupStartCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupPlayerCommand(commandSyntax, "start")
-				.setCommandExecutor(eithonCommand -> startCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> startCommand(eithonCommand));
 	}
 
 	private void setupStopCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupPlayerCommand(commandSyntax, "stop")
-				.setCommandExecutor(eithonCommand -> stopCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> stopCommand(eithonCommand));
 	}
 
 	private void setupResetCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupPlayerCommand(commandSyntax, "reset")
-				.setCommandExecutor(eithonCommand -> resetCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> resetCommand(eithonCommand));
 	}
 
 	private ICommandSyntax setupAddRemoveCommand(ICommandSyntax commandSyntax, String commandName) throws CommandSyntaxException {
@@ -97,22 +98,22 @@ public class CommandHandler {
 
 	private void setupAddCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupAddRemoveCommand(commandSyntax, "add")
-				.setCommandExecutor(eithonCommand -> addCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> addCommand(eithonCommand));
 	}
 
 	private void setupRemoveCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupAddRemoveCommand(commandSyntax, "remove")
-				.setCommandExecutor(eithonCommand -> removeCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> removeCommand(eithonCommand));
 	}
 
 	private void setupWhoCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		commandSyntax.parseCommandSyntax("who")
-				.setCommandExecutor(eithonCommand -> whoCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> whoCommand(eithonCommand));
 	}
 
 	private void setupSaveCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		commandSyntax.parseCommandSyntax("save")
-				.setCommandExecutor(eithonCommand -> saveCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> saveCommand(eithonCommand));
 	}
 
 	private ICommandSyntax setupListCommand(ICommandSyntax commandSyntax, String commandName) throws CommandSyntaxException {
@@ -123,27 +124,27 @@ public class CommandHandler {
 
 	private void setupTimeCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupListCommand(commandSyntax, "time")
-				.setCommandExecutor(eithonCommand -> timeCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> timeCommand(eithonCommand));
 	}
 
 	private void setupBlocksCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupListCommand(commandSyntax, "blocks")
-				.setCommandExecutor(eithonCommand -> blocksCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> blocksCommand(eithonCommand));
 	}
 
 	private void setupChatCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupListCommand(commandSyntax, "chat")
-				.setCommandExecutor(eithonCommand -> chatCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> chatCommand(eithonCommand));
 	}
 
 	private void setupStatusCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		setupListCommand(commandSyntax, "status")
-				.setCommandExecutor(eithonCommand -> statusCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> statusCommand(eithonCommand));
 	}
 
 	private void setupDiffCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		commandSyntax.parseCommandSyntax("diff <days-back : INTEGER {_7_, 14, 30, ...}> <direction {_desc_,asc}> <max-items : INTEGER {_0_, ...}>")
-				.setCommandExecutor(eithonCommand -> diffCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> diffCommand(eithonCommand));
 	}
 
 	private void setupPlayerDiffCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
@@ -157,14 +158,18 @@ public class CommandHandler {
 
 	private void setupAfkCommand(ICommandSyntax commandSyntax) throws CommandSyntaxException {
 		commandSyntax.parseCommandSyntax("afk <description : REST>")
-				.setCommandExecutor(eithonCommand -> awayFromKeyboardCommand(eithonCommand));
+		.setCommandExecutor(eithonCommand -> awayFromKeyboardCommand(eithonCommand));
 	}
 
 	void playerCommand(EithonCommand eithonCommand)
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 
-		this._controller.showStats(eithonCommand.getSender(), eithonPlayer);
+		TryHandler.handleExceptions(eithonCommand.getSender(),
+				() ->
+		{
+			this._controller.showStats(eithonCommand.getSender(), eithonPlayer);
+		});
 	}
 
 	void addCommand(EithonCommand eithonCommand)
@@ -185,7 +190,11 @@ public class CommandHandler {
 	}
 
 	private boolean addTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlayTimeInSeconds = this._controller.addPlayTime(sender, eithonPlayer, playTimeInSeconds);
+		long totalPlayTimeInSeconds = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addPlayTime(sender, eithonPlayer, playTimeInSeconds);
+
+		});
 		Config.M.playTimeAdded.sendMessage(
 				sender,
 				TimeMisc.secondsToString(playTimeInSeconds),
@@ -195,7 +204,10 @@ public class CommandHandler {
 	}
 
 	private boolean addConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalConsecutiveDays = this._controller.addConsecutiveDays(sender, eithonPlayer, consecutiveDays);
+		long totalConsecutiveDays = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addConsecutiveDays(sender, eithonPlayer, consecutiveDays);
+		});
 		Config.M.consecutiveDaysAdded.sendMessage(
 				sender,
 				consecutiveDays,
@@ -205,7 +217,10 @@ public class CommandHandler {
 	}
 
 	private boolean addPlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlacedBlocks = this._controller.addPlacedBlocks(sender, eithonPlayer, createdBlocks);
+		long totalPlacedBlocks = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addPlacedBlocks(sender, eithonPlayer, createdBlocks);
+		});
 		Config.M.placedBlocksAdded.sendMessage(
 				sender,
 				createdBlocks,
@@ -215,7 +230,10 @@ public class CommandHandler {
 	}
 
 	private boolean addBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalBrokenBlocks = this._controller.addBrokenBlocks(sender, eithonPlayer, brokenBlocks);
+		long totalBrokenBlocks = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addBrokenBlocks(sender, eithonPlayer, brokenBlocks);
+		});
 		Config.M.brokenBlocksAdded.sendMessage(
 				sender,
 				brokenBlocks,
@@ -242,7 +260,10 @@ public class CommandHandler {
 	}
 
 	public boolean removeTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlayTimeInSeconds = this._controller.addPlayTime(sender, eithonPlayer, -playTimeInSeconds);
+		long totalPlayTimeInSeconds = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addPlayTime(sender, eithonPlayer, -playTimeInSeconds);
+		});
 		Config.M.playTimeRemoved.sendMessage(
 				sender,
 				TimeMisc.secondsToString(playTimeInSeconds),
@@ -252,7 +273,10 @@ public class CommandHandler {
 	}
 
 	public boolean removeConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalConsecutiveDays = this._controller.addConsecutiveDays(sender, eithonPlayer, -consecutiveDays);
+		long totalConsecutiveDays = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addConsecutiveDays(sender, eithonPlayer, -consecutiveDays);
+		});
 		Config.M.consecutiveDaysRemoved.sendMessage(
 				sender,
 				consecutiveDays,
@@ -262,7 +286,10 @@ public class CommandHandler {
 	}
 
 	public boolean removePlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlacedBlocks = this._controller.addPlacedBlocks(sender, eithonPlayer, -createdBlocks);
+		long totalPlacedBlocks = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addPlacedBlocks(sender, eithonPlayer, -createdBlocks);
+		});
 		Config.M.placedBlocksRemoved.sendMessage(
 				sender,
 				createdBlocks,
@@ -272,7 +299,10 @@ public class CommandHandler {
 	}
 
 	public boolean removeBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalBrokenBlocks = this._controller.addBrokenBlocks(sender, eithonPlayer, -brokenBlocks);
+		long totalBrokenBlocks = TryHandler.handleExceptions(sender, () ->
+		{
+			return this._controller.addBrokenBlocks(sender, eithonPlayer, -brokenBlocks);
+		});
 		Config.M.brokenBlocksRemoved.sendMessage(
 				sender,
 				brokenBlocks,
@@ -285,7 +315,11 @@ public class CommandHandler {
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 
-		if (!this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer)) return;
+		final boolean resetPlayTime = TryHandler.handleExceptions(eithonCommand.getSender(), () ->
+		{
+			return this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer);
+		});
+		if (!resetPlayTime) return;
 		Config.M.playTimeReset.sendMessage(
 				eithonCommand.getSender(),
 				eithonPlayer.getName());
@@ -295,7 +329,10 @@ public class CommandHandler {
 	{
 		Player player = eithonCommand.getArgument("player").asPlayer();
 
-		this._controller.startPlayer(player);
+		TryHandler.handleExceptions(eithonCommand.getSender(), () ->
+		{
+			this._controller.startPlayer(player);
+		});
 		Config.M.playerStarted.sendMessage(eithonCommand.getSender(), player.getName());
 	}
 
@@ -304,21 +341,31 @@ public class CommandHandler {
 		Player player = eithonCommand.getArgument("player").asPlayer();
 
 		CommandSender sender = eithonCommand.getSender();
-		this._controller.stopPlayer(sender, player, Config.M.inactivityDetected.getMessage());
+		TryHandler.handleExceptions(sender, () ->
+		{
+			this._controller.stopPlayer(sender, player, Config.M.inactivityDetected.getMessage());
+		});
 		Config.M.playerStopped.sendMessage(eithonCommand.getSender(), player.getName());
 	}
 
 	private void awayFromKeyboardCommand(EithonCommand eithonCommand) {
-		String description = eithonCommand.getArgument("description").asString();
-		if ((description == null) || description.isEmpty()) description = Config.M.defaultAfkDescription.getMessage();
+		String descr = eithonCommand.getArgument("description").asString();
+		if ((descr == null) || descr.isEmpty()) descr = Config.M.defaultAfkDescription.getMessage();
+		final String description = descr;
 
 		CommandSender sender = eithonCommand.getSender();
-		this._controller.stopPlayer(sender, eithonCommand.getPlayer(), description);
+		TryHandler.handleExceptions(sender, () ->
+		{
+			this._controller.stopPlayer(sender, eithonCommand.getPlayer(), description);
+		});
 	}
 
 	void saveCommand(EithonCommand eithonCommand)
 	{
-		this._controller.save();
+		TryHandler.handleExceptions(eithonCommand.getSender(), () ->
+		{
+			this._controller.save();
+		});
 		Config.M.saved.sendMessage(eithonCommand.getSender());
 	}
 
@@ -382,7 +429,7 @@ public class CommandHandler {
 		boolean ascending = direction.equalsIgnoreCase("asc");
 
 		int maxItems = eithonCommand.getArgument("max-items").asInteger();
-		
+
 		this._controller.showAfkStatus(eithonCommand.getSender(), ascending, maxItems);
 	}
 }

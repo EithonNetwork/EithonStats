@@ -1,0 +1,10 @@
+package net.eithon.plugin.stats.logic;
+
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.PlayerException;
+import net.eithon.library.exceptions.TryAgainException;
+
+public interface IExecutor {
+	public void doIt() throws TryAgainException, FatalException, PlayerException;
+
+}

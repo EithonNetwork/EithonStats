@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import net.eithon.library.mysql.Database;
-import net.eithon.plugin.stats.db.TimeSpan;
+import net.eithon.library.db.Database;
+import net.eithon.plugin.stats.db.TimeSpanPojo;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,11 +25,11 @@ public class TestDbTimeSpan {
 	public void testCreate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		TimeSpan row = createRow(database, playerId);
+		TimeSpanPojo row = createRow(database, playerId);
 		Assert.assertNotNull(row);
-		TimeSpan created = null;
+		TimeSpanPojo created = null;
 		try {
-			created = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+			created = TimeSpanPojo.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
 		} catch (SQLException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -45,11 +45,11 @@ public class TestDbTimeSpan {
 	public void testUpdate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		TimeSpan row = createRow(database, playerId);
+		TimeSpanPojo row = createRow(database, playerId);
 		Assert.assertNotNull(row);
-		TimeSpan created = null;
+		TimeSpanPojo created = null;
 		try {
-			created = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+			created = TimeSpanPojo.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -68,9 +68,9 @@ public class TestDbTimeSpan {
 			e.printStackTrace();
 			Assert.fail();
 		}
-		TimeSpan updated = null;
+		TimeSpanPojo updated = null;
 		try {
-			updated = TimeSpan.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
+			updated = TimeSpanPojo.getByPlayerIdHour(database, row.get_playerId(), row.get_hour());
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -81,8 +81,8 @@ public class TestDbTimeSpan {
 		Assert.assertEquals(blocksBroken, updated.get_blocksBroken());
 	}
 
-	private TimeSpan createRow(Database database, UUID playerId) {
-		TimeSpan row = null;
+	private TimeSpanPojo createRow(Database database, UUID playerId) {
+		TimeSpanPojo row = null;
 		long counter = 1;
 		LocalDateTime hour = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
 
@@ -91,7 +91,7 @@ public class TestDbTimeSpan {
 		long blocksCreated = counter++;
 		long blocksBroken = counter++;
 		try {
-			row = TimeSpan.create(database, playerId, hour, 
+			row = TimeSpanPojo.create(database, playerId, hour, 
 					totalPlayTimeInSeconds, 
 					chatActivities, blocksCreated, blocksBroken);
 		} catch (SQLException | ClassNotFoundException e) {

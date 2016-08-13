@@ -1,5 +1,7 @@
 package net.eithon.plugin.stats;
 
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.move.EithonPlayerMoveOneBlockEvent;
 import net.eithon.plugin.stats.logic.Controller;
@@ -23,30 +25,55 @@ public final class EventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerJoinEvent(PlayerJoinEvent event) {
-		this._controller.startPlayer(event.getPlayer());
+		try {
+			this._controller.startPlayer(event.getPlayer());
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@EventHandler
 	public void onEithonPlayerMoveOneBlockEvent(EithonPlayerMoveOneBlockEvent event) {
-		this._controller.playerMoved(event.getPlayer());
+		try {
+			this._controller.playerMoved(event.getPlayer());
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@EventHandler
 	public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) return;
-		this._controller.addChatActivity(event.getPlayer());
+		try {
+			this._controller.addChatActivity(event.getPlayer());
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@EventHandler
 	public void onBlockBreakEvent(BlockBreakEvent event) {
 		if (event.isCancelled()) return;
-		this._controller.addBlocksBroken(event.getPlayer(), 1);
+		try {
+			this._controller.addBlocksBroken(event.getPlayer(), 1);
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@EventHandler
 	public void onBlockPlaceEvent(BlockPlaceEvent event) {
 		if (event.isCancelled()) return;
-		this._controller.addBlocksCreated(event.getPlayer(), 1);
+		try {
+			this._controller.addBlocksCreated(event.getPlayer(), 1);
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@EventHandler

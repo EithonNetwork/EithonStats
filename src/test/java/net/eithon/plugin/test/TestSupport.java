@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import net.eithon.library.mysql.Database;
+import net.eithon.library.db.Database;
 import net.eithon.library.mysql.MySql;
 
 import org.junit.Assert;

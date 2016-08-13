@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import net.eithon.library.mysql.Database;
-import net.eithon.plugin.stats.db.Accumulated;
+import net.eithon.library.db.Database;
+import net.eithon.plugin.stats.db.AccumulatedPojo;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,14 +25,14 @@ public class TestDbAccumulated {
 	public void testCreate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		Accumulated row = createRow(database, playerId);
+		AccumulatedPojo row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 	}
 
-	private Accumulated createRow(Database database, UUID playerId) {
-		Accumulated row = null;
+	private AccumulatedPojo createRow(Database database, UUID playerId) {
+		AccumulatedPojo row = null;
 		try {
-			row = Accumulated.create(database, playerId);
+			row = AccumulatedPojo.create(database, playerId);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -46,7 +46,7 @@ public class TestDbAccumulated {
 	public void testUpdate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		Accumulated row = createRow(database, playerId);
+		AccumulatedPojo row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 		try {
 			update(database, row);
@@ -55,9 +55,9 @@ public class TestDbAccumulated {
 			e.printStackTrace();
 			Assert.fail();
 		}
-		Accumulated updated = null;
+		AccumulatedPojo updated = null;
 		try {
-			updated = Accumulated.getByPlayerId(database, row.get_playerId());
+			updated = AccumulatedPojo.getByPlayerId(database, row.get_playerId());
 		} catch (SQLException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -78,7 +78,7 @@ public class TestDbAccumulated {
 		Assert.assertEquals(row.get_lastConsecutiveDay().truncatedTo(ChronoUnit.DAYS), updated.get_lastConsecutiveDay());
 	}
 
-	private void update(Database database, Accumulated row)
+	private void update(Database database, AccumulatedPojo row)
 			throws SQLException, ClassNotFoundException {
 		String playerName;
 		playerName = "new name";
