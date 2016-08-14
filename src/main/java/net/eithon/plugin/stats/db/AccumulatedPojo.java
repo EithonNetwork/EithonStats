@@ -1,22 +1,29 @@
 package net.eithon.plugin.stats.db;
 
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-public class AccumulatedPojo {
+import net.eithon.library.mysql.ITable;
+
+public class AccumulatedPojo implements ITable{
 	public long id;
-	public UUID player_id;
-	public LocalDateTime first_start_time_utc;
-	public LocalDateTime last_stop_time_utc;
+	public String player_id;
+	public Timestamp first_start_utc;
+	public Timestamp last_stop_utc;
 	public long play_time_in_seconds;
 	public long joins;
 	public long longest_interval_in_seconds;
 	public long play_time_today_in_seconds;
-	public LocalDateTime today;
+	public Date today;
 	public long chat_messages;
-	public LocalDateTime last_chat_message;
-	public long blocks_created;
-	public long blocks_broken;
+	public Timestamp last_chat_message_utc;
+	public BigInteger blocks_created;
+	public BigInteger blocks_broken;
 	public long consecutive_days;
-	public LocalDateTime last_consecutive_day;
+	public Date last_consecutive_day;
+
+	public long getId() { return this.id; }
+	public String getTableName() { return "accumulated"; }
 }

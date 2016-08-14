@@ -14,24 +14,28 @@ public class AccumulatedController {
 		this.jDapper = new JDapper<AccumulatedPojo>(AccumulatedPojo.class, database);
 	}
 	
-	public AccumulatedPojo insert(final UUID playerId) throws FatalException, TryAgainException {
-		String sql = String.format("INSERT INTO accumulated (player_id) VALUES (?)");
-		int id = this.jDapper.insert(sql, playerId);
-		return this.jDapper.readTheOnlyOne("SELECT FROM accumulated WHERE id = ?", id);
+	public AccumulatedPojo create(final UUID playerId) throws FatalException, TryAgainException {
+		AccumulatedPojo accumulated = new AccumulatedPojo();
+		accumulated.player_id = playerId.toString();
+		long id = this.jDapper.createOne(accumulated);
+		return get(id);
+	}
+
+	public AccumulatedPojo get(final long id) throws FatalException, TryAgainException {
+		return this.jDapper.read(id);
 	}
 
 	public AccumulatedPojo getByPlayerId(final UUID playerId) throws FatalException, TryAgainException {
-		String sql = String.format("SELECT * FROM accumulated WHERE player_id=?");
-		return this.jDapper.readTheOnlyOne(sql, playerId);
+		return this.jDapper.readTheOnlyOneWhere("player_id=?", playerId);
 	}
 
-	public AccumulatedPojo getByPlayerIdOrInsert(final UUID playerId) throws FatalException, TryAgainException {
+	public AccumulatedPojo readOrCreate(final UUID playerId) throws FatalException, TryAgainException {
 		AccumulatedPojo accumulated = getByPlayerId(playerId);
 		if (accumulated != null) return accumulated;
-		return insert(playerId);
+		return create(playerId);
 	}
 	
 	public void update(AccumulatedPojo data) throws FatalException, TryAgainException {
-		this.jDapper.update("accumulated", data, "id = ?", data.id);
+		this.jDapper.updateWhere(data, "id = ?", data.id);
 	}
 }

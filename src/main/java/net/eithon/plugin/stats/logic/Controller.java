@@ -1,6 +1,5 @@
 package net.eithon.plugin.stats.logic;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -188,33 +187,23 @@ public class Controller {
 					} });
 	}
 
-	public void showDiffStats(CommandSender sender, EithonPlayer player, int daysBack) {
+	public void showDiffStats(CommandSender sender, EithonPlayer player, int daysBack) throws FatalException, TryAgainException {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime then = now.minusDays(daysBack);
 		HourStatistics diff;
-		try {
-			diff = new HourStatistics(player, then, now);
-		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
+		diff = new HourStatistics(player, then, now);
 		diff.sendDiffStats(sender);
 		return;
 	}
 
-	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) {
+	public void showDiffStats(CommandSender sender, int daysBack, boolean ascending, int maxItems) throws FatalException, TryAgainException {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime then = now.minusDays(daysBack);
 		PlayerCollection<HourStatistics> hourStatistics = new PlayerCollection<HourStatistics>();
 		for (PlayerStatistics playerStatistics : this._allPlayerTimes) {
-			try {
-				EithonPlayer player = playerStatistics.getEithonPlayer();
-				HourStatistics diff = new HourStatistics(player, then, now);
-				hourStatistics.put(player, diff);
-			} catch (SQLException | ClassNotFoundException e) {
-				e.printStackTrace();
-				return;
-			}
+			EithonPlayer player = playerStatistics.getEithonPlayer();
+			HourStatistics diff = new HourStatistics(player, then, now);
+			hourStatistics.put(player, diff);
 		}
 		for (HourStatistics diff : sortDiffsByTotalTime(hourStatistics, ascending, maxItems)) {
 			if (diff == null) this._eithonPlugin.logError("showDiffStats: Unexpected null");

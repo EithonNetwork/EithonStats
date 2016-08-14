@@ -1,24 +1,19 @@
 package net.eithon.plugin.test;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import net.eithon.library.db.Database;
-import net.eithon.library.mysql.MySql;
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
+import net.eithon.library.mysql.Database;
 
 import org.junit.Assert;
 
 public class TestSupport {
 	public static Database getDatabaseAndTruncateTables() {
-		MySql mySql = new MySql("rookgaard.eithon.net", "3307", "DEV_e_stats", "DEV_e_plugin", "J5FE9EFCD1GX8tjg");
+		Database database = new Database("rookgaard.eithon.net", "3307", "DEV_e_stats", "DEV_e_plugin", "J5FE9EFCD1GX8tjg");
 		try {
-			Connection connection = mySql.getOrOpenConnection();
-			Statement statement = connection.createStatement();
-			statement.executeUpdate("DELETE FROM `accumulated`");
-			statement.executeUpdate("DELETE FROM `timespan`");
-			return mySql;
-		} catch (ClassNotFoundException | SQLException e) {
+			database.executeUpdate("DELETE FROM `accumulated`");
+			database.executeUpdate("DELETE FROM `timespan`");
+			return database;
+		} catch (FatalException | TryAgainException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}

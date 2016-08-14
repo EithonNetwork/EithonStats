@@ -10,11 +10,9 @@ import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlayer;
-import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
-import net.eithon.plugin.stats.db.AccumulatedController;
 import net.eithon.plugin.stats.db.TimeSpanController;
 import net.eithon.plugin.stats.db.TimeSpanPojo;
 
@@ -60,7 +58,7 @@ public class HourStatistics implements IUuidAndName {
 		return new HourStatistics(now, laterHour);
 	}
 
-	public HourStatistics(EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws SQLException, ClassNotFoundException
+	public HourStatistics(EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException
 	{
 		TimeSpanPojo timeSpan = timeSpanController.sumPlayer(player.getUniqueId(), fromTime, toTime);
 		fromDb(timeSpan);
@@ -112,7 +110,7 @@ public class HourStatistics implements IUuidAndName {
 	}
 
 	private HourStatistics fromDb(TimeSpanPojo timeSpan)  {
-		this._playerId = timeSpan.player_id;
+		this._playerId = UUID.fromString(timeSpan.player_id);
 		this._chatActivities = timeSpan.chat_messages;
 		this._blocksCreated = timeSpan.blocks_created;
 		this._blocksBroken = timeSpan.blocks_broken;

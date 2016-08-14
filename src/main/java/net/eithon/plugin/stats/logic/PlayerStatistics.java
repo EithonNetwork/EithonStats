@@ -1,6 +1,9 @@
 package net.eithon.plugin.stats.logic;
 
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
@@ -16,7 +19,6 @@ import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
 import net.eithon.plugin.stats.db.AccumulatedController;
 import net.eithon.plugin.stats.db.AccumulatedPojo;
-import net.eithon.plugin.stats.db.TimeSpanController;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -55,7 +57,7 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public static PlayerStatistics getOrCreate(OfflinePlayer player) throws FatalException, TryAgainException {
-		AccumulatedPojo accumulated = accumulatedController.getByPlayerIdOrInsert(player.getUniqueId());
+		AccumulatedPojo accumulated = accumulatedController.readOrCreate(player.getUniqueId());
 		if (accumulated == null) return null;
 		return new PlayerStatistics(accumulated);
 	}
@@ -70,13 +72,13 @@ public class PlayerStatistics implements IUuidAndName {
 		// From database
 		this._dbRecord = record;
 		this._timeInfo = new TimeStatistics(this._dbRecord);
-		this._eithonPlayer = new EithonPlayer(this._dbRecord.player_id);
-		this._blocksBroken = this._dbRecord.blocks_broken;
-		this._blocksCreated = this._dbRecord.blocks_created;
+		this._eithonPlayer = new EithonPlayer(UUID.fromString(this._dbRecord.player_id));
+		this._blocksBroken = this._dbRecord.blocks_broken.longValue();
+		this._blocksCreated = this._dbRecord.blocks_created.longValue();
 		this._chatMessages = this._dbRecord.chat_messages;
-		this._lastChatMessage = this._dbRecord.last_chat_message;
+		this._lastChatMessage = this._dbRecord.last_chat_message_utc.toLocalDateTime();
 		this._consecutiveDays = this._dbRecord.consecutive_days;
-		this._lastConsecutiveDay = this._dbRecord.last_consecutive_day;
+		this._lastConsecutiveDay = LocalDateTime.from(this._dbRecord.last_consecutive_day.toLocalDate());
 		if (this._lastConsecutiveDay == null) {
 			this._lastConsecutiveDay = this._timeInfo.getToday();
 		}
@@ -229,20 +231,20 @@ public class PlayerStatistics implements IUuidAndName {
 		if (doLap) {
 			lap();
 		}
-		this._dbRecord.player_id = this._eithonPlayer.getUniqueId();
-		this._dbRecord.first_start_time_utc = this._timeInfo.getFirstStartTime();
-		this._dbRecord.last_stop_time_utc = this._timeInfo.getLastStopTime();
+		this._dbRecord.player_id = this._eithonPlayer.getUniqueId().toString();
+		this._dbRecord.first_start_utc = Timestamp.valueOf(this._timeInfo.getFirstStartTime());
+		this._dbRecord.last_stop_utc = Timestamp.valueOf(this._timeInfo.getLastStopTime());
 		this._dbRecord.play_time_in_seconds = this._timeInfo.getTotalPlayTimeInSeconds();
 		this._dbRecord.joins = this._timeInfo.getIntervals();
 		this._dbRecord.longest_interval_in_seconds = this._timeInfo.getLongestIntervalInSeconds();
 		this._dbRecord.play_time_today_in_seconds = this._timeInfo.getPlayTimeTodayInSeconds();
-		this._dbRecord.today = this._timeInfo.getToday();
+		this._dbRecord.today = Date.valueOf(this._timeInfo.getToday().toLocalDate());
 		this._dbRecord.chat_messages = this._chatMessages;
-		this._dbRecord.last_chat_message = this._lastChatMessage;
-		this._dbRecord.blocks_created = this._blocksCreated;
-		this._dbRecord.blocks_broken = this._blocksBroken;
+		this._dbRecord.last_chat_message_utc = Timestamp.valueOf(this._lastChatMessage);
+		this._dbRecord.blocks_created = BigInteger.valueOf(this._blocksCreated);
+		this._dbRecord.blocks_broken = BigInteger.valueOf(this._blocksBroken);
 		this._dbRecord.consecutive_days = this._consecutiveDays;
-		this._dbRecord.last_consecutive_day = this._lastConsecutiveDay;
+		this._dbRecord.last_consecutive_day = Date.valueOf(this._lastConsecutiveDay.toLocalDate());
 		saveTimeSpan();
 		eithonPlugin.dbgMajor("Saved player %s", getName());
 		this._hasBeenUpdated = false;

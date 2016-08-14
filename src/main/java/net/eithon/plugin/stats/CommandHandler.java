@@ -412,7 +412,11 @@ public class CommandHandler {
 
 		int maxItems = eithonCommand.getArgument("max-items").asInteger();
 
-		this._controller.showDiffStats(eithonCommand.getSender(), daysBack, ascending, maxItems);
+		final CommandSender sender = eithonCommand.getSender();
+		TryHandler.handleExceptions(sender, () ->
+		{
+			this._controller.showDiffStats(sender, daysBack, ascending, maxItems);
+		});
 	}
 
 	void playerDiffCommand(EithonCommand eithonCommand)
@@ -420,7 +424,11 @@ public class CommandHandler {
 		EithonPlayer player = eithonCommand.getArgument("player").asEithonPlayer();
 		int daysBack = eithonCommand.getArgument("days-back").asInteger();
 
-		this._controller.showDiffStats(eithonCommand.getSender(), player, daysBack);
+		final CommandSender sender = eithonCommand.getSender();
+		TryHandler.handleExceptions(sender, () ->
+		{
+			this._controller.showDiffStats(sender, player, daysBack);
+		});
 	}
 
 	void statusCommand(EithonCommand eithonCommand)

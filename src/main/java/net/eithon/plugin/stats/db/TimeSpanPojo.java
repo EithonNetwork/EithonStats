@@ -1,14 +1,18 @@
 package net.eithon.plugin.stats.db;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.sql.Timestamp;
 
-public class TimeSpanPojo {
+import net.eithon.library.mysql.ITable;
+
+public class TimeSpanPojo implements ITable {
 	public long id;
-	public LocalDateTime hour;
-	public UUID player_id;
+	public Timestamp hour_utc;
+	public String player_id;
 	public long play_time_in_seconds;
 	public long chat_messages;
 	public long blocks_created;
 	public long blocks_broken;
+
+	public long getId() { return this.id; }
+	public String getTableName() { return "timespan"; }
 }

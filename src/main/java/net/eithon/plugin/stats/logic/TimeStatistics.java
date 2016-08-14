@@ -2,17 +2,14 @@ package net.eithon.plugin.stats.logic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import net.eithon.library.exceptions.FatalException;
-import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
-import net.eithon.plugin.stats.db.AccumulatedController;
 import net.eithon.plugin.stats.db.AccumulatedPojo;
-import net.eithon.plugin.stats.db.TimeSpanController;
 
 public class TimeStatistics {
 	// Saved variables
@@ -38,11 +35,11 @@ public class TimeStatistics {
 	}
 
 	TimeStatistics(AccumulatedPojo dbRecord) {
-		this._firstStartTime = dbRecord.first_start_time_utc;
-		this._lastStopTime = dbRecord.last_stop_time_utc;
+		this._firstStartTime = dbRecord.first_start_utc.toLocalDateTime();
+		this._lastStopTime = dbRecord.last_stop_utc.toLocalDateTime();
 		this._totalPlayTimeInSeconds = dbRecord.play_time_in_seconds;
 		this._longestIntervalInSeconds = dbRecord.longest_interval_in_seconds;
-		this._today = dbRecord.today;
+		this._today = LocalDateTime.from(dbRecord.today.toLocalDate());
 		this._playTimeTodayInSeconds = dbRecord.play_time_today_in_seconds;
 	}
 

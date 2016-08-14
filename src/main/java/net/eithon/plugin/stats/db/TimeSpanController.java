@@ -1,5 +1,6 @@
 package net.eithon.plugin.stats.db;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,24 +15,30 @@ public class TimeSpanController {
 	public TimeSpanController(final Database database) throws FatalException {
 		this.jDapper = new JDapper<TimeSpanPojo>(TimeSpanPojo.class, database);
 	}
-	
+
 	public TimeSpanPojo insert(final UUID playerId, LocalDateTime hour, long playtimeInSeconds, long chatActivities, long blocksCreated, long blocksBroken) throws FatalException, TryAgainException {
-		String sql = String.format("INSERT INTO time_span (player_id, hour) VALUES (?, ?)");
-		int id = this.jDapper.insert(sql, playerId, hour);
-		return this.jDapper.readTheOnlyOne("SELECT FROM time_span WHERE id = ?", id);
+		TimeSpanPojo timeSpan = new TimeSpanPojo();
+		timeSpan.player_id = playerId.toString();
+		timeSpan.hour_utc = Timestamp.valueOf(hour);
+		long id = this.jDapper.createOne(timeSpan);
+		return this.jDapper.read(id);
 	}
 
 	public TimeSpanPojo getByPlayerIdHour(final UUID playerId, LocalDateTime hour) throws FatalException, TryAgainException {
-		String sql = String.format("SELECT * FROM time_span WHERE player_id=? AND hour=?");
-		return this.jDapper.readTheOnlyOne(sql, playerId, hour);
+		return this.jDapper.readTheOnlyOneWhere("player_id=? AND hour=?", playerId.toString(), hour);
 	}
 
-	public TimeSpanPojo sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) {
-		String sql = String.format("SELECT SUM() FROM time_span WHERE player_id=? AND hour=?");
-		return this.jDapper.readTheOnlyOne(sql, playerId, hour);
+	public TimeSpanPojo sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException {
+		String sql = "SELECT" +
+				" SUM(play_time_in_seconds) AS play_time_in_seconds" + 
+				", SUM(chat_messages) AS chat_messages " +
+				", SUM(blocks_created) AS blocks_created " +
+				", SUM(blocks_broken) AS blocks_broken " +
+				" FROM timespan WHERE player_id=? AND hour_utc>=? AND hour_utc<=?'";
+		return this.jDapper.readTheOnlyOne(sql, playerId, fromTime, toTime);
 	}
-	
+
 	public void update(TimeSpanPojo data) throws FatalException, TryAgainException {
-		this.jDapper.update("time_span", data, "id = ?", data.id);
+		this.jDapper.updateWhere(data, "id = ?", data.id);
 	}
 }
