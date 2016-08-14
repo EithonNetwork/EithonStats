@@ -1,5 +1,6 @@
 package net.eithon.plugin.stats.db;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -25,7 +26,8 @@ public class TimeSpanController {
 	}
 
 	public TimeSpanPojo getByPlayerIdHour(final UUID playerId, LocalDateTime hour) throws FatalException, TryAgainException {
-		return this.jDapper.readTheOnlyOneWhere("player_id=? AND hour=?", playerId.toString(), hour);
+		final Timestamp hour_utc = Timestamp.valueOf(hour);
+		return this.jDapper.readTheOnlyOneWhere("player_id=? AND hour_utc=?", playerId.toString(), hour_utc);
 	}
 
 	public TimeSpanPojo sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException {

@@ -38,6 +38,7 @@ public class TestDbTimeSpan {
 			e.printStackTrace();
 			Assert.fail();
 		}
+		Assert.assertNotNull(created);
 		Assert.assertEquals(row.play_time_in_seconds, created.play_time_in_seconds);
 		Assert.assertEquals(row.chat_messages, created.chat_messages);
 		Assert.assertEquals(row.blocks_broken, created.blocks_broken);
@@ -110,7 +111,7 @@ public class TestDbTimeSpan {
 			Assert.fail();
 		}
 		Assert.assertNotNull(row);
-		Assert.assertEquals(playerId, row.player_id);
+		Assert.assertEquals(playerId.toString(), row.player_id);
 		return row;
 	}
 
