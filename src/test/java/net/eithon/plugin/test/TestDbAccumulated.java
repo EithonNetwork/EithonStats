@@ -10,8 +10,8 @@ import java.util.UUID;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
-import net.eithon.plugin.stats.db.AccumulatedController;
-import net.eithon.plugin.stats.db.AccumulatedPojo;
+import net.eithon.plugin.stats.db.AccumulatedTable;
+import net.eithon.plugin.stats.db.AccumulatedRow;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,13 +30,13 @@ public class TestDbAccumulated {
 	public void testCreate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		AccumulatedPojo row = createRow(database, playerId);
+		AccumulatedRow row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 	}
 
-	private AccumulatedPojo createRow(Database database, UUID playerId) {
-		AccumulatedController controller = getController(database);
-		AccumulatedPojo row = null;
+	private AccumulatedRow createRow(Database database, UUID playerId) {
+		AccumulatedTable controller = getController(database);
+		AccumulatedRow row = null;
 		try {
 			row = controller.create(playerId);
 		} catch (FatalException | TryAgainException e) {
@@ -48,10 +48,10 @@ public class TestDbAccumulated {
 		return row;
 	}
 
-	private AccumulatedController getController(Database database) {
-		AccumulatedController controller = null;
+	private AccumulatedTable getController(Database database) {
+		AccumulatedTable controller = null;
 		try {
-			controller = new AccumulatedController(database);
+			controller = new AccumulatedTable(database);
 		} catch (FatalException e) {
 			e.printStackTrace();
 		}
@@ -63,14 +63,14 @@ public class TestDbAccumulated {
 	public void testUpdate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
 		UUID playerId = UUID.randomUUID();
-		AccumulatedController controller = getController(database);
-		AccumulatedPojo row = createRow(database, playerId);
+		AccumulatedTable controller = getController(database);
+		AccumulatedRow row = createRow(database, playerId);
 		Assert.assertNotNull(row);
 		updateAndRead(row.id, controller);
 	}
 
-	private AccumulatedPojo updateAndRead(long id, AccumulatedController controller) {
-		AccumulatedPojo newValues = new AccumulatedPojo();
+	private AccumulatedRow updateAndRead(long id, AccumulatedTable controller) {
+		AccumulatedRow newValues = new AccumulatedRow();
 		newValues.id = id;
 		LocalDateTime timeCounter = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		newValues.player_id = UUID.randomUUID().toString();
@@ -93,7 +93,7 @@ public class TestDbAccumulated {
 		newValues.last_consecutive_day = Date.valueOf(timeCounter.toLocalDate());
 		timeCounter = timeCounter.plusDays(1);
 		
-		AccumulatedPojo updated = null;
+		AccumulatedRow updated = null;
 		try {
 			controller.update(newValues);
 			updated = controller.get(id);

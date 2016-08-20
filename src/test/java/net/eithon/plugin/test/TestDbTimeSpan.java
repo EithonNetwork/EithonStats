@@ -7,8 +7,8 @@ import java.util.UUID;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
-import net.eithon.plugin.stats.db.TimeSpanController;
-import net.eithon.plugin.stats.db.TimeSpanPojo;
+import net.eithon.plugin.stats.db.TimeSpanTable;
+import net.eithon.plugin.stats.db.TimeSpanRow;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,11 +26,11 @@ public class TestDbTimeSpan {
 	@Test
 	public void testCreate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
-		TimeSpanController controller = getController(database);
+		TimeSpanTable controller = getController(database);
 		UUID playerId = UUID.randomUUID();
-		TimeSpanPojo row = createRow(controller, playerId);
+		TimeSpanRow row = createRow(controller, playerId);
 		Assert.assertNotNull(row);
-		TimeSpanPojo created = null;
+		TimeSpanRow created = null;
 		try {
 			created = controller.getByPlayerIdHour(playerId, row.hour_utc.toLocalDateTime());
 		} catch (FatalException | TryAgainException e) {
@@ -48,11 +48,11 @@ public class TestDbTimeSpan {
 	@Test
 	public void testUpdate() {
 		Database database = TestSupport.getDatabaseAndTruncateTables();
-		TimeSpanController controller = getController(database);
+		TimeSpanTable controller = getController(database);
 		UUID playerId = UUID.randomUUID();
-		TimeSpanPojo row = createRow(controller, playerId);
+		TimeSpanRow row = createRow(controller, playerId);
 		Assert.assertNotNull(row);
-		TimeSpanPojo created = null;
+		TimeSpanRow created = null;
 		try {
 			created = controller.getByPlayerIdHour(playerId, row.hour_utc.toLocalDateTime());
 		} catch (FatalException | TryAgainException e) {
@@ -69,7 +69,7 @@ public class TestDbTimeSpan {
 			e.printStackTrace();
 			Assert.fail();
 		}
-		TimeSpanPojo updated = null;
+		TimeSpanRow updated = null;
 		try {
 			updated = controller.getByPlayerIdHour(playerId, row.hour_utc.toLocalDateTime());
 		} catch (FatalException | TryAgainException e) {
@@ -82,10 +82,10 @@ public class TestDbTimeSpan {
 		Assert.assertEquals(updated.blocks_created, created.blocks_created);
 	}
 
-	private TimeSpanController getController(Database database) {
-		TimeSpanController controller = null;
+	private TimeSpanTable getController(Database database) {
+		TimeSpanTable controller = null;
 		try {
-			controller = new TimeSpanController(database);
+			controller = new TimeSpanTable(database);
 		} catch (FatalException e) {
 			e.printStackTrace();
 		}
@@ -93,8 +93,8 @@ public class TestDbTimeSpan {
 		return controller;
 	}
 
-	private TimeSpanPojo createRow(TimeSpanController controller, UUID playerId) {
-		TimeSpanPojo row = null;
+	private TimeSpanRow createRow(TimeSpanTable controller, UUID playerId) {
+		TimeSpanRow row = null;
 		long counter = 1;
 		LocalDateTime hour = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
 

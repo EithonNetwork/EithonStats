@@ -16,16 +16,16 @@ import net.eithon.library.mysql.Database;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
-import net.eithon.plugin.stats.db.AccumulatedController;
-import net.eithon.plugin.stats.db.AccumulatedPojo;
+import net.eithon.plugin.stats.db.AccumulatedTable;
+import net.eithon.plugin.stats.db.AccumulatedRow;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 public class PlayerStatistics implements IUuidAndName {
 	private static EithonPlugin eithonPlugin;
-	private static AccumulatedController accumulatedController;
-	private AccumulatedPojo _dbRecord;
+	private static AccumulatedTable accumulatedController;
+	private AccumulatedRow _dbRecord;
 
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
@@ -47,7 +47,7 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public static void initialize(EithonPlugin plugin, Database database) throws FatalException {
 		eithonPlugin = plugin;
-		accumulatedController = new AccumulatedController(database);
+		accumulatedController = new AccumulatedTable(database);
 		HourStatistics.initialize(database);
 	}
 
@@ -56,12 +56,12 @@ public class PlayerStatistics implements IUuidAndName {
 	}
 
 	public static PlayerStatistics getOrCreate(OfflinePlayer player) throws FatalException, TryAgainException {
-		AccumulatedPojo accumulated = accumulatedController.readOrCreate(player.getUniqueId());
+		AccumulatedRow accumulated = accumulatedController.readOrCreate(player.getUniqueId());
 		if (accumulated == null) return null;
 		return new PlayerStatistics(accumulated);
 	}
 
-	private PlayerStatistics(AccumulatedPojo record) throws FatalException, TryAgainException {
+	private PlayerStatistics(AccumulatedRow record) throws FatalException, TryAgainException {
 		// Non database
 		this._consecutiveDays = 0;
 		this._startTime = null;

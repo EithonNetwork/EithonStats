@@ -4,10 +4,14 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-import net.eithon.library.mysql.ITable;
+import net.eithon.library.mysql.IRow;
+import net.eithon.library.mysql.Row;
 
-public class AccumulatedPojo implements ITable{
-	public long id;
+public class AccumulatedRow extends Row {
+	public AccumulatedRow() {
+		super("accumulated");
+	}
+	
 	public String player_id;
 	public Timestamp first_start_utc;
 	public Timestamp last_stop_utc;
@@ -22,7 +26,4 @@ public class AccumulatedPojo implements ITable{
 	public BigInteger blocks_broken;
 	public long consecutive_days;
 	public Date last_consecutive_day;
-
-	public long getId() { return this.id; }
-	public String getTableName() { return "accumulated"; }
 }

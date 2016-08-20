@@ -7,28 +7,28 @@ import java.util.UUID;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
-import net.eithon.library.mysql.DbLogic;
+import net.eithon.library.mysql.DbTable;
 
-public class TimeSpanController extends DbLogic<TimeSpanPojo> {
+public class TimeSpanTable extends DbTable<TimeSpanRow> {
 
-	public TimeSpanController(final Database database) throws FatalException {
-		super(TimeSpanPojo.class, database);
+	public TimeSpanTable(final Database database) throws FatalException {
+		super(TimeSpanRow.class, database);
 	}
 
-	public TimeSpanPojo insert(final UUID playerId, LocalDateTime hour, long playtimeInSeconds, long chatActivities, long blocksCreated, long blocksBroken) throws FatalException, TryAgainException {
-		TimeSpanPojo timeSpan = new TimeSpanPojo();
+	public TimeSpanRow insert(final UUID playerId, LocalDateTime hour, long playtimeInSeconds, long chatActivities, long blocksCreated, long blocksBroken) throws FatalException, TryAgainException {
+		TimeSpanRow timeSpan = new TimeSpanRow();
 		timeSpan.player_id = playerId.toString();
 		timeSpan.hour_utc = Timestamp.valueOf(hour);
 		long id = this.jDapper.createOne(timeSpan);
 		return this.jDapper.read(id);
 	}
 
-	public TimeSpanPojo getByPlayerIdHour(final UUID playerId, LocalDateTime hour) throws FatalException, TryAgainException {
+	public TimeSpanRow getByPlayerIdHour(final UUID playerId, LocalDateTime hour) throws FatalException, TryAgainException {
 		final Timestamp hour_utc = Timestamp.valueOf(hour);
 		return this.jDapper.readTheOnlyOneWhere("player_id=? AND hour_utc=?", playerId.toString(), hour_utc);
 	}
 
-	public TimeSpanPojo sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException {
+	public TimeSpanRow sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException {
 		String sql = "SELECT" +
 				" SUM(play_time_in_seconds) AS play_time_in_seconds" + 
 				", SUM(chat_messages) AS chat_messages " +

@@ -13,8 +13,8 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
-import net.eithon.plugin.stats.db.TimeSpanController;
-import net.eithon.plugin.stats.db.TimeSpanPojo;
+import net.eithon.plugin.stats.db.TimeSpanTable;
+import net.eithon.plugin.stats.db.TimeSpanRow;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -22,7 +22,7 @@ import org.bukkit.command.CommandSender;
 
 public class HourStatistics implements IUuidAndName {
 
-	private static TimeSpanController timeSpanController;
+	private static TimeSpanTable timeSpanController;
 	// Saved variables
 	private UUID _playerId;
 	private long _blocksBroken;
@@ -32,7 +32,7 @@ public class HourStatistics implements IUuidAndName {
 	private LocalDateTime _hour;
 	
 	public static void initialize(Database database) throws FatalException {
-		timeSpanController = new TimeSpanController(database);
+		timeSpanController = new TimeSpanTable(database);
 	}
 
 	public static HourStatistics save(HourStatistics earlier, PlayerStatistics now) throws FatalException, TryAgainException {
@@ -43,7 +43,7 @@ public class HourStatistics implements IUuidAndName {
 		long blocksCreated = now.getBlocksCreated() - earlier._blocksCreated;
 		long chatActivities = now.getChatMessages() - earlier._chatActivities;
 		long playtimeInSeconds = now.getTotalTimeInSeconds() - earlier._playtimeInSeconds;
-		TimeSpanPojo timeSpan = timeSpanController.getByPlayerIdHour(earlier._playerId, earlierHour);
+		TimeSpanRow timeSpan = timeSpanController.getByPlayerIdHour(earlier._playerId, earlierHour);
 		if (timeSpan == null) {
 			timeSpan = timeSpanController.insert(playerId, earlierHour, playtimeInSeconds, 
 					chatActivities, blocksCreated, blocksBroken);
@@ -60,7 +60,7 @@ public class HourStatistics implements IUuidAndName {
 
 	public HourStatistics(EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException
 	{
-		TimeSpanPojo timeSpan = timeSpanController.sumPlayer(player.getUniqueId(), fromTime, toTime);
+		TimeSpanRow timeSpan = timeSpanController.sumPlayer(player.getUniqueId(), fromTime, toTime);
 		fromDb(timeSpan);
 		this._playerId = player.getUniqueId();
 		this._hour = fromTime.truncatedTo(ChronoUnit.HOURS);
@@ -90,7 +90,7 @@ public class HourStatistics implements IUuidAndName {
 	}
 
 	private void substractAnyExistingHourValues() throws ClassNotFoundException, SQLException, FatalException, TryAgainException {
-		TimeSpanPojo timeSpan = timeSpanController.getByPlayerIdHour(this._playerId, this._hour);
+		TimeSpanRow timeSpan = timeSpanController.getByPlayerIdHour(this._playerId, this._hour);
 		if (timeSpan == null) return;
 		this._blocksBroken -= timeSpan.blocks_broken;
 		this._blocksCreated -= timeSpan.blocks_created;
@@ -109,7 +109,7 @@ public class HourStatistics implements IUuidAndName {
 		this._playtimeInSeconds = 0;
 	}
 
-	private HourStatistics fromDb(TimeSpanPojo timeSpan)  {
+	private HourStatistics fromDb(TimeSpanRow timeSpan)  {
 		this._playerId = UUID.fromString(timeSpan.player_id);
 		this._chatActivities = timeSpan.chat_messages;
 		this._blocksCreated = timeSpan.blocks_created;

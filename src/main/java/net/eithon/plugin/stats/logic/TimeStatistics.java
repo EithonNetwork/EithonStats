@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit;
 
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.time.TimeMisc;
-import net.eithon.plugin.stats.db.AccumulatedPojo;
+import net.eithon.plugin.stats.db.AccumulatedRow;
 
 public class TimeStatistics {
 	// Saved variables
@@ -33,7 +33,7 @@ public class TimeStatistics {
 		resetTotalPlayTime();
 	}
 
-	TimeStatistics(AccumulatedPojo dbRecord) {
+	TimeStatistics(AccumulatedRow dbRecord) {
 		this._firstStartTime = dbRecord.first_start_utc.toLocalDateTime();
 		this._lastStopTime = dbRecord.last_stop_utc.toLocalDateTime();
 		this._totalPlayTimeInSeconds = dbRecord.play_time_in_seconds;
