@@ -4,11 +4,12 @@ import net.eithon.library.command.CommandSyntaxException;
 import net.eithon.library.command.EithonCommand;
 import net.eithon.library.command.EithonCommandUtilities;
 import net.eithon.library.command.ICommandSyntax;
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.logic.Controller;
-import net.eithon.plugin.stats.logic.TryHandler;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -161,18 +162,14 @@ public class CommandHandler {
 		.setCommandExecutor(eithonCommand -> awayFromKeyboardCommand(eithonCommand));
 	}
 
-	void playerCommand(EithonCommand eithonCommand)
+	void playerCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 
-		TryHandler.handleExceptions(eithonCommand.getSender(),
-				() ->
-		{
-			this._controller.showStats(eithonCommand.getSender(), eithonPlayer);
-		});
+		this._controller.showStats(eithonCommand.getSender(), eithonPlayer);
 	}
 
-	void addCommand(EithonCommand eithonCommand)
+	void addCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 		CommandSender sender = eithonCommand.getSender();
@@ -189,12 +186,9 @@ public class CommandHandler {
 			addBrokenBlocks(brokenBlocks, sender, eithonPlayer);
 	}
 
-	private boolean addTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlayTimeInSeconds = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addPlayTime(sender, eithonPlayer, playTimeInSeconds);
+	private boolean addTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalPlayTimeInSeconds = this._controller.addPlayTime(sender, eithonPlayer, playTimeInSeconds);
 
-		});
 		Config.M.playTimeAdded.sendMessage(
 				sender,
 				TimeMisc.secondsToString(playTimeInSeconds),
@@ -203,11 +197,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	private boolean addConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalConsecutiveDays = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addConsecutiveDays(sender, eithonPlayer, consecutiveDays);
-		});
+	private boolean addConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalConsecutiveDays = this._controller.addConsecutiveDays(sender, eithonPlayer, consecutiveDays);
 		Config.M.consecutiveDaysAdded.sendMessage(
 				sender,
 				consecutiveDays,
@@ -216,11 +207,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	private boolean addPlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlacedBlocks = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addPlacedBlocks(sender, eithonPlayer, createdBlocks);
-		});
+	private boolean addPlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalPlacedBlocks = this._controller.addPlacedBlocks(sender, eithonPlayer, createdBlocks);
 		Config.M.placedBlocksAdded.sendMessage(
 				sender,
 				createdBlocks,
@@ -229,11 +217,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	private boolean addBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalBrokenBlocks = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addBrokenBlocks(sender, eithonPlayer, brokenBlocks);
-		});
+	private boolean addBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(sender, eithonPlayer, brokenBlocks);
 		Config.M.brokenBlocksAdded.sendMessage(
 				sender,
 				brokenBlocks,
@@ -242,7 +227,7 @@ public class CommandHandler {
 		return true;
 	}
 
-	void removeCommand(EithonCommand eithonCommand)
+	void removeCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 		CommandSender sender = eithonCommand.getSender();
@@ -259,11 +244,8 @@ public class CommandHandler {
 			removeBrokenBlocks(brokenBlocks, sender, eithonPlayer);
 	}
 
-	public boolean removeTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlayTimeInSeconds = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addPlayTime(sender, eithonPlayer, -playTimeInSeconds);
-		});
+	public boolean removeTime(long playTimeInSeconds, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalPlayTimeInSeconds = this._controller.addPlayTime(sender, eithonPlayer, -playTimeInSeconds);
 		Config.M.playTimeRemoved.sendMessage(
 				sender,
 				TimeMisc.secondsToString(playTimeInSeconds),
@@ -272,11 +254,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	public boolean removeConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalConsecutiveDays = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addConsecutiveDays(sender, eithonPlayer, -consecutiveDays);
-		});
+	public boolean removeConsecutiveDays(int consecutiveDays, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalConsecutiveDays = this._controller.addConsecutiveDays(sender, eithonPlayer, -consecutiveDays);
 		Config.M.consecutiveDaysRemoved.sendMessage(
 				sender,
 				consecutiveDays,
@@ -285,11 +264,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	public boolean removePlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalPlacedBlocks = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addPlacedBlocks(sender, eithonPlayer, -createdBlocks);
-		});
+	public boolean removePlacedBlocks(int createdBlocks, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalPlacedBlocks = this._controller.addPlacedBlocks(sender, eithonPlayer, -createdBlocks);
 		Config.M.placedBlocksRemoved.sendMessage(
 				sender,
 				createdBlocks,
@@ -298,11 +274,8 @@ public class CommandHandler {
 		return true;
 	}
 
-	public boolean removeBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) {
-		long totalBrokenBlocks = TryHandler.handleExceptions(sender, () ->
-		{
-			return this._controller.addBrokenBlocks(sender, eithonPlayer, -brokenBlocks);
-		});
+	public boolean removeBrokenBlocks(int brokenBlocks, CommandSender sender, EithonPlayer eithonPlayer) throws FatalException, TryAgainException {
+		long totalBrokenBlocks = this._controller.addBrokenBlocks(sender, eithonPlayer, -brokenBlocks);
 		Config.M.brokenBlocksRemoved.sendMessage(
 				sender,
 				brokenBlocks,
@@ -311,61 +284,46 @@ public class CommandHandler {
 		return true;
 	}
 
-	void resetCommand(EithonCommand eithonCommand)
+	void resetCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		EithonPlayer eithonPlayer = eithonCommand.getArgument("player").asEithonPlayer();
 
-		final boolean resetPlayTime = TryHandler.handleExceptions(eithonCommand.getSender(), () ->
-		{
-			return this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer);
-		});
+		final boolean resetPlayTime = this._controller.resetPlayTime(eithonCommand.getSender(), eithonPlayer);
 		if (!resetPlayTime) return;
 		Config.M.playTimeReset.sendMessage(
 				eithonCommand.getSender(),
 				eithonPlayer.getName());
 	}
 
-	void startCommand(EithonCommand eithonCommand)
+	void startCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		Player player = eithonCommand.getArgument("player").asPlayer();
 
-		TryHandler.handleExceptions(eithonCommand.getSender(), () ->
-		{
-			this._controller.startPlayer(player);
-		});
+		this._controller.startPlayer(player);
 		Config.M.playerStarted.sendMessage(eithonCommand.getSender(), player.getName());
 	}
 
-	void stopCommand(EithonCommand eithonCommand)
+	void stopCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		Player player = eithonCommand.getArgument("player").asPlayer();
 
 		CommandSender sender = eithonCommand.getSender();
-		TryHandler.handleExceptions(sender, () ->
-		{
 			this._controller.stopPlayer(sender, player, Config.M.inactivityDetected.getMessage());
-		});
 		Config.M.playerStopped.sendMessage(eithonCommand.getSender(), player.getName());
 	}
 
-	private void awayFromKeyboardCommand(EithonCommand eithonCommand) {
+	private void awayFromKeyboardCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException {
 		String descr = eithonCommand.getArgument("description").asString();
 		if ((descr == null) || descr.isEmpty()) descr = Config.M.defaultAfkDescription.getMessage();
 		final String description = descr;
 
 		CommandSender sender = eithonCommand.getSender();
-		TryHandler.handleExceptions(sender, () ->
-		{
-			this._controller.stopPlayer(sender, eithonCommand.getPlayer(), description);
-		});
+		this._controller.stopPlayer(sender, eithonCommand.getPlayer(), description);
 	}
 
-	void saveCommand(EithonCommand eithonCommand)
+	void saveCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
-		TryHandler.handleExceptions(eithonCommand.getSender(), () ->
-		{
-			this._controller.save();
-		});
+		this._controller.save();
 		Config.M.saved.sendMessage(eithonCommand.getSender());
 	}
 
@@ -404,7 +362,7 @@ public class CommandHandler {
 		this._controller.showChatStats(eithonCommand.getSender(), ascending, maxItems);
 	}
 
-	void diffCommand(EithonCommand eithonCommand)
+	void diffCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		int daysBack = eithonCommand.getArgument("days-back").asInteger();
 		String direction = eithonCommand.getArgument("direction").asString();
@@ -413,22 +371,16 @@ public class CommandHandler {
 		int maxItems = eithonCommand.getArgument("max-items").asInteger();
 
 		final CommandSender sender = eithonCommand.getSender();
-		TryHandler.handleExceptions(sender, () ->
-		{
-			this._controller.showDiffStats(sender, daysBack, ascending, maxItems);
-		});
+		this._controller.showDiffStats(sender, daysBack, ascending, maxItems);
 	}
 
-	void playerDiffCommand(EithonCommand eithonCommand)
+	void playerDiffCommand(EithonCommand eithonCommand) throws FatalException, TryAgainException
 	{
 		EithonPlayer player = eithonCommand.getArgument("player").asEithonPlayer();
 		int daysBack = eithonCommand.getArgument("days-back").asInteger();
 
 		final CommandSender sender = eithonCommand.getSender();
-		TryHandler.handleExceptions(sender, () ->
-		{
-			this._controller.showDiffStats(sender, player, daysBack);
-		});
+		this._controller.showDiffStats(sender, player, daysBack);
 	}
 
 	void statusCommand(EithonCommand eithonCommand)

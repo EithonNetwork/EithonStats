@@ -66,7 +66,7 @@ public class TestDbAccumulated {
 		AccumulatedController controller = getController(database);
 		AccumulatedPojo row = createRow(database, playerId);
 		Assert.assertNotNull(row);
-		AccumulatedPojo updated = updateAndRead(row.id, controller);
+		updateAndRead(row.id, controller);
 	}
 
 	private AccumulatedPojo updateAndRead(long id, AccumulatedController controller) {

@@ -1,20 +1,18 @@
 package net.eithon.plugin.stats.db;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import net.eithon.library.mysql.Database;
-import net.eithon.library.mysql.JDapper;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
+import net.eithon.library.mysql.Database;
+import net.eithon.library.mysql.DbLogic;
 
-public class TimeSpanController {
-	private JDapper<TimeSpanPojo> jDapper;
+public class TimeSpanController extends DbLogic<TimeSpanPojo> {
 
 	public TimeSpanController(final Database database) throws FatalException {
-		this.jDapper = new JDapper<TimeSpanPojo>(TimeSpanPojo.class, database);
+		super(TimeSpanPojo.class, database);
 	}
 
 	public TimeSpanPojo insert(final UUID playerId, LocalDateTime hour, long playtimeInSeconds, long chatActivities, long blocksCreated, long blocksBroken) throws FatalException, TryAgainException {
@@ -38,9 +36,5 @@ public class TimeSpanController {
 				", SUM(blocks_broken) AS blocks_broken " +
 				" FROM timespan WHERE player_id=? AND hour_utc>=? AND hour_utc<=?'";
 		return this.jDapper.readTheOnlyOne(sql, playerId, fromTime, toTime);
-	}
-
-	public void update(TimeSpanPojo data) throws FatalException, TryAgainException {
-		this.jDapper.updateWhere(data, "id = ?", data.id);
 	}
 }

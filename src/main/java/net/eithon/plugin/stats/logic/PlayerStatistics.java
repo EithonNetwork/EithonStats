@@ -3,7 +3,6 @@ package net.eithon.plugin.stats.logic;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
