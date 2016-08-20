@@ -2,7 +2,6 @@ package net.eithon.plugin.stats.db;
 
 import java.sql.Timestamp;
 
-import net.eithon.library.mysql.IRow;
 import net.eithon.library.mysql.Row;
 
 public class TimeSpanRow extends Row {

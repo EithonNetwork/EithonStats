@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-import net.eithon.library.mysql.IRow;
 import net.eithon.library.mysql.Row;
 
 public class AccumulatedRow extends Row {
