@@ -10,6 +10,7 @@ import java.util.UUID;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.plugin.stats.db.AccumulatedTable;
 import net.eithon.plugin.stats.db.AccumulatedRow;
 
@@ -90,7 +91,7 @@ public class TestDbAccumulated {
 		newValues.blocks_broken = BigInteger.valueOf(counter++);
 		newValues.blocks_created = BigInteger.valueOf(counter++);
 		newValues.consecutive_days = counter++;
-		newValues.last_consecutive_day = Date.valueOf(timeCounter.toLocalDate());
+		newValues.last_consecutive_day = EithonSqlConvert.toSqlDate(timeCounter);
 		timeCounter = timeCounter.plusDays(1);
 		
 		AccumulatedRow updated = null;

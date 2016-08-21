@@ -13,6 +13,7 @@ import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
@@ -77,7 +78,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._chatMessages = this._dbRecord.chat_messages;
 		this._lastChatMessage = this._dbRecord.last_chat_message_utc.toLocalDateTime();
 		this._consecutiveDays = this._dbRecord.consecutive_days;
-		this._lastConsecutiveDay = LocalDateTime.from(this._dbRecord.last_consecutive_day.toLocalDate());
+		this._lastConsecutiveDay = EithonSqlConvert.toLocalDateTime(this._dbRecord.last_consecutive_day);
 		if (this._lastConsecutiveDay == null) {
 			this._lastConsecutiveDay = this._timeInfo.getToday();
 		}
@@ -243,7 +244,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._dbRecord.blocks_created = BigInteger.valueOf(this._blocksCreated);
 		this._dbRecord.blocks_broken = BigInteger.valueOf(this._blocksBroken);
 		this._dbRecord.consecutive_days = this._consecutiveDays;
-		this._dbRecord.last_consecutive_day = Date.valueOf(this._lastConsecutiveDay.toLocalDate());
+		this._dbRecord.last_consecutive_day = EithonSqlConvert.toSqlDate(this._lastConsecutiveDay);
 		saveTimeSpan();
 		eithonPlugin.dbgMajor("Saved player %s", getName());
 		this._hasBeenUpdated = false;

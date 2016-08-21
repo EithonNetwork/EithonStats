@@ -21,7 +21,7 @@ public class AccumulatedTable extends DbTable<AccumulatedRow> {
 	}
 
 	public AccumulatedRow getByPlayerId(final UUID playerId) throws FatalException, TryAgainException {
-		return this.jDapper.readTheOnlyOneWhere("player_id=?", playerId);
+		return this.jDapper.readTheOnlyOneWhere("player_id=?", playerId.toString());
 	}
 
 	public AccumulatedRow readOrCreate(final UUID playerId) throws FatalException, TryAgainException {

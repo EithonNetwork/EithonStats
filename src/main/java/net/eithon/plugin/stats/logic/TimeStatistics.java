@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.db.AccumulatedRow;
 
@@ -38,7 +39,7 @@ public class TimeStatistics {
 		this._lastStopTime = dbRecord.last_stop_utc.toLocalDateTime();
 		this._totalPlayTimeInSeconds = dbRecord.play_time_in_seconds;
 		this._longestIntervalInSeconds = dbRecord.longest_interval_in_seconds;
-		this._today = LocalDateTime.from(dbRecord.today.toLocalDate());
+		this._today = EithonSqlConvert.toLocalDateTime(dbRecord.today);
 		this._playTimeTodayInSeconds = dbRecord.play_time_today_in_seconds;
 	}
 
