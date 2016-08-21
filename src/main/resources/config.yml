@@ -37,14 +37,14 @@ database:
 
 # TST
 #  Name: TST_e_stats
-#  Hostname: rookgard.eithon.net
+#  Hostname: rookgaard.eithon.net
 #  Port: 3307
 #  Username: TST_e_plugin
-#  Password: bWfRHZsAy42RdFBJ
+#  Password: u26WuNDKXsBU8y8f
 
 # DEV
 #  Name: DEV_e_stats
-#  Hostname: rookgard.eithon.net
+#  Hostname: rookgaard.eithon.net
 #  Port: 3307
 #  Username: DEV_e_plugin
 #  Password: J5FE9EFCD1GX8tjg

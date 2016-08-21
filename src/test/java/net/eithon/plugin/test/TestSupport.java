@@ -8,7 +8,7 @@ import org.junit.Assert;
 
 public class TestSupport {
 	public static Database getDatabaseAndTruncateTables() {
-		Database database = new Database("rookgaard.eithon.net", "3307", "DEV_e_stats", "DEV_e_plugin", "J5FE9EFCD1GX8tjg");
+		Database database = new Database("rookgaard.eithon.net", "3307", "DEV_e_stats", "DEV_e_plugin", "DEV_e_plugin");
 		try {
 			database.executeUpdate("DELETE FROM `accumulated`");
 			database.executeUpdate("DELETE FROM `timespan`");
