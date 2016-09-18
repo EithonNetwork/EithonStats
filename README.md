@@ -4,7 +4,7 @@ Keep track of Player statistics
 
 ## Release history
 
-### 2.5 (2016-08-13)
+### 2.5 (2016-09-18)
 
 * CHANGE: New DB library.
 

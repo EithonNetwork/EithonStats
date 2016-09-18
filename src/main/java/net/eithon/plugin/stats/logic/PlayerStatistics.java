@@ -245,6 +245,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._dbRecord.blocks_broken = BigInteger.valueOf(this._blocksBroken);
 		this._dbRecord.consecutive_days = this._consecutiveDays;
 		this._dbRecord.last_consecutive_day = EithonSqlConvert.toSqlDate(this._lastConsecutiveDay);
+		accumulatedController.update(this._dbRecord);
 		saveTimeSpan();
 		eithonPlugin.dbgMajor("Saved player %s", getName());
 		this._hasBeenUpdated = false;
