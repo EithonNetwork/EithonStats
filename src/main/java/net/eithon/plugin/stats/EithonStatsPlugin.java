@@ -1,5 +1,7 @@
 package net.eithon.plugin.stats;
 
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.IRepeatable;
@@ -14,7 +16,12 @@ public final class EithonStatsPlugin extends EithonPlugin {
 	public void onEnable() {
 		super.onEnable();
 		Config.load(this);
-		this._controller = new Controller(this);
+		try {
+			this._controller = new Controller(this);
+		} catch (FatalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		CommandHandler commandHandler = new CommandHandler(this, this._controller);
 		Listener eventListener = new EventListener(this, this._controller);
 		autoSave();
@@ -25,7 +32,12 @@ public final class EithonStatsPlugin extends EithonPlugin {
 
 	@Override
 	public void onDisable() {
-		this._controller.save();
+		try {
+			this._controller.save();
+		} catch (FatalException | TryAgainException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.onDisable();
 		this._controller = null;
 	}
@@ -37,7 +49,12 @@ public final class EithonStatsPlugin extends EithonPlugin {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.save();
+				try {
+					thisObject._controller.save();
+				} catch (FatalException | TryAgainException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return true;
 			}
 		});
@@ -50,7 +67,12 @@ public final class EithonStatsPlugin extends EithonPlugin {
 			@Override
 			public boolean repeat() {
 				if (thisObject._controller == null) return false;
-				thisObject._controller.timespanSave();
+				try {
+					thisObject._controller.timespanSave();
+				} catch (FatalException | TryAgainException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return true;
 			}
 		});

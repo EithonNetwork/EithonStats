@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.library.time.TimeMisc;
-import net.eithon.plugin.stats.db.Accumulated;
+import net.eithon.plugin.stats.db.AccumulatedRow;
 
 public class TimeStatistics {
 	// Saved variables
@@ -17,30 +19,31 @@ public class TimeStatistics {
 	private long _intervals;
 	private long _longestIntervalInSeconds;
 	private LocalDateTime _today;
-	private long _playTimeTodayInSeconds;
+	private long _playTimeTodayInSeconds;	
+
 
 	// Non-saved, internal variables
 	private long _previousIntervalInSeconds;
 	private LocalDateTime _previousStartTime;
 	private LocalDateTime _previousStopTime;
-
-	public TimeStatistics()
+	
+	public TimeStatistics() throws FatalException
 	{
 		this._previousStartTime = null;
 		this._previousIntervalInSeconds = 0;
 		resetTotalPlayTime();
 	}
 
-	TimeStatistics(Accumulated dbRecord) {
-		this._firstStartTime = dbRecord.get_firstStartTime();
-		this._lastStopTime = dbRecord.get_lastStopTime();
-		this._totalPlayTimeInSeconds = dbRecord.get_totalPlayTimeInSeconds();
-		this._longestIntervalInSeconds = dbRecord.get_longestIntervalInSeconds();
-		this._today = dbRecord.get_today();
-		this._playTimeTodayInSeconds = dbRecord.get_playTimeTodayInSeconds();
+	TimeStatistics(AccumulatedRow dbRecord) {
+		this._firstStartTime = dbRecord.first_start_utc.toLocalDateTime();
+		this._lastStopTime = dbRecord.last_stop_utc.toLocalDateTime();
+		this._totalPlayTimeInSeconds = dbRecord.play_time_in_seconds;
+		this._longestIntervalInSeconds = dbRecord.longest_interval_in_seconds;
+		this._today = EithonSqlConvert.toLocalDateTime(dbRecord.today);
+		this._playTimeTodayInSeconds = dbRecord.play_time_today_in_seconds;
 	}
 
-	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) {
+	public static TimeStatistics getDifference(TimeStatistics now, TimeStatistics then) throws FatalException {
 		TimeStatistics diff = new TimeStatistics();
 		diff._firstStartTime = now._firstStartTime;
 		diff._intervals = now._intervals - ((then == null) ? 0 : then._intervals);
@@ -148,7 +151,7 @@ public class TimeStatistics {
 		return this;
 	}
 
-	public static TimeStatistics getFromDb(ResultSet resultSet) throws SQLException {
+	public static TimeStatistics getFromDb(ResultSet resultSet) throws SQLException, FatalException {
 		TimeStatistics info = new TimeStatistics();
 		return info.fromDb(resultSet);
 	}

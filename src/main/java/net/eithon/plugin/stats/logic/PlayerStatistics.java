@@ -1,25 +1,32 @@
 package net.eithon.plugin.stats.logic;
 
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
 
 import net.eithon.library.core.IUuidAndName;
+import net.eithon.library.exceptions.FatalException;
+import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.mysql.Database;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
-import net.eithon.plugin.stats.db.Accumulated;
+import net.eithon.plugin.stats.db.AccumulatedTable;
+import net.eithon.plugin.stats.db.AccumulatedRow;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 public class PlayerStatistics implements IUuidAndName {
 	private static EithonPlugin eithonPlugin;
-	private Accumulated _dbRecord;
+	private static AccumulatedTable accumulatedController;
+	private AccumulatedRow _dbRecord;
 
 	// Saved variables
 	private EithonPlayer _eithonPlayer;
@@ -39,29 +46,23 @@ public class PlayerStatistics implements IUuidAndName {
 	private String _afkDescription;
 	private HourStatistics _lastHourAccumulated;
 
-
-	public static void initialize(EithonPlugin plugin) {
+	public static void initialize(EithonPlugin plugin, Database database) throws FatalException {
 		eithonPlugin = plugin;
+		accumulatedController = new AccumulatedTable(database);
+		HourStatistics.initialize(database);
 	}
 
-	public static PlayerStatistics get(Database database, OfflinePlayer player)  {
-		Accumulated record = null;
-		record = getByPlayerId(database, player, record);
-		if (record == null) return null;
-		return new PlayerStatistics(database, record);
+	public static PlayerStatistics get(OfflinePlayer player) throws FatalException, TryAgainException  {
+		return new PlayerStatistics(accumulatedController.getByPlayerId(player.getUniqueId()));
 	}
 
-	public static PlayerStatistics getOrCreate(Database database, OfflinePlayer player) {
-		PlayerStatistics statistics = get(database, player);
-		if (statistics !=null) return statistics;
-
-		Accumulated record = null;
-		record = create(database, player, record);
-		if (record == null) return null;
-		return new PlayerStatistics(database, record);
+	public static PlayerStatistics getOrCreate(OfflinePlayer player) throws FatalException, TryAgainException {
+		AccumulatedRow accumulated = accumulatedController.readOrCreate(player.getUniqueId());
+		if (accumulated == null) return null;
+		return new PlayerStatistics(accumulated);
 	}
 
-	private PlayerStatistics(Database database, Accumulated record) {
+	private PlayerStatistics(AccumulatedRow record) throws FatalException, TryAgainException {
 		// Non database
 		this._consecutiveDays = 0;
 		this._startTime = null;
@@ -71,37 +72,17 @@ public class PlayerStatistics implements IUuidAndName {
 		// From database
 		this._dbRecord = record;
 		this._timeInfo = new TimeStatistics(this._dbRecord);
-		this._eithonPlayer = new EithonPlayer(this._dbRecord.get_playerId());
-		this._blocksBroken = this._dbRecord.get_blocksBroken();
-		this._blocksCreated = this._dbRecord.get_blocksCreated();
-		this._chatMessages = this._dbRecord.get_chatMessages();
-		this._lastChatMessage = this._dbRecord.get_lastChatMessage();
-		this._consecutiveDays = this._dbRecord.get_consecutiveDays();
-		this._lastConsecutiveDay = this._dbRecord.get_lastConsecutiveDay();
+		this._eithonPlayer = new EithonPlayer(UUID.fromString(this._dbRecord.player_id));
+		this._blocksBroken = this._dbRecord.blocks_broken.longValue();
+		this._blocksCreated = this._dbRecord.blocks_created.longValue();
+		this._chatMessages = this._dbRecord.chat_messages;
+		this._lastChatMessage = this._dbRecord.last_chat_message_utc.toLocalDateTime();
+		this._consecutiveDays = this._dbRecord.consecutive_days;
+		this._lastConsecutiveDay = EithonSqlConvert.toLocalDateTime(this._dbRecord.last_consecutive_day);
 		if (this._lastConsecutiveDay == null) {
 			this._lastConsecutiveDay = this._timeInfo.getToday();
 		}
-		this._lastHourAccumulated = new HourStatistics(database, this, LocalDateTime.now());	
-	}
-
-	private static Accumulated getByPlayerId(Database database,
-			OfflinePlayer player, Accumulated record) {
-		try {
-			record = Accumulated.getByPlayerId(database, player.getUniqueId());
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return record;
-	}
-
-	private static Accumulated create(Database database, OfflinePlayer player,
-			Accumulated record) {
-		try {
-			record = Accumulated.create(database, player.getUniqueId());
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return record;
+		this._lastHourAccumulated = new HourStatistics(this, LocalDateTime.now());	
 	}
 
 	void resetConsecutiveDays() {
@@ -124,7 +105,11 @@ public class PlayerStatistics implements IUuidAndName {
 						Config.V.allowedInactivityInSeconds,
 						new Runnable() {
 					public void run() {
-						setAsIdle();
+						try {
+							setAsIdle();
+						} catch (FatalException | TryAgainException e) {
+							e.printStackTrace();
+						}
 					}
 				});
 	}
@@ -133,15 +118,11 @@ public class PlayerStatistics implements IUuidAndName {
 		return this._eithonPlayer.isOnline();
 	}
 
-	protected void setAsIdle() {
+	protected void setAsIdle() throws FatalException, TryAgainException {
 		if (isAfk()) return;
 		eithonPlugin.dbgMinor("Player %s is idle", getName());
 		stop(Config.M.playerIdle.getMessage());
-		try {
-			save(false);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
+		save(false);
 		this._alarmId = null;
 	}
 
@@ -245,26 +226,26 @@ public class PlayerStatistics implements IUuidAndName {
 	public void addBlocksCreated(long blocks) { this._blocksCreated += blocks; }
 	public void addBlocksBroken(long blocks) { this._blocksBroken += blocks; }
 
-	public void save(boolean doLap) throws SQLException, ClassNotFoundException {
+	public void save(boolean doLap) throws FatalException, TryAgainException {
 		if (!this._hasBeenUpdated) return;
 		if (doLap) {
 			lap();
 		}
-		this._dbRecord.update(
-				this._eithonPlayer.getName(),
-				this._timeInfo.getFirstStartTime(),
-				this._timeInfo.getLastStopTime(),
-				this._timeInfo.getTotalPlayTimeInSeconds(),
-				this._timeInfo.getIntervals(),
-				this._timeInfo.getLongestIntervalInSeconds(),
-				this._timeInfo.getPlayTimeTodayInSeconds(),
-				this._timeInfo.getToday(),
-				this._chatMessages,
-				this._lastChatMessage,
-				this._blocksCreated, 
-				this._blocksBroken, 
-				this._consecutiveDays, 
-				this._lastConsecutiveDay);
+		this._dbRecord.player_id = this._eithonPlayer.getUniqueId().toString();
+		this._dbRecord.first_start_utc = Timestamp.valueOf(this._timeInfo.getFirstStartTime());
+		this._dbRecord.last_stop_utc = Timestamp.valueOf(this._timeInfo.getLastStopTime());
+		this._dbRecord.play_time_in_seconds = this._timeInfo.getTotalPlayTimeInSeconds();
+		this._dbRecord.joins = this._timeInfo.getIntervals();
+		this._dbRecord.longest_interval_in_seconds = this._timeInfo.getLongestIntervalInSeconds();
+		this._dbRecord.play_time_today_in_seconds = this._timeInfo.getPlayTimeTodayInSeconds();
+		this._dbRecord.today = Date.valueOf(this._timeInfo.getToday().toLocalDate());
+		this._dbRecord.chat_messages = this._chatMessages;
+		this._dbRecord.last_chat_message_utc = Timestamp.valueOf(this._lastChatMessage);
+		this._dbRecord.blocks_created = BigInteger.valueOf(this._blocksCreated);
+		this._dbRecord.blocks_broken = BigInteger.valueOf(this._blocksBroken);
+		this._dbRecord.consecutive_days = this._consecutiveDays;
+		this._dbRecord.last_consecutive_day = EithonSqlConvert.toSqlDate(this._lastConsecutiveDay);
+		accumulatedController.update(this._dbRecord);
 		saveTimeSpan();
 		eithonPlugin.dbgMajor("Saved player %s", getName());
 		this._hasBeenUpdated = false;
@@ -382,10 +363,11 @@ public class PlayerStatistics implements IUuidAndName {
 
 	public long getBlocksBroken() { return this._blocksBroken; }
 
-	public void saveTimeSpan() throws SQLException, ClassNotFoundException {
-		this._lastHourAccumulated = HourStatistics.save(this._dbRecord.getDatabase(), this._lastHourAccumulated, this);
+	public void saveTimeSpan() throws FatalException, TryAgainException {
+
+		this._lastHourAccumulated = HourStatistics.save(this._lastHourAccumulated, this);
 	}
-	
+
 	private static void verbose(String method, String format, Object... args)
 	{
 		eithonPlugin.dbgVerbose("PlayerStatistics", method, format, args);

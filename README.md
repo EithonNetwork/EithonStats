@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.5 (2016-09-18)
+
+* CHANGE: New DB library.
+
 ### 2.4 (2016-06-30)
 
 * CHANGE: Minecraft 1.10
