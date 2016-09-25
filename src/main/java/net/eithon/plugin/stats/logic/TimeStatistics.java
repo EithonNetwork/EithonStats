@@ -38,8 +38,8 @@ public class TimeStatistics {
 
 	TimeStatistics(AccumulatedRow dbRecord) {
 		if (dbRecord == null) throw new NullArgumentException("dbRecord");
-		this._firstStartTime = dbRecord.first_start_utc == null ? null : dbRecord.first_start_utc.toLocalDateTime();
-		this._lastStopTime = dbRecord.last_stop_utc == null ? null : dbRecord.last_stop_utc.toLocalDateTime();
+		this._firstStartTime = EithonSqlConvert.toLocalDateTime(dbRecord.first_start_utc);
+		this._lastStopTime = EithonSqlConvert.toLocalDateTime(dbRecord.last_stop_utc);
 		this._totalPlayTimeInSeconds = dbRecord.play_time_in_seconds;
 		this._longestIntervalInSeconds = dbRecord.longest_interval_in_seconds;
 		this._today = EithonSqlConvert.toLocalDateTime(dbRecord.today);

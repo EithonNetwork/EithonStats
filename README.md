@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.5.2 (2016-09-25)
+
+* BUG: Null pointer exception. Introduced safer time conversions.
+
 ### 2.5.1 (2016-09-18)
 
 * BUG: Null pointer exception.
