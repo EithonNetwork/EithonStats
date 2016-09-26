@@ -2,7 +2,6 @@ package net.eithon.plugin.stats.logic;
 
 import java.math.BigInteger;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
@@ -17,8 +16,8 @@ import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.library.time.AlarmTrigger;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
-import net.eithon.plugin.stats.db.AccumulatedTable;
 import net.eithon.plugin.stats.db.AccumulatedRow;
+import net.eithon.plugin.stats.db.AccumulatedTable;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -76,7 +75,7 @@ public class PlayerStatistics implements IUuidAndName {
 		this._blocksBroken = this._dbRecord.blocks_broken.longValue();
 		this._blocksCreated = this._dbRecord.blocks_created.longValue();
 		this._chatMessages = this._dbRecord.chat_messages;
-		this._lastChatMessage = this._dbRecord.last_chat_message_utc.toLocalDateTime();
+		this._lastChatMessage = EithonSqlConvert.toLocalDateTime(this._dbRecord.last_chat_message_utc);
 		this._consecutiveDays = this._dbRecord.consecutive_days;
 		this._lastConsecutiveDay = EithonSqlConvert.toLocalDateTime(this._dbRecord.last_consecutive_day);
 		if (this._lastConsecutiveDay == null) {
@@ -232,15 +231,15 @@ public class PlayerStatistics implements IUuidAndName {
 			lap();
 		}
 		this._dbRecord.player_id = this._eithonPlayer.getUniqueId().toString();
-		this._dbRecord.first_start_utc = Timestamp.valueOf(this._timeInfo.getFirstStartTime());
-		this._dbRecord.last_stop_utc = Timestamp.valueOf(this._timeInfo.getLastStopTime());
+		this._dbRecord.first_start_utc = EithonSqlConvert.toSqlTimestamp(this._timeInfo.getFirstStartTime());
+		this._dbRecord.last_stop_utc = EithonSqlConvert.toSqlTimestamp(this._timeInfo.getLastStopTime());
 		this._dbRecord.play_time_in_seconds = this._timeInfo.getTotalPlayTimeInSeconds();
 		this._dbRecord.joins = this._timeInfo.getIntervals();
 		this._dbRecord.longest_interval_in_seconds = this._timeInfo.getLongestIntervalInSeconds();
 		this._dbRecord.play_time_today_in_seconds = this._timeInfo.getPlayTimeTodayInSeconds();
 		this._dbRecord.today = Date.valueOf(this._timeInfo.getToday().toLocalDate());
 		this._dbRecord.chat_messages = this._chatMessages;
-		this._dbRecord.last_chat_message_utc = Timestamp.valueOf(this._lastChatMessage);
+		this._dbRecord.last_chat_message_utc = EithonSqlConvert.toSqlTimestamp(this._lastChatMessage);
 		this._dbRecord.blocks_created = BigInteger.valueOf(this._blocksCreated);
 		this._dbRecord.blocks_broken = BigInteger.valueOf(this._blocksBroken);
 		this._dbRecord.consecutive_days = this._consecutiveDays;

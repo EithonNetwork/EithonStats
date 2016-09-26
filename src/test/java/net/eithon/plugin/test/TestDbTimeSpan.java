@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
+import net.eithon.library.mysql.EithonSqlConvert;
 import net.eithon.plugin.stats.db.TimeSpanTable;
 import net.eithon.plugin.stats.db.TimeSpanRow;
 
@@ -32,7 +33,7 @@ public class TestDbTimeSpan {
 		Assert.assertNotNull(row);
 		TimeSpanRow created = null;
 		try {
-			created = controller.getByPlayerIdHour(playerId, row.hour_utc.toLocalDateTime());
+			created = controller.getByPlayerIdHour(playerId, EithonSqlConvert.toLocalDateTime(row.hour_utc));
 		} catch (FatalException | TryAgainException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,7 +55,7 @@ public class TestDbTimeSpan {
 		Assert.assertNotNull(row);
 		TimeSpanRow created = null;
 		try {
-			created = controller.getByPlayerIdHour(playerId, row.hour_utc.toLocalDateTime());
+			created = controller.getByPlayerIdHour(playerId, EithonSqlConvert.toLocalDateTime(row.hour_utc));
 		} catch (FatalException | TryAgainException e) {
 			e.printStackTrace();
 			Assert.fail();

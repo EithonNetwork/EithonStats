@@ -75,9 +75,9 @@ public class TestDbAccumulated {
 		newValues.id = id;
 		LocalDateTime timeCounter = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		newValues.player_id = UUID.randomUUID().toString();
-		newValues.first_start_utc = Timestamp.valueOf(timeCounter);
+		newValues.first_start_utc = EithonSqlConvert.toSqlTimestamp(timeCounter);
 		timeCounter = timeCounter.plusDays(1);
-		newValues.last_stop_utc = Timestamp.valueOf(timeCounter);
+		newValues.last_stop_utc = EithonSqlConvert.toSqlTimestamp(timeCounter);
 		timeCounter = timeCounter.plusDays(1);
 		long counter = 1;
 		newValues.play_time_in_seconds = counter++;
@@ -86,7 +86,7 @@ public class TestDbAccumulated {
 		newValues.today = Date.valueOf(timeCounter.toLocalDate());
 		timeCounter = timeCounter.plusDays(1);
 		newValues.chat_messages = counter++;
-		newValues.last_chat_message_utc = Timestamp.valueOf(timeCounter);
+		newValues.last_chat_message_utc = EithonSqlConvert.toSqlTimestamp(timeCounter);
 		timeCounter = timeCounter.plusDays(1);
 		newValues.blocks_broken = BigInteger.valueOf(counter++);
 		newValues.blocks_created = BigInteger.valueOf(counter++);
