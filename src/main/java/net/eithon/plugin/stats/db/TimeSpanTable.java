@@ -35,7 +35,7 @@ public class TimeSpanTable extends DbTable<TimeSpanRow> {
 				", SUM(chat_messages) AS chat_messages " +
 				", SUM(blocks_created) AS blocks_created " +
 				", SUM(blocks_broken) AS blocks_broken " +
-				" FROM timespan WHERE player_id=? AND hour_utc>=? AND hour_utc<=?'";
+				" FROM timespan WHERE player_id=? AND hour_utc>=? AND hour_utc<=?";
 		return this.jDapper.readTheOnlyOne(sql, playerId, fromTime, toTime);
 	}
 }
