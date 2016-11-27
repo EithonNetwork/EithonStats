@@ -13,6 +13,8 @@ import net.eithon.library.extensions.EithonPlayer;
 import net.eithon.library.mysql.Database;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.stats.Config;
+import net.eithon.plugin.stats.db.TimeSpanSummaryRow;
+import net.eithon.plugin.stats.db.TimeSpanSummaryTable;
 import net.eithon.plugin.stats.db.TimeSpanTable;
 import net.eithon.plugin.stats.db.TimeSpanRow;
 
@@ -23,6 +25,7 @@ import org.bukkit.command.CommandSender;
 public class HourStatistics implements IUuidAndName {
 
 	private static TimeSpanTable timeSpanController;
+	private static TimeSpanSummaryTable timeSpanSummaryController;
 	// Saved variables
 	private UUID _playerId;
 	private long _blocksBroken;
@@ -33,6 +36,7 @@ public class HourStatistics implements IUuidAndName {
 	
 	public static void initialize(Database database) throws FatalException {
 		timeSpanController = new TimeSpanTable(database);
+		timeSpanSummaryController = new TimeSpanSummaryTable(database);
 	}
 
 	public static HourStatistics save(HourStatistics earlier, PlayerStatistics now) throws FatalException, TryAgainException {
@@ -60,9 +64,10 @@ public class HourStatistics implements IUuidAndName {
 
 	public HourStatistics(EithonPlayer player, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException
 	{
-		TimeSpanRow timeSpan = timeSpanController.sumPlayer(player.getUniqueId(), fromTime, toTime);
-		fromDb(timeSpan);
-		this._playerId = player.getUniqueId();
+		final UUID playerId = player.getUniqueId();
+		TimeSpanSummaryRow timeSpan = timeSpanSummaryController.sumPlayer(playerId, fromTime, toTime);
+		fromDb(playerId, timeSpan);
+		this._playerId = playerId;
 		this._hour = fromTime.truncatedTo(ChronoUnit.HOURS);
 		return;
 	}
@@ -110,7 +115,14 @@ public class HourStatistics implements IUuidAndName {
 	}
 
 	private HourStatistics fromDb(TimeSpanRow timeSpan)  {
-		this._playerId = UUID.fromString(timeSpan.player_id);
+		UUID playerId = UUID.fromString(timeSpan.player_id);
+		this._hour = TimeMisc.toLocalDateTime(timeSpan.hour_utc);
+		fromDb(playerId, timeSpan);
+		return this;
+	}
+
+	private HourStatistics fromDb(UUID playerId, TimeSpanSummaryRow timeSpan)  {
+		this._playerId = playerId;
 		this._chatActivities = timeSpan.chat_messages;
 		this._blocksCreated = timeSpan.blocks_created;
 		this._blocksBroken = timeSpan.blocks_broken;

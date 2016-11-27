@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.5.4 (2016-11-27)
+
+* BUG: Bad JDapper usage.
+
 ### 2.5.3 (2016-10-22)
 
 * BUG: SQL syntax error
