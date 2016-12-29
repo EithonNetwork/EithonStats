@@ -4,6 +4,10 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.6 (2016-12-29)
+
+* CHANGE: Bukkit 1.11.
+
 ### 2.5.4 (2016-11-27)
 
 * BUG: Bad JDapper usage.
