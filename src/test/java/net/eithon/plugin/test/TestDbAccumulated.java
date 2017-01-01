@@ -2,7 +2,6 @@ package net.eithon.plugin.test;
 
 import java.math.BigInteger;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -11,8 +10,8 @@ import net.eithon.library.exceptions.FatalException;
 import net.eithon.library.exceptions.TryAgainException;
 import net.eithon.library.mysql.Database;
 import net.eithon.library.mysql.EithonSqlConvert;
-import net.eithon.plugin.stats.db.AccumulatedTable;
 import net.eithon.plugin.stats.db.AccumulatedRow;
+import net.eithon.plugin.stats.db.AccumulatedTable;
 
 import org.junit.Assert;
 import org.junit.Test;

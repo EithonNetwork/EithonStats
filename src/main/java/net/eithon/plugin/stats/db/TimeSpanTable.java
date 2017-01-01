@@ -28,14 +28,4 @@ public class TimeSpanTable extends DbTable<TimeSpanRow> {
 		final Timestamp hour_utc = EithonSqlConvert.toSqlTimestamp(hour);
 		return this.jDapper.readTheOnlyOneWhere("player_id=? AND hour_utc=?", playerId.toString(), hour_utc);
 	}
-
-	public TimeSpanRow sumPlayer(UUID playerId, LocalDateTime fromTime, LocalDateTime toTime) throws FatalException, TryAgainException {
-		String sql = "SELECT" +
-				" SUM(play_time_in_seconds) AS play_time_in_seconds" + 
-				", SUM(chat_messages) AS chat_messages " +
-				", SUM(blocks_created) AS blocks_created " +
-				", SUM(blocks_broken) AS blocks_broken " +
-				" FROM timespan WHERE player_id=? AND hour_utc>=? AND hour_utc<=?'";
-		return this.jDapper.readTheOnlyOne(sql, playerId, fromTime, toTime);
-	}
 }

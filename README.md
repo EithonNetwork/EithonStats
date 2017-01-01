@@ -4,6 +4,18 @@ Keep track of Player statistics
 
 ## Release history
 
+### 2.6 (2016-12-29)
+
+* CHANGE: Bukkit 1.11.
+
+### 2.5.4 (2016-11-27)
+
+* BUG: Bad JDapper usage.
+
+### 2.5.3 (2016-10-22)
+
+* BUG: SQL syntax error
+
 ### 2.5.2 (2016-09-25)
 
 * BUG: Null pointer exception. Introduced safer time conversions.
